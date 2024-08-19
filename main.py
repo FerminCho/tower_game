@@ -17,8 +17,8 @@ screen = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Pygame Window")
 
 all_sprites = pygame.sprite.Group()
-enemy = Enemy(window_height, window_width)
-all_sprites.add(enemy)
+#enemy = Enemy(window_height, window_width)
+#all_sprites.add(enemy)
 enemies = []
 
 tower = Tower(window_height, window_width)
@@ -43,10 +43,10 @@ while running:
     #    Tower.last_shot_time = current_time
     #    bullet.enemy.shots_fired += 1
 
-    #if current_time - last_enemy_time >= spawn_rate and number_of_enemies != 0:
-    #    all_sprites.add(Enemy(window_height, window_width))
-    #    last_enemy_time = current_time
-    #    number_of_enemies -= 1
+    if current_time - last_enemy_time >= spawn_rate and number_of_enemies != 0:
+        all_sprites.add(Enemy(window_height, window_width))
+        last_enemy_time = current_time
+        number_of_enemies -= 1
 
 
     screen.fill((0, 0, 255))  # RGB color (e.g., blue)
