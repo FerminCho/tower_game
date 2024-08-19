@@ -1,21 +1,25 @@
-import math
-import random
 import pygame
+import random
+import math
 
-
-class Enemy():
-    hp = 5
-    full_hp = 5
-    damage = 1
-    radius = 10
-    circle_draw = None
-    shots_fired = 0
-
-
+class Enemy(pygame.sprite.Sprite):
     def __init__(self, window_height, window_width):
+        super().__init__()
         self.window_height = window_height
         self.window_width = window_width
-        self.object_x, self.object_y = self.set_start_position(window_width, window_height)
+        #self.hp = 5
+        #self.full_hp = 5
+        #self.damage = 1
+        #self.radius = 10
+        #self.shots_fired = 0
+        self.width, self.height = 50, 50
+
+        #self.object_x, self.object_y = self.set_start_position(window_width, window_height)
+
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((255, 0, 0))  # Red color
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (50, 50)
 
     def set_start_position(self, window_width, window_height):
         dice = random.randint(0, 3)
@@ -34,23 +38,20 @@ class Enemy():
 
         return object_x, object_y
 
-    def movement(self):
-        target_x = (self.window_width - self.radius) // 2
-        target_y = (self.window_height - self.radius) // 2
+    def update(self):
+        target_x = (self.window_width - self.width) // 2
+        target_y = (self.window_height - self.height) // 2
 
-        distance_x = target_x - self.object_x
-        distance_y = target_y - self.object_y
+        distance_x = target_x - self.rect.x
+        distance_y = target_y - self.rect.y
         distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
-        speed = 1
-        if distance <= speed:
-            return self.object_x, self.object_y
+        if distance == 0:
+            return
 
-        # Calculate the direction vector (unit vector)
+        speed = 1
         direction_x = distance_x / distance
         direction_y = distance_y / distance
 
-        self.object_x += direction_x * speed
-        self.object_y += direction_y * speed
-
-        return (self.object_x, self.object_y)
+        self.rect.x += direction_x * speed
+        self.rect.y += direction_y * speed
