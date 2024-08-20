@@ -7,19 +7,19 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__()
         self.window_height = window_height
         self.window_width = window_width
-        #self.hp = 5
-        #self.full_hp = 5
-        #self.damage = 1
-        #self.radius = 10
-        #self.shots_fired = 0
-        self.width, self.height = 50, 50
+        self.hp = 5
+        self.full_hp = 5
+        self.damage = 1
+        self.radius = 10
+        self.shots_fired = 0
+        self.width, self.height = 25.0, 25.0
 
-        #self.object_x, self.object_y = self.set_start_position(window_width, window_height)
+        self.object_x, self.object_y = self.set_start_position(window_width, window_height)
 
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill((255, 0, 0))  # Red color
         self.rect = self.image.get_rect()
-        self.rect.topleft = (50, 50)
+        self.rect.center = (self.object_x, self.object_y)
 
     def set_start_position(self, window_width, window_height):
         dice = random.randint(0, 3)
@@ -39,19 +39,27 @@ class Enemy(pygame.sprite.Sprite):
         return object_x, object_y
 
     def update(self):
-        target_x = (self.window_width - self.width) // 2
-        target_y = (self.window_height - self.height) // 2
+        # Target position (center of the screen)
+        target_x = self.window_width / 2.0
+        target_y = self.window_height / 2.0
 
-        distance_x = target_x - self.rect.x
-        distance_y = target_y - self.rect.y
+        # Calculate distance
+        distance_x = target_x - self.object_x
+        distance_y = target_y - self.object_y
         distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
-        if distance == 0:
-            return
+        # Speed of movement
+        speed = 1  # Floating-point speed
 
-        speed = 1
-        direction_x = distance_x / distance
-        direction_y = distance_y / distance
+        # Move towards the target using floating-point precision
+        if distance > speed:
+            direction_x = distance_x / distance
+            direction_y = distance_y / distance
 
-        self.rect.x += direction_x * speed
-        self.rect.y += direction_y * speed
+            # Update floating-point position
+            self.object_x += direction_x * speed
+            self.object_y += direction_y * speed
+
+            # Update rect position using integers for rendering
+            self.rect.centerx = int(self.object_x)
+            self.rect.centery = int(self.object_y)

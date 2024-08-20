@@ -17,12 +17,12 @@ screen = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Pygame Window")
 
 all_sprites = pygame.sprite.Group()
-#enemy = Enemy(window_height, window_width)
-#all_sprites.add(enemy)
-enemies = []
+enemy_sprites = pygame.sprite.Group()
+bullet_sprites = pygame.sprite.Group()
 
 tower = Tower(window_height, window_width)
-bullets = []
+all_sprites.add(tower)
+
 
 spawn_rate = 2000  # Fire every 1000 ms (1 second)
 last_enemy_time = pygame.time.get_ticks()  # Track time of last shot
@@ -37,14 +37,17 @@ while running:
 
     current_time = pygame.time.get_ticks()
 
-    #if current_time - Tower.last_shot_time >= Tower.fire_rate and len(enemies) != 0:
-    #    bullet = tower.shoot(enemies)
-    #    bullets.append(bullet)
-    #    Tower.last_shot_time = current_time
-    #    bullet.enemy.shots_fired += 1
+    if current_time - Tower.last_shot_time >= Tower.fire_rate and len(enemy_sprites.sprites()) != 0:
+        bullet = tower.shoot(enemy_sprites.sprites())
+        all_sprites.add(bullet)
+        bullet_sprites.add(bullet)
+        Tower.last_shot_time = current_time
+        bullet.enemy.shots_fired += 1
 
     if current_time - last_enemy_time >= spawn_rate and number_of_enemies != 0:
-        all_sprites.add(Enemy(window_height, window_width))
+        enemy = Enemy(window_height, window_width)
+        all_sprites.add(enemy)
+        enemy_sprites.add(enemy)
         last_enemy_time = current_time
         number_of_enemies -= 1
 
@@ -54,14 +57,16 @@ while running:
     all_sprites.update()
     all_sprites.draw(screen)
 
-
-
-    #for bullet in bullets:
-    #    bullet_circle = pygame.draw.circle(screen, (0, 0, 0), bullet.move_bullet(), bullet.radius)
-
-    #    if bullet.check_collision():
-    #        bullets.remove(bullet)
-    #        bullet.hit()
+    for bullet in bullet_sprites.sprites():
+        if pygame.sprite.spritecollide(bullet, enemy_sprites, False):
+            bullet_sprites.remove(bullet)
+            all_sprites.remove(bullet)
+            bullet.hit()
+    
+    for enemy in enemy_sprites.sprites():
+        if enemy.hp == 0:
+            enemy_sprites.remove(enemy)
+            all_sprites.remove(enemy)
 
 
     # Update the display
