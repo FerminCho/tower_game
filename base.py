@@ -3,7 +3,7 @@ import math
 
 class Base(pygame.sprite.Sprite):
     level = 3
-    radius = 5
+    radius = 50
 
     def __init__(self, window_width, window_height):
         super().__init__()
@@ -12,11 +12,14 @@ class Base(pygame.sprite.Sprite):
 
         self.points = self.corner_points()
         self.image = pygame.Surface(self.get_bounding_rect_size(), pygame.SRCALPHA)
-        pygame.draw.polygon(self.image, (255, 0, 0), self.points)
-        self.rect = self.image.get_rect(center=self.center)
+
+        adjusted_points = [(x - min(x for x, y in self.points), y - min(y for x, y in self.points)) for x, y in self.points]
+        pygame.draw.polygon(self.image, (255, 0, 0), adjusted_points)
+        self.rect = self.image.get_rect(center=(window_width/2, window_height/2))
+        #self.rect.center = (window_width/2, window_height/2)
 
          # Adjust points to be relative to the top-left corner of the surface
-        self.relative_points = [(x - self.rect.x, y - self.rect.y) for x, y in self.points]
+        #self.relative_points = [(x - self.rect.x, y - self.rect.y) for x, y in self.points]
     
     def get_bounding_rect_size(self):
         """Calculate the size of the bounding rectangle that contains the polygon."""
@@ -26,8 +29,9 @@ class Base(pygame.sprite.Sprite):
         max_y = max(y for x, y in self.points)
         return (max_x - min_x, max_y - min_y)
     
-    def check_collision(self, other_sprite):
-        # Override collision check
+    def check_collision(self, points, other_sprite):
+        for x, y in points:
+            pygame.draw.rect()
         return self.rect.colliderect(other_sprite.rect) and self.point_in_polygon(self.relative_points, other_sprite.rect.center)
 
     def corner_points(self):
@@ -42,32 +46,42 @@ class Base(pygame.sprite.Sprite):
             angle_rad = math.radians(i * angle_between_vertices)
 
             # Calculate the x and y coordinates of each vertex
-            x = self.window_width / 2 + self.radius * math.cos(angle_rad)
-            y = self.window_height / 2 + self.radius * math.sin(angle_rad)
+            x = self.radius * math.cos(angle_rad)
+            y = self.radius * math.sin(angle_rad)
 
             # Append the vertex to the points list
             points.append((x, y))
         return points
     
-    @staticmethod
-    def point_in_polygon(poly, point):
-        """Check if a point is inside the polygon."""
-        x, y = point
-        n = len(poly)
-        inside = False
+    # Function to check if a point is inside a rectangle
+    def point_in_rect(self, point, rect):
+        return rect.collidepoint(point)
 
-        p1x, p1y = poly[0]
-        for i in range(n + 1):
-            p2x, p2y = poly[i % n]
-            if y > min(p1y, p2y):
-                if y <= max(p1y, p2y):
-                    if x <= max(p1x, p2x):
-                        if p1y != p2y:
-                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                        if p1x == p2x or x <= xinters:
-                            inside = not inside
-            p1x, p1y = p2x, p2y
+    # Function to check if two lines intersect (for edge-to-edge collision)
+    def lines_intersect(self, p1, p2, q1, q2):
+        # Using determinant and cross product to check for line intersection
+        def ccw(A, B, C):
+            return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
 
-        return inside
+        return ccw(p1, q1, q2) != ccw(p2, q1, q2) and ccw(p1, p2, q1) != ccw(p1, p2, q2)
+    
+    # Function to check polygon collision with sprite
+    def polygon_sprite_collision(self, polygon, sprite_rect):
+        # Check if any point of the polygon is inside the sprite's rect
+        for point in polygon:
+            if self.point_in_rect(point, sprite_rect):
+                return True
+
+        # Check if any edge of the polygon intersects with any edge of the sprite's rect
+        polygon_edges = [(polygon[i], polygon[(i+1) % len(polygon)]) for i in range(len(polygon))]
+        rect_points = [sprite_rect.topleft, sprite_rect.topright, sprite_rect.bottomright, sprite_rect.bottomleft]
+        rect_edges = [(rect_points[i], rect_points[(i+1) % len(rect_points)]) for i in range(4)]
+
+        for poly_edge in polygon_edges:
+            for rect_edge in rect_edges:
+                if self.lines_intersect(poly_edge[0], poly_edge[1], rect_edge[0], rect_edge[1]):
+                    return True
+
+        return False
     
 

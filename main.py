@@ -2,6 +2,7 @@ import pygame
 import sys
 from enemies import Enemy
 from tower import Tower
+from base import Base
 
 
 
@@ -20,8 +21,11 @@ all_sprites = pygame.sprite.Group()
 enemy_sprites = pygame.sprite.Group()
 bullet_sprites = pygame.sprite.Group()
 
+base = Base(window_width, window_height)
+all_sprites.add(base)
+
 tower = Tower(window_height, window_width)
-all_sprites.add(tower)
+#all_sprites.add(tower)
 
 
 spawn_rate = 2000  # Fire every 1000 ms (1 second)
