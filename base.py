@@ -14,12 +14,8 @@ class Base(pygame.sprite.Sprite):
         self.image = pygame.Surface(self.get_bounding_rect_size(), pygame.SRCALPHA)
 
         adjusted_points = [(x - min(x for x, y in self.points), y - min(y for x, y in self.points)) for x, y in self.points]
-        pygame.draw.polygon(self.image, (255, 0, 0), adjusted_points)
+        pygame.draw.polygon(self.image, (0, 255, 0), adjusted_points)
         self.rect = self.image.get_rect(center=(window_width/2, window_height/2))
-        #self.rect.center = (window_width/2, window_height/2)
-
-         # Adjust points to be relative to the top-left corner of the surface
-        #self.relative_points = [(x - self.rect.x, y - self.rect.y) for x, y in self.points]
     
     def get_bounding_rect_size(self):
         """Calculate the size of the bounding rectangle that contains the polygon."""
@@ -28,11 +24,6 @@ class Base(pygame.sprite.Sprite):
         min_y = min(y for x, y in self.points)
         max_y = max(y for x, y in self.points)
         return (max_x - min_x, max_y - min_y)
-    
-    def check_collision(self, points, other_sprite):
-        for x, y in points:
-            pygame.draw.rect()
-        return self.rect.colliderect(other_sprite.rect) and self.point_in_polygon(self.relative_points, other_sprite.rect.center)
 
     def corner_points(self):
         num_sides = self.level
@@ -66,14 +57,14 @@ class Base(pygame.sprite.Sprite):
         return ccw(p1, q1, q2) != ccw(p2, q1, q2) and ccw(p1, p2, q1) != ccw(p1, p2, q2)
     
     # Function to check polygon collision with sprite
-    def polygon_sprite_collision(self, polygon, sprite_rect):
+    def polygon_sprite_collision(self, sprite_rect):
         # Check if any point of the polygon is inside the sprite's rect
-        for point in polygon:
+        for point in self.points:
             if self.point_in_rect(point, sprite_rect):
                 return True
 
         # Check if any edge of the polygon intersects with any edge of the sprite's rect
-        polygon_edges = [(polygon[i], polygon[(i+1) % len(polygon)]) for i in range(len(polygon))]
+        polygon_edges = [(self.points[i], self.points[(i+1) % len(self.points)]) for i in range(len(self.points))]
         rect_points = [sprite_rect.topleft, sprite_rect.topright, sprite_rect.bottomright, sprite_rect.bottomleft]
         rect_edges = [(rect_points[i], rect_points[(i+1) % len(rect_points)]) for i in range(4)]
 

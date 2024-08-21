@@ -5,7 +5,7 @@ import pygame
 class Tower(pygame.sprite.Sprite):
     hp = 10
     dmg = 1
-    fire_rate = 500  # Fire every 1000 ms (1 second)
+    fire_rate = 1000  # Fire every 1000 ms (1 second)
     last_shot_time = pygame.time.get_ticks()  # Track time of last shot
     width = 50
     height = 50

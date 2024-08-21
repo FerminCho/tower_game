@@ -54,6 +54,12 @@ while running:
         enemy_sprites.add(enemy)
         last_enemy_time = current_time
         number_of_enemies -= 1
+    
+    for enemy in enemy_sprites.sprites():
+        if base.polygon_sprite_collision(enemy.rect):
+            print('hit')
+            all_sprites.remove(enemy)
+            enemy_sprites.remove(enemy)
 
 
     screen.fill((0, 0, 255))  # RGB color (e.g., blue)
