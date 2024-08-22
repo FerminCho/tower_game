@@ -87,3 +87,6 @@ class Bullet(pygame.sprite.Sprite):
 
     def hit(self):
         self.enemy.hp = self.enemy.hp - self.bullet_damage
+    
+    def check_collision(self):
+        return self.rect.colliderect(self.enemy)
