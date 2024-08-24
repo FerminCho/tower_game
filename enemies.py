@@ -7,36 +7,15 @@ from kivy.clock import Clock
 from kivy.animation import Animation
 import random
 import math
+from movement import MovingObject
 
-class Enemy(Widget):
+class Enemy(MovingObject):
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self.size = (25, 25)
-
-        with self.canvas:
-            # Set the color and create a rectangle representing the enemy
-            Color(1, 0, 0, 1)  # Red color
-            self.rect = Rectangle(pos=self.set_start_position(), size=self.size)
-
-        # Schedule the update method to move the enemy
-        #Clock.schedule_interval(self.update, 1.0 / 60.0)
-        self.start_animation()
-
-    def start_animation(self):
-        # Calculate the center position of the screen
-        center_x = (Window.width - self.width) / 2
-        center_y = (Window.height - self.height) / 2
-
-        # Create the animation to move the rectangle to the center
-        animation = Animation(x=center_x, y=center_y, duration=5)  # Move to the center in x seconds
-        animation.bind(on_progress=self.update_rectangle)
-
-        # Start the animation
-        animation.start(self)
-
-    def update_rectangle(self, animation, widget, progress):
-        # Update the rectangle position during the animation
-        self.rect.pos = self.pos
+        target_pos = ((Window.width - self.width) / 2, (Window.height - self.height) / 2)
+        self.set_start_position()
+        super().__init__(start_pos=self.pos, target_pos=target_pos, color=(1, 0, 0, 1), size=(10, 10), speed=300)
 
 
     def set_start_position(self):
