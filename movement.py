@@ -6,7 +6,7 @@ from kivy.clock import Clock
 import math
 
 class MovingObject(Widget):
-    def __init__(self, start_pos, target_pos, color, size=(50, 50), speed=200, **kwargs):
+    def __init__(self, start_pos, target_pos, color, size, speed, **kwargs):
         super().__init__(**kwargs)
         
         # Ensure start_pos and target_pos are tuples or lists
