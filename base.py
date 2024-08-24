@@ -20,7 +20,3 @@ class Base(pygame.sprite.Sprite):
     def check_collision(self, enemy_sprite):
         return self.rect.colliderect(enemy_sprite.rect)
     
-
-
-    
-

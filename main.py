@@ -5,6 +5,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Rectangle, Color
 from kivy.clock import Clock
 from enemies import Enemy
+from tower import Bullet
 
 Window.size = (800, 600)
 
@@ -12,8 +13,14 @@ class MyGame(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.enemy = Enemy()
-        self.add_widget(self.enemy)
+        self.rectangles = [Enemy(), Enemy()]
+
+        for rect in self.rectangles:
+            self.add_widget(rect)
+        
+        bullet = Bullet(self.rectangles)
+        self.add_widget(bullet)
+        
         
 class MyApp(App):
     def build(self):
