@@ -17,20 +17,19 @@ class MyGame(FloatLayout):
         self.bullets = []
         
         self.spawn_enemy()
-        #self.spawn_bullet()
 
         Clock.schedule_interval(self.update, 1/60)
     
     def spawn_enemy(self):
         # Create multiple enemies
-        for enemy in range(3):
-            enemy = Enemy()
+        for _ in range(3):
+            enemy = Enemy()  # Create an enemy instance
             self.enemies.append(enemy)
             self.add_widget(enemy)
     
     def spawn_bullet(self):
-        # Create a bullet for each enemy
-        for bullet in range(1):
+        # Create a bullet aimed at the closest enemy
+        if self.enemies:  # Only spawn bullets if there are enemies
             bullet = Bullet(rectangles=self.enemies)
             self.bullets.append(bullet)
             self.add_widget(bullet)
@@ -39,14 +38,13 @@ class MyGame(FloatLayout):
         for enemy in self.enemies:
             enemy.update(dt)
         
-        #for bullet in self.bullets:
-        #    bullet.update(dt)
-        #    
-        #    for enemy in self.enemies:
-        #        if bullet.collide_widget(enemy):
-        #            #self.on_collision(bullet, enemy)
-        #            print("hit")
-        #            break
+        for bullet in self.bullets:
+            bullet.update(dt)
+            
+            for enemy in self.enemies:
+                if bullet.collide_widget(enemy):
+                    self.on_collision(bullet, enemy)
+                    break
 
     def on_collision(self, bullet, enemy):
         print("Collision detected!")
