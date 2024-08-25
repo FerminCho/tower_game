@@ -5,26 +5,38 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 import random
 import math
-from movement import MovingObject
 
-class Bullet(MovingObject):
+class Bullet(Widget):
     def __init__(self, rectangles, **kwargs):
+        super().__init__(**kwargs)
         # Calculate target based on closest rectangle
         self.center_pos = (Window.width / 2, Window.height / 2)
+        self.pos = self.center_pos
         self.rectangles = rectangles
-        self.target_rect = self.find_closest_rectangle()
+        self.target_rect = None
+        self.enemy = None
+        self.find_closest_rectangle()
+        self.size = (25, 25)
+
+        with self.canvas:
+            Color(1, 0, 0, 1)  # Set the color to green
+            self.rect = Rectangle(pos=self.pos, size=self.size)
         
-        target_pos = (self.target_rect.pos[0] + self.target_rect.size[0] / 2,
-                      self.target_rect.pos[1] + self.target_rect.size[1] / 2)
-        
-        super().__init__(start_pos=self.center_pos, target_pos=target_pos, color=(1, 0, 0, 1), size=(10, 10), speed=300)
+        # Calculate velocity after setting the start position
+        self.velocity = self.calculate_velocity()
+
+        # Schedule the update with a slight delay
+        Clock.schedule_once(self.start_moving, 0.1)
     
     def find_closest_rectangle(self):
         min_distance = float('inf')
         closest_rectangle = None
+        closest_enemy = None
 
-        for rect in self.rectangles:
+        for enemy in self.rectangles:
             # Calculate the center of the rectangle
+            rect = enemy.rect
+
             rect_center = (
                 rect.pos[0] + rect.size[0] / 2,
                 rect.pos[1] + rect.size[1] / 2
@@ -39,7 +51,35 @@ class Bullet(MovingObject):
             if distance < min_distance:
                 min_distance = distance
                 closest_rectangle = rect
+                closest_enemy = enemy
 
-        return closest_rectangle
+        self.target_rect = closest_rectangle
+        self.enemy = closest_enemy
 
+    def calculate_velocity(self):
+        direction_x = self.target_rect.pos[0] - self.pos[0]
+        direction_y = self.target_rect.pos[1] - self.pos[1]
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+
+        speed = 200  # Pixels per second
+        velocity_x = (direction_x / distance) * speed
+        velocity_y = (direction_y / distance) * speed
+
+        return velocity_x, velocity_y
+
+    def start_moving(self, dt):
+        Clock.schedule_interval(self.update, 1/60)
+
+    def update(self, dt):
+        new_x = self.pos[0] + self.velocity[0] * dt
+        new_y = self.pos[1] + self.velocity[1] * dt
+        self.pos = (new_x, new_y)
+        self.rect.pos = self.pos
+
+        # Stop moving if the rectangle reaches the center
+        if self.check_collision():
+            Clock.unschedule(self.update)
+    
+    def check_collision(self):
+        return self.rect.pos.collide_widget(self.enemy)
     

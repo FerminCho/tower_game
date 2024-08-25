@@ -14,39 +14,18 @@ class MyGame(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.enemies = []
-        self.bullets = []
-        
-        self.spawn_enemy()
+        enemy = Enemy()
+        self.add_widget(enemy)
+        self.enemies.append(enemy)
 
-        Clock.schedule_interval(self.update, 1/60)
-    
-    def spawn_enemy(self):
-        # Create multiple enemies
-        print("enemy")
-        for _ in range(3):
-            enemy = Enemy()  # Create an enemy instance
-            self.enemies.append(enemy)
-            self.add_widget(enemy)
-    
-    def spawn_bullet(self):
-        # Create a bullet aimed at the closest enemy
-        print("bullet")
-        if self.enemies:  # Only spawn bullets if there are enemies
-            bullet = Bullet(rectangles=self.enemies)
-            self.bullets.append(bullet)
-            self.add_widget(bullet)
+        bullet = Bullet(self.enemies)
+        self.add_widget(bullet)
 
-    def update(self, dt):
-        for enemy in self.enemies:
-            enemy.update(dt)
-        
-        #for bullet in self.bullets:
-        #    bullet.update(dt)
-        #    
-        #    for enemy in self.enemies:
-        #        if bullet.collide_widget(enemy):
-        #            self.on_collision(bullet, enemy)
-        #            break
+        #Clock.schedule_interval(self.update, 1/60)  # Call update 60 times per second
+    
+    #def update(self, dt):
+    #    for enemy in self.enemies:
+    #        enemy.update(dt)
 
     def on_collision(self, bullet, enemy):
         print("Collision detected!")
