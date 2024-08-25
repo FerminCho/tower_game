@@ -10,23 +10,23 @@ import math
 from movement import MovingObject
 
 class Enemy(MovingObject):
-
     def __init__(self, **kwargs):
-        self.size = (25, 25)
-        target_pos = ((Window.width - self.width) / 2, (Window.height - self.height) / 2)
-        self.set_start_position()
-        super().__init__(start_pos=self.pos, target_pos=target_pos, color=(1, 0, 0, 1), size=(10, 10), speed=300)
-
+        self.size = (25, 25)  # Correct size assignment
+        self.set_start_position()  # Initialize position
+        target_pos = ((Window.width - self.size[0]) / 2, (Window.height - self.size[1]) / 2)
+        
+        # Initialize the superclass with correct parameters
+        super().__init__(start_pos=self.pos, target_pos=target_pos, color=(1, 0, 0, 1), size=self.size, speed=300)
 
     def set_start_position(self):
         # Generate a random starting position on one of the screen's edges
         edge = random.choice(['left', 'right', 'top', 'bottom'])
 
         if edge == 'left':
-            self.pos = (-self.width, random.randint(0, Window.height - self.height))
+            self.pos = (-self.size[0], random.randint(0, Window.height - self.size[1]))
         elif edge == 'right':
-            self.pos = (Window.width, random.randint(0, Window.height - self.height))
+            self.pos = (Window.width, random.randint(0, Window.height - self.size[1]))
         elif edge == 'top':
-            self.pos = (random.randint(0, Window.width - self.width), Window.height)
+            self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
         elif edge == 'bottom':
-            self.pos = (random.randint(0, Window.width - self.width), -self.height) 
+            self.pos = (random.randint(0, Window.width - self.size[0]), -self.size[1])

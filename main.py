@@ -22,6 +22,7 @@ class MyGame(FloatLayout):
     
     def spawn_enemy(self):
         # Create multiple enemies
+        print("enemy")
         for _ in range(3):
             enemy = Enemy()  # Create an enemy instance
             self.enemies.append(enemy)
@@ -29,6 +30,7 @@ class MyGame(FloatLayout):
     
     def spawn_bullet(self):
         # Create a bullet aimed at the closest enemy
+        print("bullet")
         if self.enemies:  # Only spawn bullets if there are enemies
             bullet = Bullet(rectangles=self.enemies)
             self.bullets.append(bullet)
@@ -38,13 +40,13 @@ class MyGame(FloatLayout):
         for enemy in self.enemies:
             enemy.update(dt)
         
-        for bullet in self.bullets:
-            bullet.update(dt)
-            
-            for enemy in self.enemies:
-                if bullet.collide_widget(enemy):
-                    self.on_collision(bullet, enemy)
-                    break
+        #for bullet in self.bullets:
+        #    bullet.update(dt)
+        #    
+        #    for enemy in self.enemies:
+        #        if bullet.collide_widget(enemy):
+        #            self.on_collision(bullet, enemy)
+        #            break
 
     def on_collision(self, bullet, enemy):
         print("Collision detected!")
