@@ -12,7 +12,7 @@ class Enemy(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.size = (25, 25)  # Size of the rectangle
+        self.rect_size = (25, 25)  # Size of the rectangle
         self.target_pos = (Window.width / 2, Window.height / 2)  # Center of the screen
 
         # Set the start position first
@@ -21,13 +21,13 @@ class Enemy(Widget):
         # Draw the rectangle at the start position
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.pos, size=self.size)
+            self.rect = Rectangle(pos=self.pos, size=self.rect_size)
 
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()
 
         # Schedule the update with a slight delay
-        Clock.schedule_once(self.start_moving, 0.1)
+        #Clock.schedule_once(self.start_moving, 0.1)
 
     def set_start_position(self):
         edge = random.choice(['left', 'right', 'top', 'bottom'])

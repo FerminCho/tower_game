@@ -13,20 +13,21 @@ class Bullet(Widget):
         self.center_pos = (Window.width / 2, Window.height / 2)
         self.pos = self.center_pos
         self.rectangles = rectangles
+
         self.target_rect = None
         self.enemy = None
         self.find_closest_rectangle()
-        self.size = (25, 25)
+        self.rect_size = (25, 25)
 
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.pos, size=self.size)
+            self.rect = Rectangle(pos=self.pos, size=self.rect_size)
         
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()
 
         # Schedule the update with a slight delay
-        Clock.schedule_once(self.start_moving, 0.1)
+        #Clock.schedule_once(self.start_moving, 0.1)
     
     def find_closest_rectangle(self):
         min_distance = float('inf')
@@ -81,5 +82,24 @@ class Bullet(Widget):
             Clock.unschedule(self.update)
     
     def check_collision(self):
-        return self.rect.pos.collide_widget(self.enemy)
+        # Get the center of the bullet and enemy
+        bullet_center = (
+            self.pos[0] + self.rect_size[0] / 2,
+            self.pos[1] + self.rect_size[1] / 2
+        )
+        enemy_center = (
+            self.enemy.pos[0] + self.enemy.rect_size[0] / 2,
+            self.enemy.pos[1] + self.enemy.rect_size[1] / 2
+        )
+
+        # Calculate the distance between the bullet and enemy
+        distance = math.sqrt(
+            (bullet_center[0] - enemy_center[0]) ** 2 +
+            (bullet_center[1] - enemy_center[1]) ** 2
+        )
+
+        # Check if the distance is less than the sum of the radii (or half the widths)
+        if distance < (self.rect_size[0] / 2 + self.enemy.rect_size[0] / 2):
+            return True
+        return False
     
