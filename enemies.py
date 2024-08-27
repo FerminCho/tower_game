@@ -11,6 +11,7 @@ import math
 class Enemy(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.hp = 2
 
         self.rect_size = (25, 25)  # Size of the rectangle
         self.target_pos = (Window.width / 2, Window.height / 2)  # Center of the screen

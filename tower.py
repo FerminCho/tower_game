@@ -9,7 +9,8 @@ import math
 class Bullet(Widget):
     def __init__(self, rectangles, **kwargs):
         super().__init__(**kwargs)
-        # Calculate target based on closest rectangle
+        self.damage = 1
+
         self.center_pos = (Window.width / 2, Window.height / 2)
         self.pos = self.center_pos
         self.rectangles = rectangles
