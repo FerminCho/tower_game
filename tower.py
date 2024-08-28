@@ -1,10 +1,54 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from kivy.graphics import Rectangle, Ellipse, Color
 from kivy.core.window import Window
 from kivy.clock import Clock
 import random
 import math
+
+class Tower(Widget):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.hp = 10
+        self.rect_size = (100, 100)
+
+        self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
+
+        with self.canvas:
+            Color(0, 1, 0, 1)  # Set the color to green
+            self.rect = Rectangle(pos=self.rect_pos, size=self.rect_size)
+        
+        # Create a button
+        button = Button(text='',
+                        size=(20, 20),
+                        pos=(self.rect.pos[0] + 10, self.rect.pos[1] + 10),
+                        background_color = (1, 0, 0, 1),
+                        background_normal = '')
+        
+        # Add button to the widget
+        self.add_widget(button)
+    
+    def detect_collision(self, enemy):
+        bullet_center = (
+            self.pos[0] + self.rect_size[0] / 2,
+            self.pos[1] + self.rect_size[1] / 2
+        )
+        enemy_center = (
+            enemy.pos[0] + enemy.rect_size[0] / 2,
+            enemy.pos[1] + enemy.rect_size[1] / 2
+        )
+
+        # Calculate the distance between the tower and enemy
+        distance = math.sqrt(
+            (bullet_center[0] - enemy_center[0]) ** 2 +
+            (bullet_center[1] - enemy_center[1]) ** 2
+        )
+
+        # Check if the distance is less than the sum of the radii (or half the widths)
+        if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
+            self.hp -= enemy.damage
+            self.parent.remove_widget(enemy)
 
 class Bullet(Widget):
     def __init__(self, rectangles, **kwargs):
@@ -26,15 +70,12 @@ class Bullet(Widget):
         
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()
-
-        # Schedule the update with a slight delay
-        #Clock.schedule_once(self.start_moving, 0.1)
     
     def find_closest_rectangle(self):
         min_distance = float('inf')
         closest_rectangle = None
         closest_enemy = None
-
+        
         for enemy in self.rectangles:
             # Calculate the center of the rectangle
             rect = enemy.rect
