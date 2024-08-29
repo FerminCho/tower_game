@@ -7,7 +7,7 @@ from kivy.clock import Clock
 import random
 import math
 
-class Tower(Widget):
+class Castle(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.hp = 10
@@ -30,7 +30,7 @@ class Tower(Widget):
         self.add_widget(button)
     
     def detect_collision(self, enemy):
-        bullet_center = (
+        castle_center = (
             self.pos[0] + self.rect_size[0] / 2,
             self.pos[1] + self.rect_size[1] / 2
         )
@@ -41,8 +41,8 @@ class Tower(Widget):
 
         # Calculate the distance between the tower and enemy
         distance = math.sqrt(
-            (bullet_center[0] - enemy_center[0]) ** 2 +
-            (bullet_center[1] - enemy_center[1]) ** 2
+            (castle_center[0] - enemy_center[0]) ** 2 +
+            (castle_center[1] - enemy_center[1]) ** 2
         )
 
         # Check if the distance is less than the sum of the radii (or half the widths)

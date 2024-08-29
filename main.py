@@ -1,35 +1,58 @@
 from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.graphics import Rectangle, Color
 from kivy.clock import Clock
 from enemies import Enemy
 from tower import Bullet
-from tower import Tower
+from castle import Castle
 import random
 import math
 
 Window.size = (800, 600)
 
-class MyGame(Screen):
+class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = FloatLayout()
         self.enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
-        self.tower = Tower()
-        self.add_widget(self.tower)
+        self.caslte = Castle()
+        self.add_widget(self.caslte)
 
+        # Create the start button
+        self.start_button_size = (200, 100)
+        self.start_button = Button(text="Start Game",
+                                   size_hint=(None, None),
+                                   size=self.start_button_size,
+                                   pos=(Window.width / 2 - self.start_button_size[0] / 2, Window.height / 4))
+        self.start_button.bind(on_press=self.start_game)
+        self.add_widget(self.start_button)
+        print(self.start_button.pos)
+
+    def start_game(self, instance):
+        self.start_button.opacity = 0
+        self.start_button.disabled = True    
         Clock.schedule_once(self.start, 0.01)
 
     
     def start(self, dt):
         Clock.schedule_interval(self.update, 1/60)
-        Clock.schedule_interval(self.spawn_enemy, 2)
-        Clock.schedule_interval(self.fire_bullet, 2)
+        Clock.schedule_interval(self.spawn_enemy, 3)
+        Clock.schedule_interval(self.fire_bullet, 1)
+        Clock.schedule_once(self.end_round, 20)
+
+    def end_round(self, dt):
+        Clock.unschedule(self.update)
+        Clock.unschedule(self.spawn_enemy)
+        Clock.unschedule(self.fire_bullet)
+        self.start_button.opacity = 1
+        self.start_button.disabled = False
+
 
     def spawn_enemy(self, dt):
         enemy = Enemy()
@@ -60,7 +83,11 @@ class MyGame(Screen):
 
         for enemy in self.enemies:
             enemy.update(dt)
-            self.tower.detect_collision(enemy)
+            self.caslte.detect_collision(enemy)
+        
+        if dt > 5:
+            self.end_round()
+            return
 
     def check_collision(self, bullet, enemy):
         # Get the center of the bullet and enemy
@@ -92,12 +119,17 @@ class MyGame(Screen):
             self.enemies.remove(enemy)
             self.remove_widget(enemy)
         else:
-            enemy.hp -= bullet.damage  
+            enemy.hp -= bullet.damage
+
+class StartWindow(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        layout = FloatLayout()
         
 class MyApp(App):
     def build(self):
         sm = ScreenManager()
-        sm.add_widget(MyGame(name = 'main'))
+        sm.add_widget(PlayWindow(name = 'Play'))
         return sm
         #return MyGame()
 
