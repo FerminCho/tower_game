@@ -45,7 +45,7 @@ class Castle(Widget):
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
-            button.bind(on_press=lambda btn, t=tower: self.choose_tower(t))
+            button.bind(on_press=lambda btn, t=tower: self.create_tower(t))
             grid_layout.add_widget(button)
         
         popup_content.add_widget(grid_layout)
@@ -61,8 +61,9 @@ class Castle(Widget):
         # Open the popup
         self.popup.open()
     
-    def find_tower(name):
-        match name:
+    def create_tower(self, tower):
+        tower_pos = self.tower_selection.pos
+        match tower:
             case 0:
                 return
             case 1:
