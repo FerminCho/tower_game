@@ -9,6 +9,7 @@ from kivy.clock import Clock
 from enemies import Enemy
 from tower import Bullet
 from castle import Castle
+from game_data import GameData
 import random
 import math
 

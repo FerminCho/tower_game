@@ -7,6 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from game_data import GameData
 import math
 
 class Castle(Widget):
@@ -14,6 +15,7 @@ class Castle(Widget):
         super().__init__(**kwargs)
         self.hp = 10
         self.rect_size = (100, 100)
+        self.game_data = GameData()
 
         self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
 
@@ -39,10 +41,7 @@ class Castle(Widget):
         grid_layout = GridLayout(cols = 1, spacing = 10, size_hint_y = None)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
 
-        towers = [
-            {'name': 'Tower1'},
-            {'name': 'Tower2'}
-        ]
+        towers = self.game_data.get_unlocked_towers()
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
@@ -61,6 +60,13 @@ class Castle(Widget):
 
         # Open the popup
         self.popup.open()
+    
+    def find_tower(name):
+        match name:
+            case 0:
+                return
+            case 1:
+                return
     
     def detect_collision(self, enemy):
         castle_center = (

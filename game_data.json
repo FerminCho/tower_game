@@ -1,0 +1,14 @@
+{
+    "unlocked_towers": [
+        {
+            "name": "Basic Tower",
+            "type": "cannon",
+            "level": 1
+        },
+        {
+            "name": "Sniper Tower",
+            "type": "sniper",
+            "level": 1
+        }
+    ]
+}

@@ -28,9 +28,6 @@ class Enemy(Widget):
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()
 
-        # Schedule the update with a slight delay
-        #Clock.schedule_once(self.start_moving, 0.1)
-
     def set_start_position(self):
         edge = random.choice(['left', 'right', 'top', 'bottom'])
 
