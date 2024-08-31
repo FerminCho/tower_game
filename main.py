@@ -24,6 +24,7 @@ class PlayWindow(Screen):
         self.bullets_to_kill = {}
         self.caslte = Castle()
         self.add_widget(self.caslte)
+        self.towers = self.caslte.towers_in_use
 
         # Create the start button
         self.start_button_size = (200, 100)
@@ -33,7 +34,6 @@ class PlayWindow(Screen):
                                    pos=(Window.width / 2 - self.start_button_size[0] / 2, Window.height / 4))
         self.start_button.bind(on_press=self.start_game)
         self.add_widget(self.start_button)
-        print(self.start_button.pos)
 
     def start_game(self, instance):
         self.start_button.opacity = 0
@@ -44,8 +44,9 @@ class PlayWindow(Screen):
     def start(self, dt):
         Clock.schedule_interval(self.update, 1/60)
         Clock.schedule_interval(self.spawn_enemy, 3)
-        Clock.schedule_interval(self.fire_bullet, 1)
         Clock.schedule_once(self.end_round, 20)
+        for tower in self.towers:
+            Clock.schedule_interval(self.fire_bullet(tower=tower), tower.fire_rate)
 
     def end_round(self, dt):
         Clock.unschedule(self.update)
@@ -61,11 +62,11 @@ class PlayWindow(Screen):
         self.bullets_to_kill[enemy] = enemy.hp
         self.add_widget(enemy)
     
-    def fire_bullet(self, dt):
+    def fire_bullet(self, dt, tower):
         target_list = [enemy for enemy in self.bullets_to_kill]
 
         if bool(self.bullets_to_kill):  # Only fire if there are enemies
-            bullet = Bullet(rectangles=target_list)
+            bullet = tower.create_bullet(self.enemies)
             self.bullets.append(bullet)
             self.add_widget(bullet)
             self.bullets_to_kill[bullet.enemy] -= bullet.damage

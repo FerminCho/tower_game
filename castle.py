@@ -8,6 +8,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from game_data import GameData
+from tower import Tower
 import math
 
 class Castle(Widget):
@@ -16,6 +17,7 @@ class Castle(Widget):
         self.hp = 10
         self.rect_size = (100, 100)
         self.game_data = GameData()
+        self.towers_in_use = []
 
         self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
 
@@ -24,16 +26,16 @@ class Castle(Widget):
             self.rect = Rectangle(pos=self.rect_pos, size=self.rect_size)
         
         # Create a button
-        self.tower_selection = Button(text='',
+        self.tower_select_button = Button(text='',
                         size=(20, 20),
                         pos=(self.rect.pos[0] + 10, self.rect.pos[1] + 10),
                         background_color = (1, 0, 0, 1),
                         background_normal = '')
         
-        self.tower_selection.bind(on_press=self.towers)
+        self.tower_select_button.bind(on_press=self.towers)
         
         # Add button to the widget
-        self.add_widget(self.tower_selection)
+        self.add_widget(self.tower_select_button)
     
     def towers(self, instance):
         # Create content for the popup
@@ -61,9 +63,13 @@ class Castle(Widget):
         # Open the popup
         self.popup.open()
     
-    def create_tower(self, tower):
-        tower_pos = self.tower_selection.pos
-        match tower:
+    def create_tower(self, tower_info):
+        tower_pos = self.tower_select_button.pos
+        create_tower = Tower(fire_rate=1, damage=1, level=1, tower_pos=tower_pos)
+        self.tower_select_button.opacity = 0
+        self.towers_in_use.append(create_tower)
+        self.add_widget(create_tower)
+        match tower_info:
             case 0:
                 return
             case 1:
