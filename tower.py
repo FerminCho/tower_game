@@ -23,7 +23,7 @@ class Tower(Widget):
             self.rect = Rectangle(pos=self.tower_pos, size=self.rect_size)
 
     def create_bullet(self, enemies):
-        bullet_pos = self.tower_pos + self.rect_size[0] / 2 + self.rect_size[1] / 2
+        bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
         bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos)
         return bullet
 
@@ -34,7 +34,7 @@ class Bullet(Widget):
         self.fire_rate = fire_rate
 
         self.center_pos = (Window.width / 2, Window.height / 2)
-        self.pos = self.center_pos
+        self.bullet_pos = bullet_pos
         self.rectangles = enemies
 
         self.target_rect = None
@@ -44,7 +44,7 @@ class Bullet(Widget):
 
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.pos, size=self.rect_size)
+            self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
         
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()
@@ -78,8 +78,8 @@ class Bullet(Widget):
         self.enemy = closest_enemy
 
     def calculate_velocity(self):
-        direction_x = self.target_rect.pos[0] - self.pos[0]
-        direction_y = self.target_rect.pos[1] - self.pos[1]
+        direction_x = self.target_rect.pos[0] - self.bullet_pos[0]
+        direction_y = self.target_rect.pos[1] - self.bullet_pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
 
         speed = 200  # Pixels per second
@@ -89,10 +89,10 @@ class Bullet(Widget):
         return velocity_x, velocity_y
 
     def update(self, dt):
-        new_x = self.pos[0] + self.velocity[0] * dt
-        new_y = self.pos[1] + self.velocity[1] * dt
-        self.pos = (new_x, new_y)
-        self.rect.pos = self.pos
+        new_x = self.bullet_pos[0] + self.velocity[0] * dt
+        new_y = self.bullet_pos[1] + self.velocity[1] * dt
+        self.bullet_pos = (new_x, new_y)
+        self.rect.pos = self.bullet_pos
 
         # Stop moving if the rectangle reaches the center
         if self.check_collision():
@@ -101,8 +101,8 @@ class Bullet(Widget):
     def check_collision(self):
         # Get the center of the bullet and enemy
         bullet_center = (
-            self.pos[0] + self.rect_size[0] / 2,
-            self.pos[1] + self.rect_size[1] / 2
+            self.bullet_pos[0] + self.rect_size[0] / 2,
+            self.bullet_pos[1] + self.rect_size[1] / 2
         )
         enemy_center = (
             self.enemy.pos[0] + self.enemy.rect_size[0] / 2,

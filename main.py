@@ -46,7 +46,7 @@ class PlayWindow(Screen):
         Clock.schedule_interval(self.spawn_enemy, 3)
         Clock.schedule_once(self.end_round, 20)
         for tower in self.towers:
-            Clock.schedule_interval(self.fire_bullet(tower=tower), tower.fire_rate)
+            Clock.schedule_interval(lambda dt, t=tower: self.fire_bullet(dt, t), tower.fire_rate)
 
     def end_round(self, dt):
         Clock.unschedule(self.update)
@@ -94,8 +94,8 @@ class PlayWindow(Screen):
     def check_collision(self, bullet, enemy):
         # Get the center of the bullet and enemy
         bullet_center = (
-            bullet.pos[0] + bullet.rect_size[0] / 2,
-            bullet.pos[1] + bullet.rect_size[1] / 2
+            bullet.bullet_pos[0] + bullet.rect_size[0] / 2,
+            bullet.bullet_pos[1] + bullet.rect_size[1] / 2
         )
         enemy_center = (
             enemy.pos[0] + enemy.rect_size[0] / 2,
