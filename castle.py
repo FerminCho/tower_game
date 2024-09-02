@@ -44,26 +44,32 @@ class Castle(Widget):
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
         popup_size = (300, 300)
 
-        towers = self.game_data.get_unlocked_towers()
-        choosen_towers = BoxLayout(orientation='horizontal', height=40)
+        #towers = self.game_data.get_unlocked_towers()
+        towers = [{'name': 'Tower 1'}, {'name': 'Tower 2'}, {'name': 'Tower 3'}]
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
             button.bind(on_press=lambda btn, t=tower: self.create_tower(t))
             grid_layout.add_widget(button)
-
-            widget = Widget()
-            with widget.canvas:
-                Color(0, 1, 0, 1)  # Green color
-                selected_tower_rect = Rectangle(size=(25, 25))
-            
-            choosen_towers.add_widget(widget)
+        
         popup_content.add_widget(grid_layout)
+
+        # Create a BoxLayout at the bottom with horizontal alignment
+        bottom_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=50, padding=[10, 5])
+
+        # Add rectangles to the BoxLayout
+        for i in range(4):
+            rect_widget = Widget()
+            with rect_widget.canvas:
+                Color(0, 1, 0, 1)  # Green color
+                rect = Rectangle(size=(40, 25), pos=(rect_widget.pos))
+            bottom_layout.add_widget(rect_widget)
+
+        popup_content.add_widget(bottom_layout)    
 
         close_button = Button(text="Close", size_hint_y=None, height=50)
         close_button.bind(on_press=lambda *args: self.popup.dismiss())
         popup_content.add_widget(close_button)
-        popup_content.add_widget(choosen_towers)
 
         # Create the popup
         self.popup = Popup(title="Select a Tower", content=popup_content,
