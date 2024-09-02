@@ -14,8 +14,8 @@ class Tower(Widget):
         self.level = level
         self.damage = damage
         self.name = None
-        self.tower_pos = tower_pos
-        self.rect_size = (25, 25) 
+        self.rect_size = (25, 25)
+        self.tower_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 ) 
 
         # Draw the rectangle at the start position
         with self.canvas:
@@ -44,7 +44,7 @@ class Bullet(Widget):
 
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
+            self.rect = Rectangle(pos=self.center_pos, size=self.rect_size)
         
         # Calculate velocity after setting the start position
         self.velocity = self.calculate_velocity()

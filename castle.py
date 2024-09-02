@@ -27,38 +27,47 @@ class Castle(Widget):
         
         # Create a button
         self.tower_select_button = Button(text='',
-                        size=(20, 20),
-                        pos=(self.rect.pos[0] + 10, self.rect.pos[1] + 10),
-                        background_color = (1, 0, 0, 1),
-                        background_normal = '')
+                        size=self.rect_size,
+                        pos=self.rect_pos,
+                        background_normal = '',
+                        opacity = 0)
         
-        self.tower_select_button.bind(on_press=self.towers)
+        self.tower_select_button.bind(on_press=self.tower_selection)
         
         # Add button to the widget
         self.add_widget(self.tower_select_button)
     
-    def towers(self, instance):
+    def tower_selection(self, instance):
         # Create content for the popup
         popup_content = BoxLayout(orientation='vertical')
         grid_layout = GridLayout(cols = 1, spacing = 10, size_hint_y = None)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
+        popup_size = (300, 300)
 
         towers = self.game_data.get_unlocked_towers()
+        choosen_towers = BoxLayout(orientation='horizontal', height=40)
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
             button.bind(on_press=lambda btn, t=tower: self.create_tower(t))
             grid_layout.add_widget(button)
-        
+
+            widget = Widget()
+            with widget.canvas:
+                Color(0, 1, 0, 1)  # Green color
+                selected_tower_rect = Rectangle(size=(25, 25))
+            
+            choosen_towers.add_widget(widget)
         popup_content.add_widget(grid_layout)
 
         close_button = Button(text="Close", size_hint_y=None, height=50)
         close_button.bind(on_press=lambda *args: self.popup.dismiss())
         popup_content.add_widget(close_button)
+        popup_content.add_widget(choosen_towers)
 
         # Create the popup
         self.popup = Popup(title="Select a Tower", content=popup_content,
-                           size_hint=(None, None), size=(300, 300))
+                           size_hint=(None, None), size=popup_size)
 
         # Open the popup
         self.popup.open()
