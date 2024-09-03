@@ -8,7 +8,7 @@ import random
 import math
 
 class Tower(Widget):
-    def __init__(self, fire_rate, damage, level, tower_pos, **kwargs):
+    def __init__(self, fire_rate, damage, level, **kwargs):
         super().__init__(**kwargs)
         self.fire_rate = fire_rate
         self.level = level

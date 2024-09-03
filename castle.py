@@ -7,6 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.clock import Clock
 from game_data import GameData
 from tower import Tower
 import math
@@ -17,7 +18,7 @@ class Castle(Widget):
         self.hp = 10
         self.rect_size = (100, 100)
         self.game_data = GameData()
-        self.towers_in_use = []
+        self.towers_in_use = {1 : None, 2 : None, 3 : None, 4 : None}
 
         self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
 
@@ -55,17 +56,32 @@ class Castle(Widget):
         popup_content.add_widget(grid_layout)
 
         # Create a BoxLayout at the bottom with horizontal alignment
-        bottom_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=None, height=50, padding=[10, 5])
+        padding_x = 10
+        num_buttons = 4
+        button_width = 25
+        spacing = (popup_size[0] - 25 * 4 - padding_x * 2) / 3
+        bottom_layout_width = padding_x * 2 + button_width * num_buttons + spacing * (num_buttons - 1)
+        bottom_layout = BoxLayout(orientation='horizontal', 
+                                spacing=spacing, 
+                                size_hint=(1, None), 
+                                height = 50, 
+                                padding=[padding_x, 10]
+                                )
 
-        # Add rectangles to the BoxLayout
         for i in range(4):
-            rect_widget = Widget()
-            with rect_widget.canvas:
-                Color(0, 1, 0, 1)  # Green color
-                rect = Rectangle(size=(40, 25), pos=(rect_widget.pos))
-            bottom_layout.add_widget(rect_widget)
+            deselect_tower = Button(
+                text='', 
+                size_hint=(None, None), 
+                size=(25, 25),
+                background_normal='',
+                background_color=(1, 0, 0, 1),
+                background_disabled_normal='',
+                disabled = True
+                )
+            #deselect_tower.bind(disabled = True)
+            bottom_layout.add_widget(deselect_tower)
 
-        popup_content.add_widget(bottom_layout)    
+        popup_content.add_widget(bottom_layout)  
 
         close_button = Button(text="Close", size_hint_y=None, height=50)
         close_button.bind(on_press=lambda *args: self.popup.dismiss())
@@ -79,11 +95,20 @@ class Castle(Widget):
         self.popup.open()
     
     def create_tower(self, tower_info):
-        tower_pos = self.tower_select_button.pos
-        create_tower = Tower(fire_rate=1, damage=1, level=1, tower_pos=tower_pos)
-        self.tower_select_button.opacity = 0
+        create_tower = Tower(fire_rate=1, damage=1, level=1)
         self.towers_in_use.append(create_tower)
         self.add_widget(create_tower)
+
+        empty = 0
+        for key, value in self.towers_in_use:
+            if value == None:
+                self.towers_in_use[key] = create_tower
+                break
+            else:
+                empty += 1
+            if empty == 4:
+                print("full")
+
         match tower_info:
             case 0:
                 return
