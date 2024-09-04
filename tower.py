@@ -8,12 +8,12 @@ import random
 import math
 
 class Tower(Widget):
-    def __init__(self, fire_rate, damage, level, **kwargs):
+    def __init__(self, fire_rate, damage, level, name, **kwargs):
         super().__init__(**kwargs)
         self.fire_rate = fire_rate
         self.level = level
         self.damage = damage
-        self.name = None
+        self.name = name
         self.rect_size = (25, 25)
         self.tower_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 ) 
 

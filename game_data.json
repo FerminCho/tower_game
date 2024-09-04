@@ -3,12 +3,14 @@
         {
             "name": "Basic Tower",
             "type": "cannon",
-            "level": 1
+            "level": 1,
+            "position": "bottom left"
         },
         {
             "name": "Sniper Tower",
             "type": "sniper",
-            "level": 1
+            "level": 1,
+            "position": "None"
         }
     ]
 }

@@ -18,7 +18,7 @@ class Castle(Widget):
         self.hp = 10
         self.rect_size = (100, 100)
         self.game_data = GameData()
-        self.towers_in_use = {1 : None, 2 : None, 3 : None, 4 : None}
+        self.towers_in_use = {0 : None, 1 : None, 2 : None, 3 : None}
 
         self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
 
@@ -45,8 +45,8 @@ class Castle(Widget):
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
         popup_size = (300, 300)
 
-        #towers = self.game_data.get_unlocked_towers()
-        towers = [{'name': 'Tower 1'}, {'name': 'Tower 2'}, {'name': 'Tower 3'}]
+        towers = self.game_data.get_unlocked_towers()
+        #towers = [{'name': 'Tower 1'}, {'name': 'Tower 2'}, {'name': 'Tower 3'}]
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
@@ -55,17 +55,11 @@ class Castle(Widget):
         
         popup_content.add_widget(grid_layout)
 
-        # Create a BoxLayout at the bottom with horizontal alignment
-        padding_x = 10
-        num_buttons = 4
-        button_width = 25
-        spacing = (popup_size[0] - 25 * 4 - padding_x * 2) / 3
-        bottom_layout_width = padding_x * 2 + button_width * num_buttons + spacing * (num_buttons - 1)
         bottom_layout = BoxLayout(orientation='horizontal', 
-                                spacing=spacing, 
+                                spacing=52, 
                                 size_hint=(1, None), 
                                 height = 50, 
-                                padding=[padding_x, 10]
+                                padding=[10, 10]
                                 )
 
         for i in range(4):
@@ -78,7 +72,9 @@ class Castle(Widget):
                 background_disabled_normal='',
                 disabled = True
                 )
-            #deselect_tower.bind(disabled = True)
+            self.towers_in_use[deselect_tower] = self.towers_in_use[i]
+            del self.towers_in_use[i]
+            deselect_tower.bind(on_press=self.disable_button)
             bottom_layout.add_widget(deselect_tower)
 
         popup_content.add_widget(bottom_layout)  
@@ -94,16 +90,31 @@ class Castle(Widget):
         # Open the popup
         self.popup.open()
     
-    def create_tower(self, tower_info):
-        create_tower = Tower(fire_rate=1, damage=1, level=1)
-        self.towers_in_use.append(create_tower)
-        self.add_widget(create_tower)
+    def disable_button(self, instance):
+        if not instance.disabled:
+            instance.disabled = True
+            instance.background_color = (1, 0, 0, 1)
+            for key, value in self.towers_in_use.items():
+                if value == self.towers_in_use[instance]:
+                    self.towers_in_use[key] = None
+                    return
 
+    
+    def create_tower(self, tower_info):
+        create_tower = Tower(fire_rate=1, damage=1, level=1, name=tower_info['name'])
+        #self.add_widget(create_tower)
+
+        for tower in self.towers_in_use.values():
+            if tower is not None and tower.name == tower_info['name']:
+                return
+        
         empty = 0
-        for key, value in self.towers_in_use:
-            if value == None:
+        for key, value in self.towers_in_use.items():
+            if value is None:
                 self.towers_in_use[key] = create_tower
-                break
+                key.disabled = False
+                key.background_color = (0, 1, 0, 1)
+                return
             else:
                 empty += 1
             if empty == 4:
