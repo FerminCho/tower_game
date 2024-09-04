@@ -124,10 +124,16 @@ class PlayWindow(Screen):
         else:
             enemy.hp -= bullet.damage
 
-class StartWindow(Screen):
+class UpgradeWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = FloatLayout()
+
+        self.upgrade_button_size = (200, 100)
+        self.upgrade_button = Button(text="Upgrade",
+                                   size_hint=(None, None),
+                                   size=self.upgrade_button_size,
+                                   pos=(Window.width / 2 - self.upgrade_button_size[0] / 2, 100))
         
 class MyApp(App):
     def build(self):
