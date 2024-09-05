@@ -17,26 +17,29 @@ class SkillTreeWindow(Screen):
         self.add_widget(layout)
 
         # Define the skill tree layout
-        skill_tree_layout = GridLayout(cols=3, rows=3, spacing=10, size_hint=(None, None))
+        skill_tree_layout = GridLayout(cols=2, rows=3, spacing=50, size_hint=(None, None))
         skill_tree_layout.bind(minimum_width=skill_tree_layout.setter('width'),
                                minimum_height=skill_tree_layout.setter('height'))
-        skill_tree_layout.pos = (300, 300)
+        skill_tree_layout.pos = (200, 300)
         layout.add_widget(skill_tree_layout)
 
         # Example skills
         skills = [
-            {'name': 'Skill 1', 'pos': (0, 2), 'info': 'This is Skill 1'},
-            {'name': 'Skill 2', 'pos': (1, 1), 'info': 'This is Skill 2'},
-            {'name': 'Skill 3', 'pos': (2, 2), 'info': 'This is Skill 3'},
-            {'name': 'Skill 4', 'pos': (1, 0), 'info': 'This is Skill 4'},
+            {'name': 'Skill 1', 'pos': (0, 0), 'info': 'This is Skill 1'},
+            {'name': 'Skill 2', 'pos': (0, 1), 'info': 'This is Skill 2'},
+            {'name': 'Skill 3', 'pos': (1, 1), 'info': 'This is Skill 3'},
+            {'name': 'Skill 4', 'pos': (0, 2), 'info': 'This is Skill 4'},
+            {'name': 'Skill 5', 'pos': (1, 2), 'info': 'This is Skill 5'}
         ]
 
         # Create skill buttons
         for skill in skills:
-            button = Button(text=skill['name'], size_hint=(None, None), size=(100, 100))
+            button = Button(text=skill['name'], size_hint=(None, None), size=(50, 50))
             button.skill_info = skill['info']
             button.bind(on_press=self.show_skill_info_window)
-            skill_tree_layout.add_widget(button, index=skill['pos'][1] * 3 + skill['pos'][0])
+            col, row = skill['pos']
+            index = row * skill_tree_layout.cols + col
+            skill_tree_layout.add_widget(button, col, row)
 
         # Create a layout for the skill info window
         self.skill_info_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=100, pos_hint={'x': 0.25, 'y': 0})
@@ -54,11 +57,11 @@ class SkillTreeWindow(Screen):
         self.skill_info_window.opacity = 0  # Initially hidden
 
         # Draw connections between skills
-        with layout.canvas:
-            Color(1, 1, 1)
-            Line(points=[150, 300, 300, 200])  # Example line from Skill 1 to Skill 2
-            Line(points=[300, 200, 450, 300])  # Example line from Skill 2 to Skill 3
-            Line(points=[300, 200, 300, 100])  # Example line from Skill 2 to Skill 4
+        #with layout.canvas:
+        #    Color(1, 1, 1)
+        #    Line(points=[150, 300, 300, 200])  # Example line from Skill 1 to Skill 2
+        #    Line(points=[300, 200, 450, 300])  # Example line from Skill 2 to Skill 3
+        #    Line(points=[300, 200, 300, 100])  # Example line from Skill 2 to Skill 4
 
         # Add a button to go back to the PlayWindow
         back_button = Button(text="Back",
