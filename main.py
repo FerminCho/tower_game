@@ -35,6 +35,17 @@ class PlayWindow(Screen):
         self.start_button.bind(on_press=self.start_game)
         self.add_widget(self.start_button)
 
+        # Add a button to switch to the UpgradeWindow
+        upgrade_button = Button(text="Upgrade Tower",
+                                size_hint=(None, None),
+                                size=(200, 100),
+                                pos=(0, 0))
+        upgrade_button.bind(on_press=self.switch_to_upgrade)
+        self.add_widget(upgrade_button)
+
+    def switch_to_upgrade(self, instance):
+        self.manager.current = 'Upgrade'
+
     def start_game(self, instance):
         self.start_button.opacity = 0
         self.start_button.disabled = True    
@@ -128,17 +139,31 @@ class UpgradeWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = FloatLayout()
+        self.add_widget(layout)
 
         self.upgrade_button_size = (200, 100)
         self.upgrade_button = Button(text="Upgrade",
-                                   size_hint=(None, None),
-                                   size=self.upgrade_button_size,
-                                   pos=(Window.width / 2 - self.upgrade_button_size[0] / 2, 100))
+                                     size_hint=(None, None),
+                                     size=self.upgrade_button_size,
+                                     pos=(Window.width / 2 - self.upgrade_button_size[0] / 2, 150))
+        layout.add_widget(self.upgrade_button)
+
+        # Add a button to go back to the PlayWindow
+        back_button = Button(text="Back",
+                             size_hint=(None, None),
+                             size=(200, 100),
+                             pos=(Window.width / 2 - 100, 50))
+        back_button.bind(on_press=self.switch_to_play)
+        layout.add_widget(back_button)
+
+    def switch_to_play(self, instance):
+        self.manager.current = 'Play'
         
 class MyApp(App):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(PlayWindow(name = 'Play'))
+        sm.add_widget(UpgradeWindow(name = 'Upgrade'))
         return sm
         #return MyGame()
 
