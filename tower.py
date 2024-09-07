@@ -8,14 +8,15 @@ import random
 import math
 
 class Tower(Widget):
-    def __init__(self, fire_rate, damage, level, name, **kwargs):
+    def __init__(self, fire_rate, damage, level, name, size, **kwargs):
         super().__init__(**kwargs)
         self.fire_rate = fire_rate
         self.level = level
         self.damage = damage
         self.name = name
         self.rect_size = (25, 25)
-        self.tower_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 ) 
+        self.tower_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
+        self.size = (size, size)
 
         # Draw the rectangle at the start position
         with self.canvas:
@@ -24,11 +25,11 @@ class Tower(Widget):
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos)
+        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.size)
         return bullet
 
 class Bullet(Widget):
-    def __init__(self, enemies, damage, fire_rate, bullet_pos, **kwargs):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, **kwargs):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
@@ -40,7 +41,7 @@ class Bullet(Widget):
         self.target_rect = None
         self.enemy = None
         self.find_closest_enemy()
-        self.rect_size = (25, 25)
+        self.rect_size = size
 
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green

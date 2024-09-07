@@ -101,7 +101,7 @@ class Castle(Widget):
 
     
     def create_tower(self, tower_info):
-        create_tower = Tower(fire_rate=1, damage=1, level=1, name=tower_info['name'])
+        create_tower = Tower(fire_rate=tower_info['fire_rate'], damage=tower_info['damage'], level=tower_info['level'], name=tower_info['name'], size=tower_info['size'])
         #self.add_widget(create_tower)
 
         for tower in self.towers_in_use.values():
@@ -128,8 +128,8 @@ class Castle(Widget):
     
     def detect_collision(self, enemy):
         castle_center = (
-            self.pos[0] + self.rect_size[0] / 2,
-            self.pos[1] + self.rect_size[1] / 2
+            self.rect_pos[0] + self.rect_size[0] / 2,
+            self.rect_pos[1] + self.rect_size[1] / 2
         )
         enemy_center = (
             enemy.pos[0] + enemy.rect_size[0] / 2,
@@ -142,8 +142,17 @@ class Castle(Widget):
             (castle_center[1] - enemy_center[1]) ** 2
         )
 
+        # Debugging: Print the calculated values
+        #print(f"Castle Center: {castle_center}")
+        #print(f"Enemy Center: {enemy_center}")
+        #print(f"Distance: {distance}")
+        #print(f"Collision Threshold: {self.rect_size[0] / 2 + enemy.rect_size[0] / 2}")
+        if distance < 100:
+            print("Close")
+
         # Check if the distance is less than the sum of the radii (or half the widths)
         if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
+            print("Collision detected!")
             self.hp -= enemy.damage
             self.parent.remove_widget(enemy)
             self.parent.enemies.remove(enemy)

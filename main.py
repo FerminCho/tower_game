@@ -55,7 +55,7 @@ class PlayWindow(Screen):
     def start(self, dt):
         Clock.schedule_interval(self.update, 1/60)
         Clock.schedule_interval(self.spawn_enemy, 3)
-        Clock.schedule_once(self.end_round, 20)
+        Clock.schedule_once(self.end_round, 10)
         for tower in self.towers.values():
             if tower:
                 Clock.schedule_interval(lambda dt, t=tower: self.fire_bullet(dt, t), tower.fire_rate)
@@ -63,7 +63,19 @@ class PlayWindow(Screen):
     def end_round(self, dt):
         Clock.unschedule(self.update)
         Clock.unschedule(self.spawn_enemy)
-        Clock.unschedule(self.fire_bullet)
+        for tower in self.towers.values():
+            if tower:
+                Clock.unschedule(self.fire_bullet(dt, tower))
+
+        for enemy in self.enemies:
+            self.remove_widget(enemy)
+        self.enemies = []
+
+        for bullet in self.bullets:
+            self.remove_widget(bullet)
+        self.bullets = []
+        
+        self.bullets_to_kill = {}
         self.start_button.opacity = 1
         self.start_button.disabled = False
 

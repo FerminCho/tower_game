@@ -4,13 +4,17 @@
             "name": "Basic Tower",
             "type": "cannon",
             "level": 1,
-            "position": "bottom left"
+            "fire_rate": 1,
+            "damage": 0,
+            "size": 10
         },
         {
             "name": "Sniper Tower",
             "type": "sniper",
             "level": 1,
-            "position": "None"
+            "fire_rate": 0.5,
+            "damage": 0,
+            "size": 25
         }
     ]
 }
