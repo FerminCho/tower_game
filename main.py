@@ -1,3 +1,9 @@
+from kivy.config import Config
+
+# Set the window size using Config before importing Window
+Config.set('graphics', 'width', '600')
+Config.set('graphics', 'height', '800')
+
 from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.widget import Widget
@@ -10,14 +16,14 @@ from enemies import Enemy
 from tower import Bullet
 from castle import Castle
 from game_data import GameData
+from upgrade_window import UpgradeWindow
 import random
 import math
-
-Window.size = (800, 600)
 
 class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        print(Window.width)
         layout = FloatLayout()
         self.enemies = []
         self.bullets = []
@@ -31,7 +37,7 @@ class PlayWindow(Screen):
         self.start_button = Button(text="Start Game",
                                    size_hint=(None, None),
                                    size=self.start_button_size,
-                                   pos=(Window.width / 2 - self.start_button_size[0] / 2, Window.height / 4))
+                                   pos=(Window.width / 2 - self.start_button_size[0] / 2, 0))
         self.start_button.bind(on_press=self.start_game)
         self.add_widget(self.start_button)
 
@@ -146,30 +152,6 @@ class PlayWindow(Screen):
             self.remove_widget(enemy)
         else:
             enemy.hp -= bullet.damage
-
-class UpgradeWindow(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        layout = FloatLayout()
-        self.add_widget(layout)
-
-        self.upgrade_button_size = (200, 100)
-        self.upgrade_button = Button(text="Upgrade",
-                                     size_hint=(None, None),
-                                     size=self.upgrade_button_size,
-                                     pos=(Window.width / 2 - self.upgrade_button_size[0] / 2, 150))
-        layout.add_widget(self.upgrade_button)
-
-        # Add a button to go back to the PlayWindow
-        back_button = Button(text="Back",
-                             size_hint=(None, None),
-                             size=(200, 100),
-                             pos=(Window.width / 2 - 100, 50))
-        back_button.bind(on_press=self.switch_to_play)
-        layout.add_widget(back_button)
-
-    def switch_to_play(self, instance):
-        self.manager.current = 'Play'
         
 class MyApp(App):
     def build(self):

@@ -16,27 +16,46 @@ class Castle(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.hp = 10
-        self.rect_size = (100, 100)
+        self.rect_size = (Window.width, 2)
         self.game_data = GameData()
         self.towers_in_use = {0 : None, 1 : None, 2 : None, 3 : None}
 
-        self.rect_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
+        self.rect_pos = (0, Window.height * 0.2)
 
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=self.rect_pos, size=self.rect_size)
         
+        self.tower_button_size = (200, 100)
         # Create a button
-        self.tower_select_button = Button(text='',
-                        size=self.rect_size,
-                        pos=self.rect_pos,
+        self.tower_select_button = Button(text='Select Tower',
+                        size=self.tower_button_size,
+                        pos=(Window.width - self.tower_button_size[0], 0),
                         background_normal = '',
-                        opacity = 0)
+                        background_color=(0, 1, 0, 1)
+                        )
         
         self.tower_select_button.bind(on_press=self.tower_selection)
         
         # Add button to the widget
         self.add_widget(self.tower_select_button)
+
+        tower_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint=(None, None), height=25, padding=[10, 10])
+
+        for i in range(4):
+            deselect_tower = Button(
+                text='', 
+                size_hint=(None, None), 
+                size=(25, 25),
+                background_normal='',
+                background_color=(1, 0, 0, 1),
+                background_disabled_normal='',
+                disabled = True
+                )
+            self.towers_in_use[deselect_tower] = self.towers_in_use[i]
+            del self.towers_in_use[i]
+            deselect_tower.bind(on_press=self.disable_button)
+            tower_layout.add_widget(deselect_tower)        
     
     def tower_selection(self, instance):
         # Create content for the popup
@@ -142,17 +161,14 @@ class Castle(Widget):
             (castle_center[1] - enemy_center[1]) ** 2
         )
 
-        # Debugging: Print the calculated values
-        #print(f"Castle Center: {castle_center}")
-        #print(f"Enemy Center: {enemy_center}")
-        #print(f"Distance: {distance}")
-        #print(f"Collision Threshold: {self.rect_size[0] / 2 + enemy.rect_size[0] / 2}")
-        if distance < 100:
-            print("Close")
-
         # Check if the distance is less than the sum of the radii (or half the widths)
         if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
             print("Collision detected!")
             self.hp -= enemy.damage
             self.parent.remove_widget(enemy)
             self.parent.enemies.remove(enemy)
+            self.parent.bullets_to_kill.pop(enemy)
+            for bullet in self.parent.bullets:
+                if bullet.enemy == enemy:
+                    self.parent.bullets.remove(bullet)
+                    self.parent.remove_widget(bullet)
