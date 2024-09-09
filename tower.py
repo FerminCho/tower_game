@@ -8,15 +8,15 @@ import random
 import math
 
 class Tower(Widget):
-    def __init__(self, fire_rate, damage, level, name, size, **kwargs):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, **kwargs):
         super().__init__(**kwargs)
         self.fire_rate = fire_rate
         self.level = level
         self.damage = damage
         self.name = name
         self.rect_size = (25, 25)
-        self.tower_pos = (Window.width / 2 - self.rect_size[0] / 2, Window.height / 2 - self.rect_size[1] / 2 )
-        self.size = (size, size)
+        self.tower_pos = tower_pos
+        self.bullet_size = (bullet_size, bullet_size)
 
         # Draw the rectangle at the start position
         with self.canvas:
@@ -25,7 +25,7 @@ class Tower(Widget):
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.size)
+        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.bullet_size)
         return bullet
 
 class Bullet(Widget):

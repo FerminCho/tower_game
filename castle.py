@@ -18,7 +18,7 @@ class Castle(Widget):
         self.hp = 10
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
-        self.towers_in_use = {0 : None, 1 : None, 2 : None, 3 : None}
+        self.towers_in_use = {i: None for i in range(4)}
 
         self.rect_pos = (0, Window.height * 0.2)
 
@@ -40,22 +40,21 @@ class Castle(Widget):
         # Add button to the widget
         self.add_widget(self.tower_select_button)
 
-        tower_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint=(None, None), height=25, padding=[10, 10])
+        tower_layout_size = (Window.width, 25)
+        self.tower_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint=(None, None), size=(Window.width, 25), pos=(0, Window.height * 0.2 - 2 - tower_layout_size[1]), padding=[10, 0])
 
         for i in range(4):
-            deselect_tower = Button(
-                text='', 
+            select_tower = Button(
+                text='+', 
                 size_hint=(None, None), 
                 size=(25, 25),
                 background_normal='',
                 background_color=(1, 0, 0, 1),
                 background_disabled_normal='',
-                disabled = True
                 )
-            self.towers_in_use[deselect_tower] = self.towers_in_use[i]
-            del self.towers_in_use[i]
-            deselect_tower.bind(on_press=self.disable_button)
-            tower_layout.add_widget(deselect_tower)        
+            #self.towers_in_use[i] = self.towers_in_use[select_tower]
+            select_tower.bind(on_press=self.tower_selection)
+            self.tower_layout.add_widget(select_tower)        
     
     def tower_selection(self, instance):
         # Create content for the popup
@@ -69,34 +68,10 @@ class Castle(Widget):
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
-            button.bind(on_press=lambda btn, t=tower: self.create_tower(t))
+            button.bind(on_press=lambda btn, t=tower: self.create_tower(t, btn.pos))
             grid_layout.add_widget(button)
         
-        popup_content.add_widget(grid_layout)
-
-        bottom_layout = BoxLayout(orientation='horizontal', 
-                                spacing=52, 
-                                size_hint=(1, None), 
-                                height = 50, 
-                                padding=[10, 10]
-                                )
-
-        for i in range(4):
-            deselect_tower = Button(
-                text='', 
-                size_hint=(None, None), 
-                size=(25, 25),
-                background_normal='',
-                background_color=(1, 0, 0, 1),
-                background_disabled_normal='',
-                disabled = True
-                )
-            self.towers_in_use[deselect_tower] = self.towers_in_use[i]
-            del self.towers_in_use[i]
-            deselect_tower.bind(on_press=self.disable_button)
-            bottom_layout.add_widget(deselect_tower)
-
-        popup_content.add_widget(bottom_layout)  
+        popup_content.add_widget(grid_layout)  
 
         close_button = Button(text="Close", size_hint_y=None, height=50)
         close_button.bind(on_press=lambda *args: self.popup.dismiss())
@@ -119,9 +94,14 @@ class Castle(Widget):
                     return
 
     
-    def create_tower(self, tower_info):
-        create_tower = Tower(fire_rate=tower_info['fire_rate'], damage=tower_info['damage'], level=tower_info['level'], name=tower_info['name'], size=tower_info['size'])
-        #self.add_widget(create_tower)
+    def create_tower(self, tower_info, btn_pos):
+        create_tower = Tower(fire_rate=tower_info['fire_rate'], 
+                             damage=tower_info['damage'], 
+                             level=tower_info['level'], 
+                             name=tower_info['name'], 
+                             bullet_size=tower_info['size'], 
+                             tower_pos=btn_pos
+                            )
 
         for tower in self.towers_in_use.values():
             if tower is not None and tower.name == tower_info['name']:
@@ -131,8 +111,7 @@ class Castle(Widget):
         for key, value in self.towers_in_use.items():
             if value is None:
                 self.towers_in_use[key] = create_tower
-                key.disabled = False
-                key.background_color = (0, 1, 0, 1)
+
                 return
             else:
                 empty += 1

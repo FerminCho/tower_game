@@ -28,9 +28,10 @@ class PlayWindow(Screen):
         self.enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
-        self.caslte = Castle()
-        self.add_widget(self.caslte)
-        self.towers = self.caslte.towers_in_use
+        self.castle = Castle()
+        self.add_widget(self.castle)
+        self.towers = self.castle.towers_in_use
+        self.add_widget(self.castle.tower_layout)
 
         # Create the start button
         self.start_button_size = (200, 100)
