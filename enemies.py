@@ -1,65 +1,65 @@
-import pygame
+from kivy.app import App
+from kivy.core.window import Window
+from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
+from kivy.graphics import Rectangle, Color
+from kivy.clock import Clock
+from kivy.animation import Animation
 import random
 import math
 
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self, window_height, window_width):
-        super().__init__()
-        self.window_height = window_height
-        self.window_width = window_width
-        self.hp = 5
-        self.full_hp = 5
+class Enemy(Widget):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.hp = 2
         self.damage = 1
-        self.radius = 10
-        self.shots_fired = 0
-        self.width, self.height = 25.0, 25.0
 
-        self.object_x, self.object_y = self.set_start_position(window_width, window_height)
+        self.rect_size = (25, 25)  # Size of the rectangle
+        self.target_pos = (Window.width / 2, Window.height / 2)  # Center of the screen
 
-        self.image = pygame.Surface((self.width, self.height))
-        self.image.fill((255, 0, 0))  # Red color
-        self.rect = self.image.get_rect()
-        self.rect.center = (self.object_x, self.object_y)
+        # Set the start position first
+        self.set_start_position()
 
-    def set_start_position(self, window_width, window_height):
-        dice = random.randint(0, 3)
-        if dice == 0:
-            object_y = random.randint(0, window_height)
-            object_x = 0
-        elif dice == 1:
-            object_y = 0
-            object_x = random.randint(0, window_width)
-        elif dice == 2:
-            object_y = random.randint(0, window_height)
-            object_x = window_width
-        elif dice == 3:
-            object_y = window_height
-            object_x = random.randint(0, window_width)
+        # Draw the rectangle at the start position
+        with self.canvas:
+            Color(0, 1, 0, 1)  # Set the color to green
+            self.rect = Rectangle(pos=self.pos, size=self.rect_size)
 
-        return object_x, object_y
+        # Calculate velocity after setting the start position
+        self.velocity = self.calculate_velocity()
 
-    def update(self):
-        # Target position (center of the screen)
-        target_x = self.window_width / 2.0
-        target_y = self.window_height / 2.0
+    def set_start_position(self):
+        edge = random.choice(['left', 'right', 'top', 'bottom'])
 
-        # Calculate distance
-        distance_x = target_x - self.object_x
-        distance_y = target_y - self.object_y
-        distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+        if edge == 'left':
+            self.pos = (-self.size[0], random.randint(0, Window.height - self.size[1]))
+        elif edge == 'right':
+            self.pos = (Window.width, random.randint(0, Window.height - self.size[1]))
+        elif edge == 'top':
+            self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
+        elif edge == 'bottom':
+            self.pos = (random.randint(0, Window.width - self.size[0]), -self.size[1])
 
-        # Speed of movement
-        speed = 1  # Floating-point speed
+    def calculate_velocity(self):
+        direction_x = self.target_pos[0] - self.pos[0]
+        direction_y = self.target_pos[1] - self.pos[1]
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
 
-        # Move towards the target using floating-point precision
-        if distance > speed:
-            direction_x = distance_x / distance
-            direction_y = distance_y / distance
+        speed = 200  # Pixels per second
+        velocity_x = (direction_x / distance) * speed
+        velocity_y = (direction_y / distance) * speed
 
-            # Update floating-point position
-            self.object_x += direction_x * speed
-            self.object_y += direction_y * speed
+        return velocity_x, velocity_y
 
-            # Update rect position using integers for rendering
-            self.rect.centerx = int(self.object_x)
-            self.rect.centery = int(self.object_y)
+    def start_moving(self, dt):
+        Clock.schedule_interval(self.update, 1/60)
+
+    def update(self, dt):
+        new_x = self.pos[0] + self.velocity[0] * dt
+        new_y = self.pos[1] + self.velocity[1] * dt
+        self.pos = (new_x, new_y)
+        self.rect.pos = self.pos
+
+        # Stop moving if the rectangle reaches the center
+        if math.isclose(new_x, self.target_pos[0], abs_tol=1) and math.isclose(new_y, self.target_pos[1], abs_tol=1):
+            Clock.unschedule(self.update)

@@ -9,9 +9,7 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 
-Window.size = (800, 600)
-
-class SkillTreeWindow(Screen):
+class UpgradeWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = FloatLayout()
@@ -138,13 +136,3 @@ class PlayWindow(Screen):
 
     def switch_to_skill_tree(self, instance):
         self.manager.current = 'SkillTree'
-
-class MyApp(App):
-    def build(self):
-        sm = ScreenManager()
-        sm.add_widget(PlayWindow(name='Play'))
-        sm.add_widget(SkillTreeWindow(name='SkillTree'))
-        return sm
-
-if __name__ == '__main__':
-    MyApp().run()
