@@ -14,7 +14,7 @@ class Tower(Widget):
         self.level = level
         self.damage = damage
         self.name = name
-        self.rect_size = (25, 25)
+        self.rect_size = (20, 20)
         self.tower_pos = tower_pos
         self.bullet_size = (bullet_size, bullet_size)
 

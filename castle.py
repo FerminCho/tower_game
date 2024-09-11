@@ -41,7 +41,13 @@ class Castle(Widget):
         self.add_widget(self.tower_select_button)
 
         tower_layout_size = (Window.width, 25)
-        self.tower_layout = BoxLayout(orientation='horizontal', spacing=10, size_hint=(None, None), size=(Window.width, 25), pos=(0, Window.height * 0.2 - 2 - tower_layout_size[1]), padding=[10, 0])
+        self.tower_layout = BoxLayout(orientation='horizontal', 
+                                    spacing=10, 
+                                    size_hint=(None, None), 
+                                    size=(Window.width, 25), 
+                                    pos=(0, Window.height * 0.2 - 2 - tower_layout_size[1]), 
+                                    padding=[10, 0]
+                                    )
 
         for i in range(4):
             select_tower = Button(
@@ -52,11 +58,10 @@ class Castle(Widget):
                 background_color=(1, 0, 0, 1),
                 background_disabled_normal='',
                 )
-            #self.towers_in_use[i] = self.towers_in_use[select_tower]
-            select_tower.bind(on_press=self.tower_selection)
+            select_tower.bind(on_press=lambda btn: self.tower_selection(btn, btn.pos))
             self.tower_layout.add_widget(select_tower)        
     
-    def tower_selection(self, instance):
+    def tower_selection(self, instance, btn_pos):
         # Create content for the popup
         popup_content = BoxLayout(orientation='vertical')
         grid_layout = GridLayout(cols = 1, spacing = 10, size_hint_y = None)
@@ -68,7 +73,7 @@ class Castle(Widget):
 
         for tower in towers:
             button = Button(text=tower['name'], size_hint_y=None, height=40)
-            button.bind(on_press=lambda btn, t=tower: self.create_tower(t, btn.pos))
+            button.bind(on_press=lambda btn, t=tower: self.create_tower(t, btn_pos=btn_pos))
             grid_layout.add_widget(button)
         
         popup_content.add_widget(grid_layout)  
@@ -107,11 +112,12 @@ class Castle(Widget):
             if tower is not None and tower.name == tower_info['name']:
                 return
         
+        
         empty = 0
         for key, value in self.towers_in_use.items():
             if value is None:
                 self.towers_in_use[key] = create_tower
-
+                self.tower_layout.add_widget(create_tower)
                 return
             else:
                 empty += 1
@@ -142,7 +148,6 @@ class Castle(Widget):
 
         # Check if the distance is less than the sum of the radii (or half the widths)
         if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
-            print("Collision detected!")
             self.hp -= enemy.damage
             self.parent.remove_widget(enemy)
             self.parent.enemies.remove(enemy)

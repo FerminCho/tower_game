@@ -23,7 +23,6 @@ import math
 class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print(Window.width)
         layout = FloatLayout()
         self.enemies = []
         self.bullets = []
@@ -116,7 +115,7 @@ class PlayWindow(Screen):
 
         for enemy in self.enemies:
             enemy.update(dt)
-            self.caslte.detect_collision(enemy)
+            self.castle.detect_collision(enemy)
         
         if dt > 5:
             self.end_round()
