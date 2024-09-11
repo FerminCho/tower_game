@@ -52,7 +52,6 @@ class UpgradeWindow(Screen):
         # Function to create skill buttons and draw lines
         def create_skill_buttons_and_lines(skills, parent_layout, layout):
             skill_button_size = (50, 50)
-            print(layout.width, layout.height)
 
             with layout.canvas:
                 Color(1, 1, 1)
