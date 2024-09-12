@@ -105,7 +105,8 @@ class Castle(Widget):
                              level=tower_info['level'], 
                              name=tower_info['name'], 
                              bullet_size=tower_info['size'], 
-                             tower_pos=btn_pos
+                             tower_pos=btn_pos,
+                            castle_pos=self.rect_pos
                             )
 
         for tower in self.towers_in_use.values():

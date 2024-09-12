@@ -8,7 +8,7 @@ import random
 import math
 
 class Tower(Widget):
-    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, **kwargs):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
         super().__init__(**kwargs)
         self.fire_rate = fire_rate
         self.level = level
@@ -17,6 +17,7 @@ class Tower(Widget):
         self.rect_size = (20, 20)
         self.tower_pos = tower_pos
         self.bullet_size = (bullet_size, bullet_size)
+        self.castle_pos = castle_pos
 
         # Draw the rectangle at the start position
         with self.canvas:
@@ -25,30 +26,31 @@ class Tower(Widget):
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.bullet_size)
+        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.bullet_size, castle_pos=self.castle_pos)
         return bullet
 
 class Bullet(Widget):
-    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, **kwargs):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, **kwargs):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
-
-        self.center_pos = (Window.width / 2, Window.height / 2)
         self.bullet_pos = bullet_pos
         self.rectangles = enemies
+        self.wall = castle_pos[1]
+        self.velocity = (0, 0)
 
         self.target_rect = None
         self.enemy = None
-        self.find_closest_enemy()
         self.rect_size = size
 
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.center_pos, size=self.rect_size)
+            self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
         
-        # Calculate velocity after setting the start position
-        self.velocity = self.calculate_velocity()
+        self.find_closest_enemy()
+        self.calculate_velocity()
+
+        Clock.schedule_interval(self.update, 1 / 60)
     
     def find_closest_enemy(self):
         min_distance = float('inf')
@@ -59,16 +61,7 @@ class Bullet(Widget):
             # Calculate the center of the rectangle
             rect = enemy.rect
 
-            rect_center = (
-                rect.pos[0] + rect.size[0] / 2,
-                rect.pos[1] + rect.size[1] / 2
-            )
-
-            # Calculate the Euclidean distance from the center of the screen
-            distance = math.sqrt(
-                (rect_center[0] - self.center_pos[0]) ** 2 +
-                (rect_center[1] - self.center_pos[1]) ** 2
-            )
+            distance = enemy.pos[1] - self.wall
 
             if distance < min_distance:
                 min_distance = distance
@@ -79,15 +72,28 @@ class Bullet(Widget):
         self.enemy = closest_enemy
 
     def calculate_velocity(self):
+        # Calculate the time to impact
         direction_x = self.target_rect.pos[0] - self.bullet_pos[0]
         direction_y = self.target_rect.pos[1] - self.bullet_pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        time_to_impact = distance / 600  # Assuming bullet speed is 600 pixels per second
 
-        speed = 200  # Pixels per second
-        velocity_x = (direction_x / distance) * speed
-        velocity_y = (direction_y / distance) * speed
+        # Predict the enemy's future position
+        future_enemy_pos = self.predict_enemy_position(time_to_impact)
 
-        return velocity_x, velocity_y
+        # Adjust the bullet's velocity to aim at the predicted future position
+        direction_x = future_enemy_pos[0] - self.bullet_pos[0]
+        direction_y = future_enemy_pos[1] - self.bullet_pos[1]
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+
+        speed = 600  # Pixels per second
+        self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
+    
+    def predict_enemy_position(self, time_to_impact):
+        # Predict the future position of the enemy
+        future_x = self.enemy.pos[0]
+        future_y = self.enemy.pos[1] - self.enemy.speed * time_to_impact
+        return future_x, future_y
 
     def update(self, dt):
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
@@ -110,14 +116,9 @@ class Bullet(Widget):
             self.enemy.pos[1] + self.enemy.rect_size[1] / 2
         )
 
-        # Calculate the distance between the bullet and enemy
-        distance = math.sqrt(
-            (bullet_center[0] - enemy_center[0]) ** 2 +
-            (bullet_center[1] - enemy_center[1]) ** 2
+        # Check if the bullet has hit the enemy
+        return (
+            abs(bullet_center[0] - enemy_center[0]) < self.rect_size[0] / 2 and
+            abs(bullet_center[1] - enemy_center[1]) < self.rect_size[1] / 2
         )
-
-        # Check if the distance is less than the sum of the radii (or half the widths)
-        if distance < (self.rect_size[0] / 2 + self.enemy.rect_size[0] / 2):
-            return True
-        return False
     
