@@ -126,12 +126,12 @@ class Castle(Widget):
                              castle_pos=self.rect_pos
                             )
         
-        if self.towers_in_use[position][1] != None and self.towers_in_use[position][1].name == tower_info['name']:
+        if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower_info['name']:
             instance.color = (1, 1, 1, 1)
             self.tower_layout.remove_widget(self.towers_in_use[position][1])
             self.towers_in_use[position][1] = None
         else:
-            self.towers_in_use[position][1] == create_tower
+            self.towers_in_use[position][1] = create_tower
             instance.color = (1, 0, 0, 1)
             self.selected_button.color = (1, 1, 1, 1)
             self.selected_button = instance
