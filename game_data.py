@@ -23,3 +23,6 @@ class GameData():
 
     def get_unlocked_towers(self):
         return self.data['unlocked_towers']
+    
+    def get_selected_towers(self):
+        return self.data['selected_towers']
