@@ -89,7 +89,13 @@ class Castle(Widget):
             button = Button(text=tower['name'], size_hint_y=None, height=40)
             button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
             grid_layout.add_widget(button)
-            if self.towers_in_use[position][1] != None and self.towers_in_use[position][1].name == tower['name']:
+
+            with button.canvas.before:
+                Color(1, 0, 0, 1)  # Red color for the circle
+                button.circle = Ellipse(size=(20, 20), pos=(button.x + button.width - 25, button.y + 10))
+            button.bind(pos=self.update_circle_position, size=self.update_circle_position)
+                
+            if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
                 button.color = (1, 0, 0, 1)
                 self.selected_button = button
         
@@ -106,6 +112,9 @@ class Castle(Widget):
         # Open the popup
         self.popup.open()
     
+    def update_circle_position(self, instance, *args):
+        instance.circle.pos = (instance.x + instance.width - 25, instance.y + 10)
+    
     def disable_button(self, instance):
         if not instance.disabled:
             instance.disabled = True
@@ -116,7 +125,7 @@ class Castle(Widget):
                     return
 
     
-    def create_tower(self, instance, tower_info, position):
+    def create_tower(self, btn, tower_info, position):
         create_tower = Tower(fire_rate=tower_info['fire_rate'], 
                              damage=tower_info['damage'], 
                              level=tower_info['level'], 
@@ -127,15 +136,20 @@ class Castle(Widget):
                             )
         
         if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower_info['name']:
-            instance.color = (1, 1, 1, 1)
+            btn.background_color = (1, 1, 1, 1)
             self.tower_layout.remove_widget(self.towers_in_use[position][1])
             self.towers_in_use[position][1] = None
         else:
             self.towers_in_use[position][1] = create_tower
-            instance.color = (1, 0, 0, 1)
-            self.selected_button.color = (1, 1, 1, 1)
-            self.selected_button = instance
+            btn.background_color = (1, 0, 0, 1)
+            if self.selected_button:
+                self.selected_button.background_color = (1, 1, 1, 1)
+            self.selected_button = btn
             self.tower_layout.add_widget(create_tower)
+        
+        btn.canvas.ask_update()
+        if self.selected_button:
+            self.selected_button.canvas.ask_update()
 
         match tower_info:
             case 0:
