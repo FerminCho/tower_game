@@ -21,6 +21,9 @@ class CircleButton(RelativeLayout):
         self.circle.pos = (self.button.x + self.button.width - 25, self.button.y + 10)
         self.circle.size = (20, 20)
 
+    def change_circle_color(self, color):
+        self.circle_color.rgba = color
+
 class Game(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -51,7 +54,7 @@ class Game(Widget):
             print(f"Added button for tower: {tower['name']}")
 
             if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
-                button.button.color = (1, 0, 0, 1)
+                button.change_circle_color((0, 1, 0, 1))  # Change to green color
                 self.selected_button = button
 
         popup_content.add_widget(grid_layout)
@@ -69,6 +72,7 @@ class Game(Widget):
         print("Popup opened")
 
     def create_tower(self, btn, tower_info, position):
+        btn.change_circle_color((0, 1, 0, 1))
         print(f"Creating tower: {tower_info['name']} at position {position}")
 
 class TowerSelectionApp(App):

@@ -90,14 +90,15 @@ class Castle(Widget):
             button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
             grid_layout.add_widget(button)
 
-            with button.canvas.before:
-                Color(1, 0, 0, 1)  # Red color for the circle
-                button.circle = Ellipse(size=(20, 20), pos=(button.x + button.width - 25, button.y + 10))
+            with button.canvas:
+                button.circle_color = Color(1, 0, 0, 1)  # Red color for the circle
+                button.circle = Ellipse(size=(20, 20))
             button.bind(pos=self.update_circle_position, size=self.update_circle_position)
                 
             if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
                 button.color = (1, 0, 0, 1)
                 self.selected_button = button
+                button.circle_color_rgba = (0, 1, 0, 1)
         
         popup_content.add_widget(grid_layout)  
 
