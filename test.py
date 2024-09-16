@@ -49,7 +49,7 @@ class Game(Widget):
 
         for tower in towers:
             button = CircleButton(text=tower['name'], size_hint_y=None, height=40)
-            button.button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
+            button.button.bind(on_press=lambda btn, b=button: self.on_button_press(b, tower, position))
             grid_layout.add_widget(button)
             print(f"Added button for tower: {tower['name']}")
 
@@ -71,8 +71,24 @@ class Game(Widget):
         self.popup.open()
         print("Popup opened")
 
+    def on_button_press(self, button, tower, position):
+        # Toggle the circle color of the pressed button
+        if button.circle_color.rgba == [1, 0, 0, 1]:  # If the current color is red
+            button.change_circle_color((0, 1, 0, 1))  # Change to green color
+        else:
+            button.change_circle_color((1, 0, 0, 1))  # Change back to red color
+
+        # Optionally, reset the color of the previously selected button if it's different
+        if hasattr(self, 'selected_button') and self.selected_button and self.selected_button != button:
+            self.selected_button.change_circle_color((1, 0, 0, 1))  # Change back to red color
+
+        # Update the selected button
+        self.selected_button = button
+
+        # Call the create_tower method
+        self.create_tower(button.button, tower, position)
+
     def create_tower(self, btn, tower_info, position):
-        btn.change_circle_color((0, 1, 0, 1))
         print(f"Creating tower: {tower_info['name']} at position {position}")
 
 class TowerSelectionApp(App):
