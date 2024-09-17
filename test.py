@@ -1,101 +1,53 @@
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.graphics import Ellipse, Color
 from kivy.app import App
-from kivy.uix.widget import Widget
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.graphics import Color, Rectangle
+from kivy.core.window import Window
 
-class CircleButton(RelativeLayout):
-    def __init__(self, text='', **kwargs):
-        super().__init__(**kwargs)
-        self.button = Button(text=text, size_hint=(1, 1))
-        self.add_widget(self.button)
-        with self.canvas:
-            self.circle_color = Color(1, 0, 0, 1)  # Red color for the circle
-            self.circle = Ellipse(size=(20, 20))
-        self.button.bind(pos=self.update_circle, size=self.update_circle)
-
-    def update_circle(self, *args):
-        self.circle.pos = (self.button.x + self.button.width - 25, self.button.y + 10)
-        self.circle.size = (20, 20)
-
-    def change_circle_color(self, color):
-        self.circle_color.rgba = color
-
-class Game(Widget):
+class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.start_button = Button(text='Start')
-        self.add_widget(self.start_button)
-        self.towers_in_use = {0: [None, None]}  # Example data
-        self.game_data = self  # Example data
-        self.enemies = []
-        self.bullets = []
-        self.bullets_to_kill = {}
+        self.energy_layout()
 
-    def get_unlocked_towers(self):
-        return [{'name': 'Tower 1'}, {'name': 'Tower 2'}]  # Example data
+    def energy_layout(self):
+        # Create the big layout using FloatLayout for absolute positioning
+        layout_big = FloatLayout(
+            size_hint=(None, None), 
+            size=(Window.width, 40), 
+            pos=(0, 200)
+        )
 
-    def tower_selection(self, instance, position):
-        # Create content for the popup
-        popup_content = BoxLayout(orientation='vertical')
-        grid_layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
-        grid_layout.bind(minimum_height=grid_layout.setter('height'))
-        popup_size = (300, 300)
+        # Create the small layout
+        layout_small = BoxLayout(
+            orientation='vertical',
+            spacing=5,
+            size_hint=(None, None), 
+            size=(40, 40),
+            pos_hint={'center_x': 0.5, 'center_y': 0.5}  # Center the small layout within the big layout
+        )
 
-        towers = self.get_unlocked_towers()
+        # Add rectangles to the small layout
+        with layout_small.canvas:
+            for i in range(4):
+                Color(1, 0, 0, 1)
+                Rectangle(pos=(0, i * 10), size=(40, 2))  # Adjust the position of each rectangle
+        
+        # Add the small layout to the big layout
+        layout_big.add_widget(layout_small)
+        self.add_widget(layout_big)
+        print(layout_small.pos)
+        print(layout_big.pos)
 
-        for tower in towers:
-            button = CircleButton(text=tower['name'], size_hint_y=None, height=40)
-            button.button.bind(on_press=lambda btn, b=button: self.on_button_press(b, tower, position))
-            grid_layout.add_widget(button)
-            print(f"Added button for tower: {tower['name']}")
-
-            if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
-                button.change_circle_color((0, 1, 0, 1))  # Change to green color
-                self.selected_button = button
-
-        popup_content.add_widget(grid_layout)
-
-        close_button = Button(text="Close", size_hint_y=None, height=50)
-        close_button.bind(on_press=lambda *args: self.popup.dismiss())
-        popup_content.add_widget(close_button)
-
-        # Create the popup
-        self.popup = Popup(title="Select a Tower", content=popup_content,
-                           size_hint=(None, None), size=popup_size)
-
-        # Open the popup
-        self.popup.open()
-        print("Popup opened")
-
-    def on_button_press(self, button, tower, position):
-        # Toggle the circle color of the pressed button
-        if button.circle_color.rgba == [1, 0, 0, 1]:  # If the current color is red
-            button.change_circle_color((0, 1, 0, 1))  # Change to green color
-        else:
-            button.change_circle_color((1, 0, 0, 1))  # Change back to red color
-
-        # Optionally, reset the color of the previously selected button if it's different
-        if hasattr(self, 'selected_button') and self.selected_button and self.selected_button != button:
-            self.selected_button.change_circle_color((1, 0, 0, 1))  # Change back to red color
-
-        # Update the selected button
-        self.selected_button = button
-
-        # Call the create_tower method
-        self.create_tower(button.button, tower, position)
-
-    def create_tower(self, btn, tower_info, position):
-        print(f"Creating tower: {tower_info['name']} at position {position}")
-
-class TowerSelectionApp(App):
+class MyApp(App):
     def build(self):
-        game = Game()
-        game.tower_selection(None, 0)
-        return game
+        sm = ScreenManager()
+        sm.add_widget(PlayWindow(name='Play'))
+        sm.add_widget(UpgradeWindow(name='Upgrade'))
+        return sm
+
+class UpgradeWindow(Screen):
+    pass
 
 if __name__ == '__main__':
-    TowerSelectionApp().run()
+    MyApp().run()

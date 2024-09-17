@@ -16,8 +16,8 @@ class Enemy(Widget):
         self.speed = 50
 
         self.rect_size = (25, 25)  # Size of the rectangle
-        self.target_pos = (Window.width / 2, Window.height / 2)  # Center of the screen
-        self.pos = (random.randint(0, Window.height - self.size[1]), Window.height)
+        #self.target_pos = (Window.width / 2, Window.height / 2)  # Center of the screen
+        self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
 
         # Draw the rectangle at the start position
         with self.canvas:

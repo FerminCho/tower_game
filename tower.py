@@ -22,7 +22,7 @@ class Tower(Widget):
         # Draw the rectangle at the start position
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=self.tower_pos, size=self.rect_size)
+            self.rect = Rectangle(pos=((self.tower_pos[0] + self.rect_size[0] / 2), self.tower_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])

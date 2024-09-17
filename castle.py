@@ -25,35 +25,22 @@ class Castle(Widget):
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=self.rect_pos, size=self.rect_size)
-        
-        self.tower_button_size = (200, 100)
-        # Create a button
-        self.tower_select_button = Button(text='Select Tower',
-                        size=self.tower_button_size,
-                        pos=(Window.width - self.tower_button_size[0], 0),
-                        background_normal = '',
-                        background_color=(0, 1, 0, 1)
-                        )
-        
-        self.tower_select_button.bind(on_press=self.tower_selection)
-        
-        # Add button to the widget
-        self.add_widget(self.tower_select_button)
 
-        tower_layout_size = (Window.width, 25)
+        tower_position_size = (40, 40)
+        tower_layout_size = (Window.width, tower_position_size[1])
         self.tower_layout = BoxLayout(orientation='horizontal', 
-                                    spacing=10, 
+                                    spacing=(Window.width - 100 - tower_position_size[0] * 4) / 3, 
                                     size_hint=(None, None), 
-                                    size=(Window.width, 25), 
+                                    size=tower_layout_size, 
                                     pos=(0, Window.height * 0.2 - 2 - tower_layout_size[1]), 
-                                    padding=[10, 0]
+                                    padding=[50, 0]
                                     )
 
         for i in range(4):
             tower_position = Button(
                 text='+', 
                 size_hint=(None, None), 
-                size=(25, 25),
+                size=tower_position_size,
                 background_normal='',
                 background_color=(1, 0, 0, 1),
                 background_disabled_normal='',
@@ -78,6 +65,7 @@ class Castle(Widget):
                                                                     bullet_size=tower['size'], 
                                                                     tower_pos=tower_position.pos,
                                                                     castle_pos=self.rect_pos)]
+        self.tower_layout.add_widget(self.towers_in_use[i][1])
         
     def tower_selection(self, instance, position):
         # Create content for the popup
@@ -96,8 +84,6 @@ class Castle(Widget):
             if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
                 self.selected_button = button
                 button.background_color = (0, 1, 0, 1)
-                self.tower_layout.add_widget(self.towers_in_use[position][1])
-        print(self.towers_in_use[position][1].pos)
         
         popup_content.add_widget(grid_layout)  
 
@@ -114,6 +100,10 @@ class Castle(Widget):
 
     
     def create_tower(self, btn, tower_info, position):
+        for tower in self.towers_in_use.values():
+            if tower[1] is not None and tower[1].name == tower_info['name'] and tower[1] != self.towers_in_use[position][1]:
+                return
+        
         create_tower = Tower(fire_rate=tower_info['fire_rate'], 
                              damage=tower_info['damage'], 
                              level=tower_info['level'], 
@@ -128,13 +118,14 @@ class Castle(Widget):
             self.tower_layout.remove_widget(self.towers_in_use[position][1])
             self.towers_in_use[position][1] = None
         else:
-            if self.selected_button and self.selected_button != btn:
+            if self.selected_button and self.selected_button != btn and self.towers_in_use[position][1] is not None:
                 self.selected_button.background_color = (1, 1, 1, 1)
                 self.tower_layout.remove_widget(self.towers_in_use[position][1])
             btn.background_color = (0, 1, 0, 1)
             self.towers_in_use[position][1] = create_tower
             self.selected_button = btn
             self.tower_layout.add_widget(create_tower)
+                
 
         match tower_info:
             case 0:

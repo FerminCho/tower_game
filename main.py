@@ -9,6 +9,7 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.graphics import Rectangle, Color
 from kivy.clock import Clock
@@ -27,10 +28,12 @@ class PlayWindow(Screen):
         self.enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
+        self.main_buttons = []
         self.castle = Castle()
         self.add_widget(self.castle)
         self.towers = self.castle.towers_in_use
         self.add_widget(self.castle.tower_layout)
+        self.energy_layout()
 
         # Create the start button
         self.start_button_size = (200, 100)
@@ -39,6 +42,7 @@ class PlayWindow(Screen):
                                    size=self.start_button_size,
                                    pos=(Window.width / 2 - self.start_button_size[0] / 2, 0))
         self.start_button.bind(on_press=self.start_game)
+        self.main_buttons.append(self.start_button)
         self.add_widget(self.start_button)
 
         # Add a button to switch to the UpgradeWindow
@@ -47,6 +51,7 @@ class PlayWindow(Screen):
                                 size=(200, 100),
                                 pos=(0, 0))
         upgrade_button.bind(on_press=self.switch_to_upgrade)
+        self.main_buttons.append(upgrade_button)
         self.add_widget(upgrade_button)
 
     def switch_to_upgrade(self, instance):
@@ -63,15 +68,18 @@ class PlayWindow(Screen):
         Clock.schedule_interval(self.spawn_enemy, 3)
         Clock.schedule_once(self.end_round, 10)
         for tower in self.towers.values():
-            if tower:
-                Clock.schedule_interval(lambda dt, t=tower: self.fire_bullet(dt, t), tower.fire_rate)
+            if tower[1]:
+                Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
+        for button in self.main_buttons:
+            button.opacity = 0
+            button.disabled = True
 
     def end_round(self, dt):
         Clock.unschedule(self.update)
         Clock.unschedule(self.spawn_enemy)
         for tower in self.towers.values():
-            if tower:
-                Clock.unschedule(self.fire_bullet(dt, tower))
+            if tower[1]:
+                Clock.unschedule(self.fire_bullet(dt, tower[1]))
 
         for enemy in self.enemies:
             self.remove_widget(enemy)
@@ -84,6 +92,10 @@ class PlayWindow(Screen):
         self.bullets_to_kill = {}
         self.start_button.opacity = 1
         self.start_button.disabled = False
+
+        for button in self.main_buttons:
+            button.opacity = 1
+            button.disabled = False
 
 
     def spawn_enemy(self, dt):
@@ -152,6 +164,33 @@ class PlayWindow(Screen):
             self.remove_widget(enemy)
         else:
             enemy.hp -= bullet.damage
+
+    def energy_layout(self):
+        layout_big = BoxLayout(
+                            orientation='horizontal',
+                            spacing=(Window.width - 100 - 40 * 4) / 3,
+                            size_hint=(None, None), 
+                            size=(Window.width, 40), 
+                            pos=(0, Window.height - 40), 
+                            padding=[0, 0]
+                            )
+        layout_small = BoxLayout(
+                        orientation='vertical',
+                        spacing=5,
+                        size_hint=(None, None), 
+                        size=(40, 40),  
+                        padding=[0, 0]
+                        )
+
+        for i in range(4):
+            with layout_small.canvas:
+                Color(1, 0, 0, 1)
+                Rectangle(pos=(0, 0), size=(40, 2))
+        
+        layout_big.add_widget(layout_small)
+        self.add_widget(layout_big)
+        print(layout_small.pos)
+        print(layout_big.pos)
         
 class MyApp(App):
     def build(self):
