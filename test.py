@@ -23,7 +23,8 @@ class BorderButton(Button):
     
     def remove_energy(self, instance):
         for color_instruction, rect in self.rectangles:
-            if color_instruction.rgba == (1, 0, 0, 1):  # Check if the color is red
+            if color_instruction.rgba == [1, 0, 0, 1]:  # Check if the color is red
+                print('Removing energy')
                 color_instruction.rgba = (0, 1, 0, 1)  # Change the color to green
                 break
 
@@ -59,6 +60,7 @@ class PlayWindow(Screen):
                     energy_rect = Rectangle(size=(energy_button.width, energy_button.height / 20))
                     energy_button.rectangles.append((color_instruction, energy_rect))
             energy_button.bind(pos=energy_button.update_rectangles, size=energy_button.update_rectangles)
+            energy_button.bind(on_press=energy_button.remove_energy)  # Bind button press to remove_energy
             layout_big.add_widget(energy_button)
         
         self.add_widget(layout_big)

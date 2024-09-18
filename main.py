@@ -166,19 +166,22 @@ class PlayWindow(Screen):
             enemy.hp -= bullet.damage
 
     def energy_layout(self):
-        energy_bar = {0: [], 1: [], 2: [], 3: []}
-
         layout_big = BoxLayout(
                             orientation='horizontal',
                             spacing=(Window.width - 100 - 40 * 4) / 3,
                             size_hint=(None, None), 
-                            size=(Window.width, 40), 
-                            pos=(0, Window.height * 0.2 - 80), 
+                            size=(Window.width, 65), 
+                            pos=(0, Window.height * 0.2 - 105), 
                             padding=[50, 0]
                             )
-
-        spacing = (Window.width - 100 - 40 * 4) / 3
+        
         for i in range(4):
+            vertical_layout = BoxLayout(
+                orientation='vertical',
+                size_hint=(None, None),
+                size=(40, 65)
+            )
+
             energy_button = BorderButton(text='+', 
                                         size_hint=(None, None), 
                                         size=(40, 40),
@@ -196,7 +199,17 @@ class PlayWindow(Screen):
                     energy_button.rectangles.append((color, energy_rect))
             
             energy_button.bind(pos=energy_button.update_rectangles)
-            layout_big.add_widget(energy_button)
+            vertical_layout.add_widget(energy_button)
+        
+            add_energy_button = Button(text='+', 
+                                        size_hint=(None, None), 
+                                        size=(20, 20),
+                                        background_normal='',
+                                        background_color=(0, 1, 0, 1),
+                                        background_disabled_normal='',)
+            add_energy_button.bind(on_press=energy_button.add_energy)
+            vertical_layout.add_widget(add_energy_button)
+            layout_big.add_widget(vertical_layout)
         
         self.add_widget(layout_big)
 
@@ -217,8 +230,14 @@ class BorderButton(Button):
     
     def remove_energy(self, instance):
         for color, rect in self.rectangles:
-            if rect.rgba == (1, 0, 0, 1):  # Check if the color is red
-                rect.rgba = (0, 1, 0, 1)  # Change the color to green
+            if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
+                color.rgba = (0, 1, 0, 1)  # Change the color to green
+                break
+    
+    def add_energy(self, instance):
+        for color, rect in self.rectangles:
+            if color.rgba == [0, 1, 0, 1]:  # Check if the color is red
+                color.rgba = (1, 0, 0, 1)  # Change the color to green
                 break
      
 class MyApp(App):
