@@ -11,7 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
-from kivy.graphics import Rectangle, Color
+from kivy.graphics import Rectangle, Color, Line
 from kivy.clock import Clock
 from enemies import Enemy
 from tower import Bullet
@@ -166,32 +166,61 @@ class PlayWindow(Screen):
             enemy.hp -= bullet.damage
 
     def energy_layout(self):
+        energy_bar = {0: [], 1: [], 2: [], 3: []}
+
         layout_big = BoxLayout(
                             orientation='horizontal',
                             spacing=(Window.width - 100 - 40 * 4) / 3,
                             size_hint=(None, None), 
                             size=(Window.width, 40), 
-                            pos=(0, Window.height - 40), 
-                            padding=[0, 0]
+                            pos=(0, Window.height * 0.2 - 80), 
+                            padding=[50, 0]
                             )
-        layout_small = BoxLayout(
-                        orientation='vertical',
-                        spacing=5,
-                        size_hint=(None, None), 
-                        size=(40, 40),  
-                        padding=[0, 0]
-                        )
 
+        spacing = (Window.width - 100 - 40 * 4) / 3
         for i in range(4):
-            with layout_small.canvas:
-                Color(1, 0, 0, 1)
-                Rectangle(pos=(0, 0), size=(40, 2))
+            energy_button = BorderButton(text='+', 
+                                        size_hint=(None, None), 
+                                        size=(40, 40),
+                                        background_normal='',
+                                        background_color=(0, 1, 0, 1),
+                                        background_disabled_normal='',)
+            
+            energy_button.bind(on_press=energy_button.remove_energy)
+            
+            with energy_button.canvas:
+                energy_button.rectangles = []
+                for j in range(4):
+                    color = Color(1, 0, 0, 1)
+                    energy_rect = Rectangle(size=(40, 5))
+                    energy_button.rectangles.append((color, energy_rect))
+            
+            energy_button.bind(pos=energy_button.update_rectangles)
+            layout_big.add_widget(energy_button)
         
-        layout_big.add_widget(layout_small)
         self.add_widget(layout_big)
-        print(layout_small.pos)
-        print(layout_big.pos)
-        
+
+class BorderButton(Button):
+    def __init__(self, **kwargs):
+        super(BorderButton, self).__init__(**kwargs)
+        self.bind(pos=self.update_border, size=self.update_border)
+
+    def update_border(self, *args):
+        self.canvas.before.clear()
+        with self.canvas.before:
+            Color(1, 0, 0, 1)  # Border color
+            Line(rectangle=(self.x, self.y, self.width, self.height), width=2)  # Border width
+
+    def update_rectangles(self, instance, value):
+        for j, (color, rect) in enumerate(self.rectangles):
+            rect.pos = (instance.pos[0], j * 10 + instance.pos[1] + 2)
+    
+    def remove_energy(self, instance):
+        for color, rect in self.rectangles:
+            if rect.rgba == (1, 0, 0, 1):  # Check if the color is red
+                rect.rgba = (0, 1, 0, 1)  # Change the color to green
+                break
+     
 class MyApp(App):
     def build(self):
         sm = ScreenManager()

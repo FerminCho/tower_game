@@ -28,12 +28,13 @@ class Castle(Widget):
 
         tower_position_size = (40, 40)
         tower_layout_size = (Window.width, tower_position_size[1])
+        right_left_padding = 50
         self.tower_layout = BoxLayout(orientation='horizontal', 
-                                    spacing=(Window.width - 100 - tower_position_size[0] * 4) / 3, 
+                                    spacing=(Window.width - right_left_padding * 2 - tower_position_size[0] * 4) / 3, 
                                     size_hint=(None, None), 
                                     size=tower_layout_size, 
                                     pos=(0, Window.height * 0.2 - 2 - tower_layout_size[1]), 
-                                    padding=[50, 0]
+                                    padding=[right_left_padding, 0]
                                     )
 
         for i in range(4):
