@@ -223,18 +223,15 @@ class PlayWindow(Screen):
     
     def resource_layout(self):
         resources = ResourceHandling()
-        layout = BoxLayout(orientation='horizontal', pos=(0, Window.height - 20), size=(Window.width, 20))
+        layout = FloatLayout(size=(Window.width, Window.height))
         label = Label(
                     text='Energy: ' + str(resources.energy),
-                    size_hint=(None, None),
-                    font_size=10,
+                    #size_hint=(0.1, 1),
+                    font_size=Window.width * 0.025,
+                    pos=(0 - Window.width / 2, Window.height/2 - 15),
                     color=(1, 1, 1, 1),
                     )
-        button = Button(text='+', size_hint=(None, None), size=(20, 20))
-        layout.add_widget(button)
-        layout.add_widget(label)
-        self.add_widget(layout)
-        #self.add_widget(label)
+        self.add_widget(label)
 
 
 class BorderButton(Button):
