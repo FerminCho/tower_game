@@ -8,6 +8,8 @@ from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
@@ -18,6 +20,7 @@ from tower import Bullet
 from castle import Castle
 from game_data import GameData
 from upgrade_window import UpgradeWindow
+from resources import ResourceHandling
 import random
 import math
 
@@ -25,6 +28,7 @@ class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = FloatLayout()
+        self.gmae_state = 'start window'
         self.enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
@@ -34,6 +38,7 @@ class PlayWindow(Screen):
         self.towers = self.castle.towers_in_use
         self.add_widget(self.castle.tower_layout)
         self.energy_layout()
+        self.resource_layout()
 
         # Create the start button
         self.start_button_size = (200, 100)
@@ -57,13 +62,12 @@ class PlayWindow(Screen):
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
 
-    def start_game(self, instance):
-        self.start_button.opacity = 0
-        self.start_button.disabled = True    
+    def start_game(self, instance):   
         Clock.schedule_once(self.start, 0.01)
 
     
     def start(self, dt):
+        self.gmae_state = 'game loop'
         Clock.schedule_interval(self.update, 1/60)
         Clock.schedule_interval(self.spawn_enemy, 3)
         Clock.schedule_once(self.end_round, 10)
@@ -73,6 +77,7 @@ class PlayWindow(Screen):
         for button in self.main_buttons:
             button.opacity = 0
             button.disabled = True
+            button.size = (0, 0)
 
     def end_round(self, dt):
         Clock.unschedule(self.update)
@@ -96,6 +101,7 @@ class PlayWindow(Screen):
         for button in self.main_buttons:
             button.opacity = 1
             button.disabled = False
+            button.size = (200, 100)
 
 
     def spawn_enemy(self, dt):
@@ -166,79 +172,98 @@ class PlayWindow(Screen):
             enemy.hp -= bullet.damage
 
     def energy_layout(self):
+        button_size = (40, 40)
         layout_big = BoxLayout(
                             orientation='horizontal',
-                            spacing=(Window.width - 100 - 40 * 4) / 3,
+                            spacing=(Window.width - 100 - button_size[0] * 4) / 3,
                             size_hint=(None, None), 
-                            size=(Window.width, 65), 
-                            pos=(0, Window.height * 0.2 - 105), 
+                            size=(Window.width, 60), 
+                            pos=(0, Window.height * 0.2 - 84), 
                             padding=[50, 0]
                             )
         
         for i in range(4):
-            vertical_layout = BoxLayout(
-                orientation='vertical',
-                size_hint=(None, None),
-                size=(40, 65)
-            )
-
-            energy_button = BorderButton(text='+', 
+            self.energy_button = BorderButton(text='+', 
                                         size_hint=(None, None), 
-                                        size=(40, 40),
+                                        size=button_size,
                                         background_normal='',
                                         background_color=(0, 1, 0, 1),
                                         background_disabled_normal='',)
             
-            energy_button.bind(on_press=energy_button.remove_energy)
+            self.energy_button.bind(on_press=self.energy_button.energy_handling)
             
-            with energy_button.canvas:
-                energy_button.rectangles = []
+            with self.energy_button.canvas:
+                self.energy_button.rectangles = []
                 for j in range(4):
                     color = Color(1, 0, 0, 1)
-                    energy_rect = Rectangle(size=(40, 5))
-                    energy_button.rectangles.append((color, energy_rect))
+                    energy_rect = Rectangle(size=(button_size[0], 5))
+                    self.energy_button.rectangles.append((color, energy_rect))
             
-            energy_button.bind(pos=energy_button.update_rectangles)
-            vertical_layout.add_widget(energy_button)
-        
-            add_energy_button = Button(text='+', 
-                                        size_hint=(None, None), 
-                                        size=(20, 20),
-                                        background_normal='',
-                                        background_color=(0, 1, 0, 1),
-                                        background_disabled_normal='',)
-            add_energy_button.bind(on_press=energy_button.add_energy)
-            vertical_layout.add_widget(add_energy_button)
-            layout_big.add_widget(vertical_layout)
+            self.energy_button.bind(pos=self.energy_button.update_rectangles)
+            layout_big.add_widget(self.energy_button)
         
         self.add_widget(layout_big)
+
+        toggle_button_size = (100, 50)
+        toggle_button = ToggleButton(text='Energy +',
+                                     size_hint=(None, None),
+                                     size=toggle_button_size,
+                                     pos=(Window.width - toggle_button_size[0], 0))
+        self.energy_button.energy_state = 'add'
+        toggle_button.bind(on_press=self.on_toggle)
+        self.add_widget(toggle_button)
+    
+    def on_toggle(self, instance):
+        if instance.state == 'down':
+            self.energy_button.energy_state = 'remove'
+            instance.text = 'Energy -'
+        else:
+            self.energy_button.energy_state = 'add'
+            instance.text = 'Energy +'
+    
+    def resource_layout(self):
+        resources = ResourceHandling()
+        layout = BoxLayout(orientation='horizontal', pos=(0, Window.height - 20), size=(Window.width, 20))
+        label = Label(
+                    text='Energy: ' + str(resources.energy),
+                    size_hint=(None, None),
+                    font_size=10,
+                    color=(1, 1, 1, 1),
+                    )
+        button = Button(text='+', size_hint=(None, None), size=(20, 20))
+        layout.add_widget(button)
+        layout.add_widget(label)
+        self.add_widget(layout)
+        #self.add_widget(label)
+
 
 class BorderButton(Button):
     def __init__(self, **kwargs):
         super(BorderButton, self).__init__(**kwargs)
-        self.bind(pos=self.update_border, size=self.update_border)
+        #self.bind(pos=self.update_border, size=self.update_border)
 
     def update_border(self, *args):
-        self.canvas.before.clear()
-        with self.canvas.before:
+        line_width = 2
+        self.canvas.after.clear()
+        with self.canvas.after:
             Color(1, 0, 0, 1)  # Border color
-            Line(rectangle=(self.x, self.y, self.width, self.height), width=2)  # Border width
+            Line(rectangle=(self.x + line_width, self.y + line_width, self.width - line_width - 2, self.height - line_width - 2), width=line_width)  # Border width
 
     def update_rectangles(self, instance, value):
         for j, (color, rect) in enumerate(self.rectangles):
             rect.pos = (instance.pos[0], j * 10 + instance.pos[1] + 2)
     
-    def remove_energy(self, instance):
-        for color, rect in self.rectangles:
-            if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
-                color.rgba = (0, 1, 0, 1)  # Change the color to green
-                break
-    
-    def add_energy(self, instance):
-        for color, rect in self.rectangles:
-            if color.rgba == [0, 1, 0, 1]:  # Check if the color is red
-                color.rgba = (1, 0, 0, 1)  # Change the color to green
-                break
+    def energy_handling(self, instance):
+        if self.energy_state == 'add':
+            for color, rect in list(reversed(self.rectangles)):
+                if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
+                    color.rgba = (1, 1, 1, 1)  # Change the color to white
+                    break
+        else:
+            for color, rect in self.rectangles:
+                if color.rgba == [1, 1, 1, 1]:  # Check if the color is red
+                    color.rgba = (1, 0, 0, 1)  # Change the color to green
+                    break
      
 class MyApp(App):
     def build(self):
