@@ -27,7 +27,7 @@ import math
 class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = FloatLayout()
+        self.layout = FloatLayout(size=(Window.width, Window.height))
         self.gmae_state = 'start window'
         self.enemies = []
         self.bullets = []
@@ -223,16 +223,36 @@ class PlayWindow(Screen):
     
     def resource_layout(self):
         resources = ResourceHandling()
-        layout = FloatLayout(size=(Window.width, Window.height))
-        label = Label(
-                    text='Energy: ' + str(resources.energy),
-                    #size_hint=(0.1, 1),
-                    font_size=Window.width * 0.025,
-                    pos=(0 - Window.width / 2, Window.height/2 - 15),
-                    color=(1, 1, 1, 1),
-                    )
-        self.add_widget(label)
-
+        layout = BoxLayout(orientation='horizontal', 
+                           size=(Window.width, 30), 
+                           pos=(0, Window.height - 30),
+                           spacing=10,
+                           padding=10
+                           )
+        
+        # Energy Label
+        energy_label = Label(
+            text='Energy: ' + str(resources.energy),
+            size_hint=(None, None),
+            font_size=Window.width * 0.025,
+            pos=(0, Window.height - 30),
+            color=(1, 1, 1, 1),
+        )
+        energy_label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        layout.add_widget(energy_label)
+        
+        # Coins Label
+        coins_label = Label(
+            text='Coins: ' + str(resources.coins),
+            size_hint=(None, None),
+            font_size=Window.width * 0.025,
+            pos=(energy_label.width, Window.height - 30),
+            color=(1, 1, 1, 1),
+        )
+        coins_label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        layout.add_widget(coins_label)
+        
+        self.add_widget(layout)
 
 class BorderButton(Button):
     def __init__(self, **kwargs):

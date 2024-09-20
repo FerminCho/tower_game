@@ -1,5 +1,5 @@
 {
-    "unlocked_towers": [
+    "all_towers": [
         {
             "name": "Basic Tower",
             "type": "cannon",
@@ -18,38 +18,54 @@
         }
     ],
 
+    "unlocked_towers": [
+        {
+            "name": "Basic Tower"
+        },
+        {
+            "name": "Sniper Tower"
+        }
+    ],
+
     "selected_towers": [
         {
             "name": "Basic Tower",
-            "level": 1,
-            "fire_rate": 1,
-            "damage": 1,
-            "size": 10,
             "position": 0
         },
         {
             "name": "Sniper Tower",
-            "level": 1,
-            "fire_rate": 0.5,
-            "damage": 1,
-            "size": 25,
             "position": 1
         },
         {
             "name": "None",
-            "level": 1,
-            "fire_rate": 0.5,
-            "damage": 0,
-            "size": 25,
             "position": 2
         },
         {
             "name": "None",
-            "level": 1,
-            "fire_rate": 0.5,
-            "damage": 0,
-            "size": 25,
             "position": 3
+        }
+    ],
+
+    "shop_entries": [
+        {
+            "name": "Basic Tower",
+            "price": 10
+        },
+        {
+            "name": "Sniper Tower",
+            "price": 20
+        },
+        {
+            "name": "Energy",
+            "price": 5
+        },
+        {
+            "name": "10 HP",
+            "price": 5
+        },
+        {
+            "name": "1 skill point",
+            "price": 10
         }
     ]
 }

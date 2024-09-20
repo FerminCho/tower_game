@@ -26,3 +26,9 @@ class GameData():
     
     def get_selected_towers(self):
         return self.data['selected_towers']
+    
+    def get_shop_entries(self):
+        return self.data['shop_entries']
+    
+    def get_all_towers(self):
+        return self.data['all_towers']
