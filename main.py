@@ -21,7 +21,7 @@ from castle import Castle
 from game_data import GameData
 from upgrade_window import UpgradeWindow
 from resources import ResourceHandling
-from round import Round
+from round import Round, run
 import random
 import math
 
@@ -31,6 +31,7 @@ class PlayWindow(Screen):
         #self.layout = FloatLayout(size=(Window.width, Window.height))
         self.main_buttons = []
         self.castle = Castle()
+        self.run = run()
         self.add_widget(self.castle)
         self.add_widget(self.castle.tower_layout)
         self.energy_layout()
@@ -55,7 +56,7 @@ class PlayWindow(Screen):
         self.main_buttons.append(upgrade_button)
         self.add_widget(upgrade_button)
 
-        self.round = Round(main_buttons=self.main_buttons, castle=self.castle, layout=self)
+        self.round = Round(main_buttons=self.main_buttons, castle=self.castle, layout=self, run=self.run)
 
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
@@ -140,17 +141,18 @@ class PlayWindow(Screen):
         
         # Coins Label
         coins_label = Label(
-            text='Coins: ' + str(resources.coins),
+            text='Coins: ' + str(self.run.coins),
             size_hint=(None, None),
             font_size=Window.width * 0.025,
             pos=(energy_label.width, Window.height - 30),
             color=(1, 1, 1, 1),
         )
         coins_label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        self.run.bind(coins=lambda instance, value: coins_label.setter('text')(coins_label, 'Coins: ' + str(value)))
         layout.add_widget(coins_label)
 
         round_label = Label(
-            text='Round: ' + str(resources.round),
+            text='Round: ' + str(self.run.round),
             size_hint=(None, None),
             font_size=Window.width * 0.025,
             pos=(energy_label.width, Window.height - 30),
@@ -160,6 +162,9 @@ class PlayWindow(Screen):
         layout.add_widget(round_label)
         
         self.add_widget(layout)
+
+    def update_coins_label(self):
+        self.coins_label.text = 'Coins: ' + str(self.run.coins)
 
 class BorderButton(Button):
     def __init__(self, energy_state, **kwargs):

@@ -8,28 +8,31 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from enemies import Enemy
 import math
+from kivy.properties import NumericProperty
+from kivy.event import EventDispatcher
 
-class run():
-    coins = 0
-    round = 0
+class run(EventDispatcher):
+    coins = NumericProperty(0)
     def __init__(self):
-        pass
+        self.coins = 0
+        self.round = 0
 
 class Round():
-    def __init__(self, main_buttons, castle, layout, **kwargs):
+    def __init__(self, main_buttons, castle, layout, run, **kwargs):
         self.enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
+        self.run = run
         self.main_buttons = main_buttons
         self.castle = castle
         self.towers = self.castle.towers_in_use
         self.layout = layout
-        pass
+        self.number_of_enemies = 2 + self.run.round * 2
 
     def start(self, dt):
         Clock.schedule_interval(self.update, 1/60)
         Clock.schedule_interval(self.spawn_enemy, 3)
-        Clock.schedule_once(self.end_round, 10)
+        #Clock.schedule_once(self.end_round, 10)
         for tower in self.towers.values():
             if tower[1]:
                 Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
@@ -66,6 +69,7 @@ class Round():
         self.enemies.append(enemy)
         self.bullets_to_kill[enemy] = enemy.hp
         self.layout.add_widget(enemy)
+        self.number_of_enemies -= 1
     
     def fire_bullet(self, dt, tower):
         target_list = [enemy for enemy in self.bullets_to_kill]
@@ -81,6 +85,11 @@ class Round():
                 del self.bullets_to_kill[enemy]
 
     def update(self, dt):
+        if self.number_of_enemies == 0 and not self.enemies:
+            self.end_round(dt)
+            self.run.round += 1
+            return
+
         for bullet in self.bullets:
             bullet.update(dt)
 
@@ -125,6 +134,7 @@ class Round():
         if enemy in self.enemies and enemy.hp <= bullet.damage:
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
+            self.run.coins += enemy.value
         else:
             enemy.hp -= bullet.damage
 
