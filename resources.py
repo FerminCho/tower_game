@@ -6,4 +6,5 @@ class ResourceHandling():
         self.energy = 4
         self.coins = 0
         self.gems = 0
+        self.round = 0
     pass
