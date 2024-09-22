@@ -16,13 +16,14 @@ class run(EventDispatcher):
     round = NumericProperty(0)
     skill_points = NumericProperty(0)
     energy = NumericProperty(0)
+    hp = NumericProperty(0)
     def __init__(self, castle, **kwargs):
         self.coins = 0
         self.round = 0
         self.skill_points = 0
         self.castle = castle
         self.energy = castle.base_energy
-        self.castle.hp = castle.base_hp
+        self.hp = castle.base_hp
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -183,8 +184,8 @@ class shop():
             case "Energy":
                 self.run.energy += 1
                 return
-            case "HP":
-                self.castle.hp += 1
+            case "1 HP":
+                self.run.hp += 1
                 return
             case "Skill Point":
                 self.run.skill_points += 1

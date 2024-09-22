@@ -44,16 +44,13 @@ class PlayWindow(Screen):
         # Add a button to switch to the UpgradeWindow
         upgrade_button = Button(text="Upgrade Tower",
                                 size_hint=(0.3, 1),
-                                size=(200, 100),
-                                pos=(0, 0))
+                                )
         upgrade_button.bind(on_press=self.switch_to_upgrade)
         self.main_buttons.append([upgrade_button, upgrade_button.size_hint[0]])
         run_buttons.add_widget(upgrade_button)
 
         self.start_button = Button(text="Start Round",
                                    size_hint=(0.4, 1),
-                                   #size=self.start_button_size,
-                                   #pos=(Window.width / 2 - self.start_button_size[0] / 2, 0)
                                    )
         self.start_button.bind(on_press=self.start_game)
         self.main_buttons.append([self.start_button, self.start_button.size_hint[0]])
@@ -61,7 +58,6 @@ class PlayWindow(Screen):
          
         self.shop_button = Button(text="Shop",
                             size_hint=(0.3, 1),
-                            #size=(200, 100),
                             )
         self.shop_button.bind(on_press=self.shop.shop_enteries)
         self.main_buttons.append([self.shop_button, self.shop_button.size_hint[0]])
@@ -152,6 +148,9 @@ class PlayWindow(Screen):
 
         skill_points_label = self.create_resource_label('Skill Points: ', 'skill_points', (energy_label.width, Window.height - 30), (1, 1, 1, 1))
         layout.add_widget(skill_points_label)
+
+        skill_points_label = self.create_resource_label('HP: ', 'hp', (energy_label.width, Window.height - 30), (1, 1, 1, 1))
+        layout.add_widget(skill_points_label)
         
         self.add_widget(layout)
 
@@ -184,7 +183,7 @@ class BorderButton(Button):
             rect.pos = (instance.pos[0], j * 10 + instance.pos[1] + 2)
     
     def energy_handling(self, instance):
-        if self.energy_state == 'add':
+        if self.energy_state == 'add' and self.run.energy > 0:
             for color, rect in list(reversed(self.rectangles)):
                 if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
                     color.rgba = (1, 1, 1, 1)  # Change the color to white
