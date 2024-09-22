@@ -15,7 +15,8 @@ import math
 class Castle(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.hp = 10
+        self.base_hp = 10
+        self.base_energy = 4
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
         self.towers_in_use = {0: [None, None], 1: [None, None], 2: [None, None], 3: [None, None]}

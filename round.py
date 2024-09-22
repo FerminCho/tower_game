@@ -13,9 +13,16 @@ from kivy.event import EventDispatcher
 
 class run(EventDispatcher):
     coins = NumericProperty(0)
-    def __init__(self):
+    round = NumericProperty(0)
+    skill_points = NumericProperty(0)
+    energy = NumericProperty(0)
+    def __init__(self, castle, **kwargs):
         self.coins = 0
         self.round = 0
+        self.skill_points = 0
+        self.castle = castle
+        self.energy = castle.base_energy
+        self.castle.hp = castle.base_hp
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -27,23 +34,26 @@ class Round():
         self.castle = castle
         self.towers = self.castle.towers_in_use
         self.layout = layout
-        self.number_of_enemies = 2 + self.run.round * 2
+        self.number_of_enemies = 0
+        self.schedule_events = []
 
     def start(self, dt):
-        Clock.schedule_interval(self.update, 1/60)
-        Clock.schedule_interval(self.spawn_enemy, 3)
-        #Clock.schedule_once(self.end_round, 10)
+        self.number_of_enemies = 2 + self.run.round * 2
+        for button in self.main_buttons:
+            button[0].opacity = 0
+            button[0].disabled = True
+            button[0].size = (0, 0)
+            button[0].size_hint = (None, None)
+        self.schedule_events.append(Clock.schedule_interval(self.update, 1/60))
+        self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 3))
         for tower in self.towers.values():
             if tower[1]:
-                Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
-        for button in self.main_buttons:
-            button.opacity = 0
-            button.disabled = True
-            button.size = (0, 0)
+                event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
+                self.schedule_events.append(event)
 
     def end_round(self, dt):
-        Clock.unschedule(self.update)
-        Clock.unschedule(self.spawn_enemy)
+        for event in self.schedule_events:
+            Clock.unschedule(event)
         for tower in self.towers.values():
             if tower[1]:
                 Clock.unschedule(self.fire_bullet(dt, tower[1]))
@@ -59,9 +69,10 @@ class Round():
         self.bullets_to_kill = {}
 
         for button in self.main_buttons:
-            button.opacity = 1
-            button.disabled = False
-            button.size = (200, 100)
+            button[0].opacity = 1
+            button[0].disabled = False
+            #button.size = (200, 100)
+            button[0].size_hint = (button[1], 1)
 
 
     def spawn_enemy(self, dt):
@@ -86,8 +97,8 @@ class Round():
 
     def update(self, dt):
         if self.number_of_enemies == 0 and not self.enemies:
-            self.end_round(dt)
             self.run.round += 1
+            self.end_round(dt)
             return
 
         for bullet in self.bullets:
@@ -139,28 +150,50 @@ class Round():
             enemy.hp -= bullet.damage
 
 class shop():
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, run, castle, **kwargs):
+        #super().__init__(**kwargs)
         self.game_data = GameData()
+        self.run = run
+        self.castle = castle
     
-    def shop_enteries(self):
+    def shop_enteries(self, instance):
         popup_content = BoxLayout(orientation='vertical')
         grid_layout = GridLayout(cols = 2, spacing = 0, size_hint_y = None)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
-        popup_size = (300, 300)
+        popup_size = (Window.width * 0.8, Window.height * 0.8)
 
         entries = self.game_data.get_shop_entries()
         for entry in entries:
             button1 = Button(text=entry['name'], size_hint_y=None, height=40)
-            button2 = Button(text=entry['price'], size_hint_y=None, height=40)
+            button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
+            button2.bind(on_release=lambda btn, name=entry['name'], price=entry['price']: self.buy(name, price))
             grid_layout.add_widget(button1)
             grid_layout.add_widget(button2)
         popup_content.add_widget(grid_layout)
         popup = Popup(title='Shop Entries', content=popup_content, size_hint=(None, None), size=popup_size)
         popup.open()
 
-    def buy():
-        pass
+    def buy(self, name, price):
+        if self.run.coins < price:
+            return
+        else:
+            self.run.coins -= price
+
+        match name:
+            case "Energy":
+                self.run.energy += 1
+                return
+            case "HP":
+                self.castle.hp += 1
+                return
+            case "Skill Point":
+                self.run.skill_points += 1
+                return
+        
+        for tower in self.game_data.get_unlocked_towers():
+            if tower['name'] == name:
+                self.game_data.unlock_tower(name)
+                return
 
     def upgrade():
         pass
