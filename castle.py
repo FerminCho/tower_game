@@ -19,7 +19,7 @@ class Castle(Widget):
         self.base_energy = 4
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
-        self.towers_in_use = {0: [None, None], 1: [None, None], 2: [None, None], 3: [None, None]}
+        self.towers_in_use = {0: [None, None, 0], 1: [None, None, 0], 2: [None, None, 0], 3: [None, None, 0]}
         self.rect_pos = (0, Window.height * 0.2)
         self.selected_button = None
         self.towers = self.game_data.get_all_towers()
@@ -50,14 +50,14 @@ class Castle(Widget):
                 )
             tower_position.bind(on_press=lambda btn, i=i: self.tower_selection(btn, i))
             self.tower_layout.add_widget(tower_position)
-            del self.towers_in_use[i] #Remove code later for better implementation
+            #del self.towers_in_use[i] #Remove code later for better implementation
             selected_towers = self.game_data.get_selected_towers()
             for tower in selected_towers:
                 if tower['position'] == i and tower['name'] != 'None':
                     Clock.schedule_once(lambda dt, t=tower['name'], i=i, tower_position=tower_position: self.set_current_tower(tower_position, t, i), 0.01)
                     break
                 elif tower['position'] == i:
-                    self.towers_in_use[i] = [tower_position, None]
+                    self.towers_in_use[i] = [tower_position, None, 0]
                     break
 
     def set_current_tower(self, tower_position, tower_name, i):
@@ -69,7 +69,9 @@ class Castle(Widget):
                                                                 name=tower['name'], 
                                                                 bullet_size=tower['size'], 
                                                                 tower_pos=tower_position.pos,
-                                                                castle_pos=self.rect_pos)]
+                                                                castle_pos=self.rect_pos),
+                                                                0
+                                                                ]
                 break
         self.tower_layout.add_widget(self.towers_in_use[i][1])
         

@@ -39,15 +39,26 @@ class shop:
         popup.open()
 
     def buy(self, name, price):
-        if self.castle.coins < int(price):
+        if self.castle.coins < price:
             return
         else:
-            self.castle.coins -= int(price)
+            self.castle.coins -= price
+
         match name:
             case "Energy":
                 self.castle.energy += 1
+                return
             case "HP":
                 self.castle.hp += 1
+                return
+            case "Skill Point":
+                self.castle.skill_points += 1
+                return
+        
+        for tower in self.game_data.get_bought_towers():
+            if tower['name'] == name:
+                self.game_data.unlock_tower(name)
+                return
 
     def upgrade(self):
         pass

@@ -33,9 +33,9 @@ class PlayWindow(Screen):
         self.castle = Castle()
         self.run = run(castle=self.castle)
         self.shop = shop(run=self.run, castle=self.castle)
+        self.energy_layout()
         self.add_widget(self.castle)
         self.add_widget(self.castle.tower_layout)
-        self.energy_layout()
         self.resource_layout()
 
 
@@ -95,8 +95,10 @@ class PlayWindow(Screen):
                                         energy_state=self.energy_state,
                                         run=self.run
                                         )
-            self.energy_buttons.append(self.energy_button)
-            self.energy_button.bind(on_press=self.energy_button.energy_handling)
+            self.button_energy = [self.energy_button, 0]
+            #self.castle.towers_in_use[i].append(self.button_energy)
+            self.energy_buttons.append(self.button_energy)
+            self.energy_button.bind(on_press=lambda instance, button_energy=self.button_energy, btn=self.energy_button: btn.energy_handling(instance, button_energy))
             
             with self.energy_button.canvas:
                 self.energy_button.rectangles = []
@@ -107,7 +109,7 @@ class PlayWindow(Screen):
             
             self.energy_button.bind(pos=self.energy_button.update_rectangles)
             layout_big.add_widget(self.energy_button)
-        
+        self.run.energy_buttons = self.energy_buttons
         self.add_widget(layout_big)
 
         toggle_button_size = (100, 50)
@@ -120,11 +122,11 @@ class PlayWindow(Screen):
     
     def on_toggle(self, instance):
         if instance.state == 'down':
-            for button in self.energy_buttons:
+            for button, energy in self.energy_buttons:
                 button.energy_state = 'remove'
             instance.text = 'Energy -'
         else:
-            for button in self.energy_buttons:
+            for button, energy in self.energy_buttons:
                 button.energy_state = 'add'
             instance.text = 'Energy +'
     
@@ -182,18 +184,20 @@ class BorderButton(Button):
         for j, (color, rect) in enumerate(self.rectangles):
             rect.pos = (instance.pos[0], j * 10 + instance.pos[1] + 2)
     
-    def energy_handling(self, instance):
+    def energy_handling(self, instance, button_energy):
         if self.energy_state == 'add' and self.run.energy > 0:
             for color, rect in list(reversed(self.rectangles)):
                 if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
                     color.rgba = (1, 1, 1, 1)  # Change the color to white
                     self.run.energy -= 1
+                    button_energy[1] += 1
                     break
         else:
             for color, rect in self.rectangles:
                 if color.rgba == [1, 1, 1, 1]:  # Check if the color is white
                     color.rgba = (1, 0, 0, 1)  # Change the color to red
                     self.run.energy += 1
+                    button_energy[1] -= 1
                     break
     
     def set_energy_state(self, new_state):

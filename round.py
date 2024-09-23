@@ -24,6 +24,7 @@ class run(EventDispatcher):
         self.castle = castle
         self.energy = castle.base_energy
         self.hp = castle.base_hp
+        self.energy_buttons = None
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -85,6 +86,10 @@ class Round():
     
     def fire_bullet(self, dt, tower):
         target_list = [enemy for enemy in self.bullets_to_kill]
+
+        for i in range(4):
+            if self.towers[i][1] == tower and self.run.energy_buttons[i][1] <= 0:
+                return
 
         if bool(self.bullets_to_kill):  # Only fire if there are enemies
             bullet = tower.create_bullet(self.enemies)
