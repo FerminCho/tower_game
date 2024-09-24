@@ -38,6 +38,8 @@ class PlayWindow(Screen):
         self.add_widget(self.castle.tower_layout)
         self.resource_layout()
 
+        self.manager.get_screen('Upgrade').run = self.run
+        self.manager.get_screen('Upgrade').unlocked_towers = self.shop.unlocked_towers
 
         run_buttons = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
 
