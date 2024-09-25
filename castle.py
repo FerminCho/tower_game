@@ -13,16 +13,17 @@ from tower import Tower
 import math
 
 class Castle(Widget):
-    def __init__(self, **kwargs):
+    def __init__(self, run, **kwargs):
         super().__init__(**kwargs)
         self.base_hp = 10
         self.base_energy = 4
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
-        self.towers_in_use = {0: [None, None, 0], 1: [None, None, 0], 2: [None, None, 0], 3: [None, None, 0]}
+        self.towers_in_use = {0: [None, None], 1: [None, None], 2: [None, None], 3: [None, None]}
         self.rect_pos = (0, Window.height * 0.2)
+        self.run = run
         self.selected_button = None
-        self.towers = self.game_data.get_all_towers()
+        self.towers = None
 
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
@@ -57,21 +58,15 @@ class Castle(Widget):
                     Clock.schedule_once(lambda dt, t=tower['name'], i=i, tower_position=tower_position: self.set_current_tower(tower_position, t, i), 0.01)
                     break
                 elif tower['position'] == i:
-                    self.towers_in_use[i] = [tower_position, None, 0]
+                    self.towers_in_use[i] = [tower_position, None]
                     break
 
     def set_current_tower(self, tower_position, tower_name, i):
+        self.towers = self.run.tower_instances
         for tower in self.towers:
-            if tower['name'] == tower_name:
-                self.towers_in_use[i] = [tower_position, Tower(fire_rate=tower['fire_rate'], 
-                                                                damage=tower['damage'], 
-                                                                level=tower['level'], 
-                                                                name=tower['name'], 
-                                                                bullet_size=tower['size'], 
-                                                                tower_pos=tower_position.pos,
-                                                                castle_pos=self.rect_pos),
-                                                                0
-                                                                ]
+            if tower.name == tower_name:
+                self.towers_in_use[i] = [tower_position, tower]
+                tower.draw_to_screen(tower_position.pos)
                 break
         self.tower_layout.add_widget(self.towers_in_use[i][1])
         
@@ -85,11 +80,11 @@ class Castle(Widget):
         unlocked_towers = self.game_data.get_unlocked_towers()
 
         for tower in unlocked_towers:
-            button = Button(text=tower['name'], size_hint_y=None, height=40)
-            button.bind(on_press=lambda btn, t=tower['name']: self.create_tower(btn, t, position=position))
+            button = Button(text=tower, size_hint_y=None, height=40)
+            button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
             grid_layout.add_widget(button)
                 
-            if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower['name']:
+            if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower:
                 self.selected_button = button
                 button.background_color = (0, 1, 0, 1)
         
@@ -113,15 +108,8 @@ class Castle(Widget):
                 return
         
         for tower in self.towers:
-            if tower['name'] == tower_name:
-                create_tower = Tower(fire_rate=tower['fire_rate'], 
-                                    damage=tower['damage'], 
-                                    level=tower['level'], 
-                                    name=tower['name'], 
-                                    bullet_size=tower['size'], 
-                                    tower_pos=self.towers_in_use[position][0].pos,
-                                    castle_pos=self.rect_pos
-                                    )
+            if tower.name == tower_name:
+                create_tower = tower
                 break
         
         if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower_name:
@@ -162,7 +150,7 @@ class Castle(Widget):
 
         # Check if the distance is less than the sum of the radii (or half the widths)
         if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
-            self.hp -= enemy.damage
+            self.parent.run.hp -= enemy.damage
             self.parent.remove_widget(enemy)
             self.parent.enemies.remove(enemy)
             self.parent.bullets_to_kill.pop(enemy)

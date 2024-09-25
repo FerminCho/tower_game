@@ -18,13 +18,26 @@
         }
     ],
 
+    "latest_run": {
+        "score": 0,
+        "energy": 0,
+        "hp": 10,
+        "skill_points": 0,
+        "towers": [
+            {
+                "name": "Basic Tower",
+                "type": "cannon",
+                "level": 1,
+                "fire_rate": 1,
+                "damage": 1,
+                "size": 10
+            }
+        ]
+    },
+
     "unlocked_towers": [
-        {
-            "name": "Basic Tower"
-        },
-        {
-            "name": "Sniper Tower"
-        }
+            "Basic Tower",
+            "Sniper Tower"
     ],
 
     "selected_towers": [

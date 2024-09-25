@@ -30,16 +30,14 @@ class PlayWindow(Screen):
         super().__init__(**kwargs)
         #self.layout = FloatLayout(size=(Window.width, Window.height))
         self.main_buttons = []
-        self.castle = Castle()
-        self.run = run(castle=self.castle)
-        self.shop = shop(run=self.run, castle=self.castle)
+        self.run = run()
+        self.shop = shop(run=self.run, castle=self.run.castle)
         self.energy_layout()
-        self.add_widget(self.castle)
-        self.add_widget(self.castle.tower_layout)
+        self.add_widget(self.run.castle)
+        self.add_widget(self.run.castle.tower_layout)
         self.resource_layout()
 
-        self.manager.get_screen('Upgrade').run = self.run
-        self.manager.get_screen('Upgrade').unlocked_towers = self.shop.unlocked_towers
+        #self.manager.get_screen('Upgrade').run = self.run
 
         run_buttons = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
 
@@ -66,7 +64,10 @@ class PlayWindow(Screen):
         run_buttons.add_widget(self.shop_button)
 
         self.add_widget(run_buttons)
-        self.round = Round(main_buttons=self.main_buttons, castle=self.castle, layout=self, run=self.run)
+        self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
+
+    def on_enter(self):
+        self.manager.get_screen('Upgrade').run = self.run
 
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
@@ -208,8 +209,8 @@ class BorderButton(Button):
 class MyApp(App):
     def build(self):
         sm = ScreenManager()
-        sm.add_widget(PlayWindow(name = 'Play'))
         sm.add_widget(UpgradeWindow(name = 'Upgrade'))
+        sm.add_widget(PlayWindow(name = 'Play'))
         return sm
         #return MyGame()
 

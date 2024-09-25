@@ -32,3 +32,6 @@ class GameData():
     
     def get_all_towers(self):
         return self.data['all_towers']
+    
+    def get_latest_run(self):
+        return self.data['latest_run']

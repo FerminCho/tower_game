@@ -1,4 +1,5 @@
 from game_data import GameData
+from tower import Tower
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -7,6 +8,7 @@ from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.clock import Clock
 from enemies import Enemy
+from castle import Castle
 import math
 from kivy.properties import NumericProperty
 from kivy.event import EventDispatcher
@@ -17,14 +19,28 @@ class run(EventDispatcher):
     skill_points = NumericProperty(0)
     energy = NumericProperty(0)
     hp = NumericProperty(0)
-    def __init__(self, castle, **kwargs):
+    def __init__(self, **kwargs):
         self.coins = 0
         self.round = 0
         self.skill_points = 0
-        self.castle = castle
-        self.energy = castle.base_energy
-        self.hp = castle.base_hp
+        self.castle = Castle(self)
+        self.energy = self.castle.base_energy
+        self.hp = self.castle.base_hp
         self.energy_buttons = None
+        self.game_data = GameData()
+        self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.towers = self.game_data.get_all_towers()
+        self.tower_instances = []
+        for tower_name in self.unlocked_towers:
+            for tower in self.towers:
+                if tower['name'] == tower_name:
+                    full_tower = Tower(fire_rate=tower['fire_rate'], 
+                                       damage=tower['damage'], level=1, 
+                                       name=tower['name'], 
+                                       bullet_size=tower['size'], 
+                                       tower_pos=None, 
+                                       castle_pos=self.castle.rect_pos)
+                    self.tower_instances.append(full_tower)
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -78,6 +94,8 @@ class Round():
 
 
     def spawn_enemy(self, dt):
+        if self.number_of_enemies == 0:
+            return
         enemy = Enemy()
         self.enemies.append(enemy)
         self.bullets_to_kill[enemy] = enemy.hp
@@ -85,17 +103,20 @@ class Round():
         self.number_of_enemies -= 1
     
     def fire_bullet(self, dt, tower):
-        target_list = [enemy for enemy in self.bullets_to_kill]
 
         for i in range(4):
             if self.towers[i][1] == tower and self.run.energy_buttons[i][1] <= 0:
                 return
+            elif self.towers[i][1] == tower:
+                tower.damage = tower.base_damage * (0.5 + 0.5 * self.run.energy_buttons[i][1])
 
         if bool(self.bullets_to_kill):  # Only fire if there are enemies
             bullet = tower.create_bullet(self.enemies)
-            self.bullets.append(bullet)
-            self.layout.add_widget(bullet)
-            self.bullets_to_kill[bullet.enemy] -= bullet.damage
+            if bullet.enemy in self.bullets_to_kill:
+                self.bullets.append(bullet)
+                self.layout.add_widget(bullet)
+                self.bullets_to_kill[bullet.enemy] -= bullet.damage
+                print(bullet.damage)
         
         for enemy in self.enemies:
             if enemy in self.bullets_to_kill and self.bullets_to_kill[enemy] <= 0:
