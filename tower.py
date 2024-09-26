@@ -76,9 +76,14 @@ class Bullet(Widget):
 
     def calculate_velocity(self):
         # Calculate the time to impact
-        direction_x = self.target_rect.pos[0] - self.bullet_pos[0]
-        direction_y = self.target_rect.pos[1] - self.bullet_pos[1]
+        direction_x = self.enemy.pos[0] - self.bullet_pos[0]
+        direction_y = self.enemy.pos[1] - self.bullet_pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        
+        if distance == 0:
+            self.velocity = (0, 0)
+            return
+
         time_to_impact = distance / 600  # Assuming bullet speed is 600 pixels per second
 
         # Predict the enemy's future position
@@ -88,14 +93,18 @@ class Bullet(Widget):
         direction_x = future_enemy_pos[0] - self.bullet_pos[0]
         direction_y = future_enemy_pos[1] - self.bullet_pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        
+        if distance == 0:
+            self.velocity = (0, 0)
+            return
 
         speed = 600  # Pixels per second
         self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
     
     def predict_enemy_position(self, time_to_impact):
-        # Predict the future position of the enemy
-        future_x = self.enemy.pos[0]
-        future_y = self.enemy.pos[1] - self.enemy.speed * time_to_impact
+        # Assuming enemy is moving straight down
+        future_x = self.enemy.pos[0] + self.enemy.rect_size[0] / 2
+        future_y = self.enemy.pos[1] + self.enemy.rect_size[1] / 2 + self.enemy.speed * time_to_impact
         return future_x, future_y
 
     def update(self, dt):
@@ -104,7 +113,8 @@ class Bullet(Widget):
         self.bullet_pos = (new_x, new_y)
         self.rect.pos = self.bullet_pos
 
-        # Stop moving if the rectangle reaches the center
+        self.calculate_velocity()
+
         if self.check_collision():
             Clock.unschedule(self.update)
     

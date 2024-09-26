@@ -195,7 +195,7 @@ class BorderButton(Button):
                     self.run.energy -= 1
                     button_energy[1] += 1
                     break
-        else:
+        elif self.energy_state == 'remove':
             for color, rect in self.rectangles:
                 if color.rgba == [1, 1, 1, 1]:  # Check if the color is white
                     color.rgba = (1, 0, 0, 1)  # Change the color to red

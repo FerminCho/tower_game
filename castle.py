@@ -149,12 +149,13 @@ class Castle(Widget):
         )
 
         # Check if the distance is less than the sum of the radii (or half the widths)
-        if distance < (self.rect_size[0] / 2 + enemy.rect_size[0] / 2):
-            self.parent.run.hp -= enemy.damage
+        if self.rect_pos[1] >= enemy.pos[1]:
+            self.run.hp -= enemy.damage
             self.parent.remove_widget(enemy)
-            self.parent.enemies.remove(enemy)
-            self.parent.bullets_to_kill.pop(enemy)
-            for bullet in self.parent.bullets:
+            self.parent.round.enemies.remove(enemy)
+            if enemy in self.parent.round.bullets_to_kill:
+                del self.parent.round.bullets_to_kill[enemy]
+            for bullet in self.parent.round.bullets:
                 if bullet.enemy == enemy:
-                    self.parent.bullets.remove(bullet)
+                    self.parent.round.bullets.remove(bullet)
                     self.parent.remove_widget(bullet)
