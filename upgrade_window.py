@@ -120,7 +120,7 @@ class UpgradeWindow(Screen):
         self.border.rectangle = (self.skill_info_window.x, self.skill_info_window.y, self.skill_info_window.width, self.skill_info_window.height)
 
     def show_skill_info_window(self, instance, tower_name, skill):
-        for tower in self.unlocked_towers:
+        for tower in self.run.tower_instances:
             if tower.name == tower_name:
                 break
         # Populate the skill info window with the relevant information
@@ -129,21 +129,29 @@ class UpgradeWindow(Screen):
         self.skill_info_window.opacity = 1  # Show the skill info window
     
     def upgrade(self, instance, tower, skill):
-        
+        if self.run.skill_points == 0:
+            return
 
         if tower.name == "Basic Tower":
             match skill:
                 case "Skill A1":
                     tower.damage += 1
+                    self.run.skill_points -= 1
                 case "Skill A2":
                     tower.fire_rate += 1
+                    self.run.skill_points -= 1
                 case "Skill A3":
                     tower.damage += 1
+                    self.run.skill_points -= 1
                 case "Skill A4":
                     tower.fire_rate += 1
+                    self.run.skill_points -= 1
                 case "Skill A5":
+                    if self.run.skill_points < 2:
+                        return
                     tower.damage += 1
-        
+                    self.run.skill_points -= 2
+
         elif tower.name == "Sniper Tower":
             pass
 
