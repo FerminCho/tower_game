@@ -19,10 +19,17 @@ class Tower(Widget):
         self.tower_pos = tower_pos
         self.bullet_size = (bullet_size, bullet_size)
         self.castle_pos = castle_pos
+        self.xp = 0
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=enemies, damage=self.damage, fire_rate=self.fire_rate, bullet_pos=bullet_pos, size=self.bullet_size, castle_pos=self.castle_pos)
+        bullet = Bullet(enemies=enemies, 
+                        damage=self.damage, 
+                        fire_rate=self.fire_rate, 
+                        bullet_pos=bullet_pos, 
+                        size=self.bullet_size, 
+                        castle_pos=self.castle_pos, 
+                        tower=self)
         return bullet
 
     def draw_to_screen(self, tower_pos):
@@ -30,10 +37,21 @@ class Tower(Widget):
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=((self.tower_pos[0] + self.rect_size[0] / 2), self.tower_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
+    
+    def increment_xp(self, amount):
+        self.xp += amount
+        if self.xp >= 5 * self.level + 1:
+            self.level_up()
+
+    def level_up(self):
+        self.xp = 0
+        self.level += 1
+        print(self.level)
+        
         
 
 class Bullet(Widget):
-    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, **kwargs):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
@@ -41,6 +59,7 @@ class Bullet(Widget):
         self.rectangles = enemies
         self.wall = castle_pos[1]
         self.velocity = (0, 0)
+        self.tower = tower
 
         self.target_rect = None
         self.enemy = None

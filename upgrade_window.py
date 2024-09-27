@@ -157,20 +157,3 @@ class UpgradeWindow(Screen):
 
     def switch_to_play(self, instance):
         self.manager.current = 'Play'
-
-class PlayWindow(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        layout = FloatLayout()
-        self.add_widget(layout)
-
-        # Add a button to switch to the SkillTreeWindow
-        skill_tree_button = Button(text="Skill Tree",
-                                   size_hint=(None, None),
-                                   size=(200, 100),
-                                   pos=(self.width / 2 - 100, self.height / 2 - 50))
-        skill_tree_button.bind(on_press=self.switch_to_skill_tree)
-        layout.add_widget(skill_tree_button)
-
-    def switch_to_skill_tree(self, instance):
-        self.manager.current = 'SkillTree'

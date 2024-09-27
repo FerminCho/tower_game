@@ -116,7 +116,6 @@ class Round():
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
                 self.bullets_to_kill[bullet.enemy] -= bullet.damage
-                print(bullet.damage)
         
         for enemy in self.enemies:
             if enemy in self.bullets_to_kill and self.bullets_to_kill[enemy] <= 0:
@@ -173,8 +172,12 @@ class Round():
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
             self.run.coins += enemy.value
+            if bullet.tower.level <= 3:
+                bullet.tower.increment_xp(enemy.hp)
         else:
             enemy.hp -= bullet.damage
+            if bullet.tower.level <= 3:
+                bullet.tower.increment_xp(bullet.damage)
 
 class shop():
     def __init__(self, run, castle, **kwargs):
