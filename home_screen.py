@@ -14,8 +14,12 @@ class HomeWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.perma_coins = 0
+        self.extra_coins = 0
+        self.extra_skill_points = 0
+        self.extra_energy = 0
+        self.extra_hp = 0
         buttons = []
-        pass
+        self.game_data = GameData()
 
         button_layout = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
 
@@ -63,9 +67,14 @@ class HomeWindow(Screen):
         layout.add_widget(perma_coins)
         self.add_widget(layout)
 
+        def save_game(self, data):
+            self.game_data.save_game(data)
+            pass
+
 class PermanentShop(Screen):
-    def __init__(self, **kw):
-        super().__init__(**kw)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.home = None
         self.game_data = GameData()
         self.perma_coins = None
         self.shop_enteries(self)
@@ -93,14 +102,14 @@ class PermanentShop(Screen):
             self.perma_coins -= price
 
         match name:
-            case "Energy":
-                self.run.energy += 1
+            case "1 Permanent Energy":
+                self.home.extra_energy += 1
                 return
             case "1 HP":
-                self.run.hp += 1
+                self.home.extra_hp += 1
                 return
             case "Skill Point":
-                self.run.skill_points += 1
+                self.home.extra_skill_point += 1
                 return
         
         for tower in self.game_data.get_unlocked_towers():
@@ -108,8 +117,9 @@ class PermanentShop(Screen):
                 self.game_data.unlock_tower(name)
                 return
 
-    def upgrade():
-        pass
+    def on_enter(self):
+        self.home = self.manager.get_screen('Home')
+        
 
     
 class MyApp(App):
@@ -118,7 +128,6 @@ class MyApp(App):
         sm.add_widget(HomeWindow(name='Home'))
         sm.add_widget(PermanentShop(name='Shop'))
         return sm
-        #return MyGame()
 
 if __name__ == '__main__':
     MyApp().run()
