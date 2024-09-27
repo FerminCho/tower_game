@@ -3,7 +3,7 @@
         {
             "name": "Basic Tower",
             "type": "cannon",
-            "level": 1,
+            "level": 0,
             "fire_rate": 1,
             "damage": 1,
             "size": 10
@@ -11,7 +11,7 @@
         {
             "name": "Sniper Tower",
             "type": "sniper",
-            "level": 1,
+            "level": 0,
             "fire_rate": 0.5,
             "damage": 1,
             "size": 25
@@ -19,7 +19,7 @@
     ],
 
     "latest_run": {
-        "score": 0,
+        "round": 0,
         "energy": 0,
         "hp": 10,
         "skill_points": 0,
@@ -80,5 +80,29 @@
             "name": "1 skill point",
             "price": 10
         }
+    ],
+
+    "permanent_shop_entries": [
+        {
+            "name": "1 Energy",
+            "price": 10
+        },
+        {
+            "name": "Sniper Tower",
+            "price": 20
+        },
+        {
+            "name": "Energy",
+            "price": 0
+        },
+        {
+            "name": "1 HP",
+            "price": 1
+        },
+        {
+            "name": "1 skill point",
+            "price": 10
+        }
     ]
+    
 }
