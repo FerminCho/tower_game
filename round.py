@@ -35,12 +35,34 @@ class run(EventDispatcher):
             for tower in self.towers:
                 if tower['name'] == tower_name:
                     full_tower = Tower(fire_rate=tower['fire_rate'], 
-                                       damage=tower['damage'], level=1, 
+                                       damage=tower['damage'], level=0, 
                                        name=tower['name'], 
                                        bullet_size=tower['size'], 
                                        tower_pos=None, 
                                        castle_pos=self.castle.rect_pos)
                     self.tower_instances.append(full_tower)
+    
+    def save_run(self):
+        data = {
+            'coins': self.coins,
+            'round': self.round,
+            'skill_points': self.skill_points,
+            'energy': self.energy,
+            'hp': self.hp,
+            'towers': []
+        }
+        for tower in self.tower_instances:
+            data['towers'].append({
+                'fire_rate': tower.fire_rate,
+                'damage': tower.base_damage,
+                'level': tower.level,
+                'name': tower.name,
+                'bullet_size': tower.bullet_size,
+                'tower_pos': tower.tower_pos,
+                'castle_pos': tower.castle_pos
+            })
+
+        self.game_data.save_run(data)
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -172,11 +194,11 @@ class Round():
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
             self.run.coins += enemy.value
-            if bullet.tower.level <= 3:
+            if bullet.tower.level <= 6:
                 bullet.tower.increment_xp(enemy.hp)
         else:
             enemy.hp -= bullet.damage
-            if bullet.tower.level <= 3:
+            if bullet.tower.level <= 6:
                 bullet.tower.increment_xp(bullet.damage)
 
 class shop():
@@ -210,18 +232,18 @@ class shop():
             self.run.coins -= price
 
         match name:
-            case "Energy":
+            case "1 Energy":
                 self.run.energy += 1
                 return
             case "1 HP":
                 self.run.hp += 1
                 return
-            case "Skill Point":
+            case "1 Skill Point":
                 self.run.skill_points += 1
                 return
         
         for tower in self.game_data.get_unlocked_towers():
-            if tower['name'] == name:
+            if tower == name:
                 self.game_data.unlock_tower(name)
                 return
 

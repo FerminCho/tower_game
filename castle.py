@@ -16,7 +16,7 @@ class Castle(Widget):
     def __init__(self, run, **kwargs):
         super().__init__(**kwargs)
         self.base_hp = 10
-        self.base_energy = 4
+        self.base_energy = 2
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
         self.towers_in_use = {0: [None, None], 1: [None, None], 2: [None, None], 3: [None, None]}
@@ -78,15 +78,18 @@ class Castle(Widget):
         popup_size = (300, 300)
 
         unlocked_towers = self.game_data.get_unlocked_towers()
+        all_towers = self.run.tower_instances
 
-        for tower in unlocked_towers:
-            button = Button(text=tower, size_hint_y=None, height=40)
-            button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
-            grid_layout.add_widget(button)
-                
-            if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower:
-                self.selected_button = button
-                button.background_color = (0, 1, 0, 1)
+        for full_tower in all_towers:
+            for tower in unlocked_towers:
+                if tower == full_tower.name:
+                    button = Button(text=tower + " (lvl: " + str(full_tower.level) + ")", size_hint_y=None, height=40)
+                    button.bind(on_press=lambda btn, t=tower: self.create_tower(btn, t, position=position))
+                    grid_layout.add_widget(button)
+                    
+                if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower:
+                    self.selected_button = button
+                    button.background_color = (0, 1, 0, 1)
         
         popup_content.add_widget(grid_layout)  
 

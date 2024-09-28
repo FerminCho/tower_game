@@ -22,13 +22,13 @@ from game_data import GameData
 from upgrade_window import UpgradeWindow
 from resources import ResourceHandling
 from round import Round, run, shop
+from home_screen import HomeWindow, PermanentShop
 import random
 import math
 
 class PlayWindow(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        #self.layout = FloatLayout(size=(Window.width, Window.height))
         self.main_buttons = []
         self.run = run()
         self.shop = shop(run=self.run, castle=self.run.castle)
@@ -36,8 +36,6 @@ class PlayWindow(Screen):
         self.add_widget(self.run.castle)
         self.add_widget(self.run.castle.tower_layout)
         self.resource_layout()
-
-        #self.manager.get_screen('Upgrade').run = self.run
 
         run_buttons = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
 
@@ -209,6 +207,8 @@ class BorderButton(Button):
 class MyApp(App):
     def build(self):
         sm = ScreenManager()
+        sm.add_widget(HomeWindow(name='Home'))
+        sm.add_widget(PermanentShop(name='Shop'))
         sm.add_widget(UpgradeWindow(name = 'Upgrade'))
         sm.add_widget(PlayWindow(name = 'Play'))
         return sm

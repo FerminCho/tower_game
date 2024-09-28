@@ -69,7 +69,7 @@
             "price": 20
         },
         {
-            "name": "Energy",
+            "name": "1 Energy",
             "price": 0
         },
         {
@@ -77,27 +77,27 @@
             "price": 1
         },
         {
-            "name": "1 skill point",
+            "name": "1 Skill Point",
             "price": 10
         }
     ],
 
     "permanent_shop_entries": [
         {
-            "name": "1 Energy",
+            "name": "1 Permanent Energy",
             "price": 10
         },
         {
-            "name": "Sniper Tower",
-            "price": 20
-        },
-        {
-            "name": "Energy",
+            "name": "1 Permanent HP",
             "price": 0
         },
         {
-            "name": "1 HP",
-            "price": 1
+            "name": "1 Permanent skill point",
+            "price": 10
+        },
+        {
+            "name": "2 Extar starting coins",
+            "price": 10
         },
         {
             "name": "1 skill point",

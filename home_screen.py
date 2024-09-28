@@ -33,7 +33,7 @@ class HomeWindow(Screen):
         start_run = Button(text="New run",
                              size_hint=(0.3, 1),
                             )
-        #start_run.bind(on_press=self.switch_to_play)
+        start_run.bind(on_press=self.switch_to_play)
         button_layout.add_widget(start_run)
         buttons.append(start_run)
 
@@ -51,9 +51,6 @@ class HomeWindow(Screen):
 
     def switch_to_perma_shop(self, instance):
         self.manager.current = 'Shop'
-    
-    def on_enter(self):
-        self.manager.get_screen('Shop').perma_coins = self.perma_coins
     
     def top_bar(self):
         layout = BoxLayout(orientation='horizontal', 
@@ -84,7 +81,7 @@ class PermanentShop(Screen):
         grid_layout = GridLayout(cols = 2, spacing = 0, size_hint_y = None)
         grid_layout.bind(minimum_height=grid_layout.setter('height'))
 
-        entries = self.game_data.get_shop_entries()
+        entries = self.game_data.get_permanent_shop_entries()
         for entry in entries:
             button1 = Button(text=entry['name'], size_hint_y=None, height=40)
             button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
@@ -92,8 +89,18 @@ class PermanentShop(Screen):
             grid_layout.add_widget(button1)
             grid_layout.add_widget(button2)
         layout.add_widget(grid_layout)
+        
+        back_button = Button(text='Back', size_hint=(None, None), size=(100, 50), pos=(10, 10))
+        back_button.bind(on_release=self.go_back)
+        layout.add_widget(back_button)
+
         self.add_widget(layout)
-        #self.add_widget(popup_content)
+    
+    def on_enter(self):
+        self.perma_coins = self.manager.get_screen('Home').perma_coins
+    
+    def go_back(self, instance):
+        self.manager.current = 'Home' 
 
     def buy(self, name, price):
         if self.perma_coins < price:
@@ -112,7 +119,7 @@ class PermanentShop(Screen):
                 self.home.extra_skill_point += 1
                 return
         
-        for tower in self.game_data.get_unlocked_towers():
+        for tower in self.game_data.get_all_towers():
             if tower['name'] == name:
                 self.game_data.unlock_tower(name)
                 return
