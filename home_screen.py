@@ -9,8 +9,10 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from game_data import GameData
+from kivy.properties import NumericProperty
 
 class HomeWindow(Screen):
+    perma_coins = NumericProperty(0)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.perma_coins = 0
@@ -46,6 +48,17 @@ class HomeWindow(Screen):
 
         self.add_widget(button_layout)
 
+        top_layout = BoxLayout(orientation='horizontal', 
+                           size=(Window.width, 30), 
+                           pos=(0, Window.height - 30),
+                           spacing=10,
+                           padding=10
+                           )
+        
+        perma_coins_label = self.create_resource_label('Perma Coins: ', 'perma_coins', (0, Window.height - 30), (1, 1, 1, 1))
+        top_layout.add_widget(perma_coins_label)
+        self.add_widget(top_layout)
+
     def switch_to_play(self, instance):
         self.manager.current = 'Play'
 
@@ -64,9 +77,20 @@ class HomeWindow(Screen):
         layout.add_widget(perma_coins)
         self.add_widget(layout)
 
-        def save_game(self, data):
-            self.game_data.save_game(data)
-            pass
+    def save_game(self, data):
+        self.game_data.save_game(data)
+        pass
+
+    def create_resource_label(self, prefix, property_name, pos, color):
+        label = Label(text=prefix + str(getattr(self, property_name)),
+                      size_hint=(None, None),
+                      font_size=Window.width * 0.025,
+                      pos=pos,
+                      color=color)
+        label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        self.bind(**{property_name: lambda instance, value: label.setter('text')(label, prefix + str(value))})
+        return label
+
 
 class PermanentShop(Screen):
     def __init__(self, **kwargs):
@@ -97,7 +121,11 @@ class PermanentShop(Screen):
         self.add_widget(layout)
     
     def on_enter(self):
-        self.perma_coins = self.manager.get_screen('Home').perma_coins
+        self.home = self.manager.get_screen('Home')
+        self.perma_coins = self.home.perma_coins
+        perma_coins = self.home.create_resource_label('Perma Coins: ', 'perma_coins', (0, Window.height - 30), (1, 1, 1, 1))
+        self.add_widget(perma_coins)
+
     
     def go_back(self, instance):
         self.manager.current = 'Home' 
