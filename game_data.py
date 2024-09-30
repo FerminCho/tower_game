@@ -50,3 +50,6 @@ class GameData():
     
     def get_latest_run(self):
         return self.data['latest_run']
+    
+    def get_enemies_per_round(self):
+        return self.data['enemies_per_round']

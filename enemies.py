@@ -34,3 +34,23 @@ class Enemy(Widget):
         new_y = self.pos[1] - self.speed * dt
         self.pos = (new_x, new_y)
         self.rect.pos = self.pos
+    
+    def damage_taken(self, damage):
+        damage_done = damage
+        self.hp -= damage_done
+        return damage_done
+
+class ArmourEnemy(Enemy):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.armour = 1
+
+    def damage_taken(self, damage):
+        damage_done = damage - self.armour
+        self.hp -= damage_done
+        return damage_done
+
+class FastEnemy(Enemy):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.speed = 300

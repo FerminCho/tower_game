@@ -7,9 +7,10 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.clock import Clock
-from enemies import Enemy
+from enemies import Enemy, FastEnemy, ArmourEnemy
 from castle import Castle
 import math
+import random
 from kivy.properties import NumericProperty
 from kivy.event import EventDispatcher
 
@@ -74,11 +75,27 @@ class Round():
         self.castle = castle
         self.towers = self.castle.towers_in_use
         self.layout = layout
-        self.number_of_enemies = 0
         self.schedule_events = []
+        self.gamedata = GameData()  
+        self.round_enemies = []
+    
+    def populate_enemies(self):
+        for entry in self.gamedata.get_enemies_per_round():
+            current_round_enemies = None
+            if entry['round'] == self.run.round:
+                current_round_enemies = entry
+                break
+        for i in range (current_round_enemies['normal_enemies']):
+            self.round_enemies.append(Enemy())
+        for i in range (current_round_enemies['fast_enemies']):
+            self.round_enemies.append(FastEnemy())
+        for i in range (current_round_enemies['armor_enemies']):
+            self.round_enemies.append(ArmourEnemy())
+        random.shuffle(self.round_enemies)
+        print(self.round_enemies)
 
     def start(self, dt):
-        self.number_of_enemies = 2 + self.run.round * 2
+        self.populate_enemies()
         for button in self.main_buttons:
             button[0].opacity = 0
             button[0].disabled = True
@@ -116,13 +133,13 @@ class Round():
 
 
     def spawn_enemy(self, dt):
-        if self.number_of_enemies == 0:
+        if len(self.round_enemies) == 0:
             return
-        enemy = Enemy()
+        enemy = self.round_enemies[0]
         self.enemies.append(enemy)
         self.bullets_to_kill[enemy] = enemy.hp
         self.layout.add_widget(enemy)
-        self.number_of_enemies -= 1
+        self.round_enemies.pop(0)
     
     def fire_bullet(self, dt, tower):
 
@@ -144,7 +161,7 @@ class Round():
                 del self.bullets_to_kill[enemy]
 
     def update(self, dt):
-        if self.number_of_enemies == 0 and not self.enemies:
+        if len(self.round_enemies) == 0 and not self.enemies:
             self.run.round += 1
             self.end_round(dt)
             return
@@ -197,9 +214,9 @@ class Round():
             if bullet.tower.level <= 6:
                 bullet.tower.increment_xp(enemy.hp)
         else:
-            enemy.hp -= bullet.damage
+            hp_loss = enemy.damage_taken(bullet.damage)
             if bullet.tower.level <= 6:
-                bullet.tower.increment_xp(bullet.damage)
+                bullet.tower.increment_xp(hp_loss)
 
 class shop():
     def __init__(self, run, castle, **kwargs):

@@ -103,6 +103,40 @@
             "name": "1 skill point",
             "price": 10
         }
+    ],
+
+    "enemies_per_round": [
+        {
+            "round":0,
+            "normal_enemies": 3,
+            "fast_enemies": 0,
+            "armor_enemies": 0
+        },
+        {
+            "round":1,
+            "normal_enemies": 15,
+            "fast_enemies": 0,
+            "armor_enemies": 0
+        },
+        {
+            "round":2,
+            "normal_enemies": 15,
+            "fast_enemies": 5,
+            "armor_enemies": 0
+        },
+        {
+            "round":3,
+            "normal_enemies": 15,
+            "fast_enemies": 5,
+            "armor_enemies": 2
+        },
+        {
+            "round":4,
+            "normal_enemies": 15,
+            "fast_enemies": 5,
+            "armor_enemies": 4
+        }
+
     ]
     
 }
