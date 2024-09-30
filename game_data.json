@@ -2,19 +2,24 @@
     "all_towers": [
         {
             "name": "Basic Tower",
-            "type": "cannon",
             "level": 0,
             "fire_rate": 1,
-            "damage": 1,
+            "damage": 2,
             "size": 10
         },
         {
             "name": "Sniper Tower",
-            "type": "sniper",
             "level": 0,
             "fire_rate": 0.5,
+            "damage": 4,
+            "size": 20
+        },
+        {
+            "name": "Machine Gun Tower",
+            "level": 0,
+            "fire_rate": 2,
             "damage": 1,
-            "size": 25
+            "size": 10
         }
     ],
 
@@ -26,7 +31,6 @@
         "towers": [
             {
                 "name": "Basic Tower",
-                "type": "cannon",
                 "level": 1,
                 "fire_rate": 1,
                 "damage": 1,
@@ -89,7 +93,7 @@
         },
         {
             "name": "1 Permanent HP",
-            "price": 0
+            "price": 10
         },
         {
             "name": "1 Permanent skill point",
@@ -108,7 +112,7 @@
     "enemies_per_round": [
         {
             "round":0,
-            "normal_enemies": 3,
+            "normal_enemies": 8,
             "fast_enemies": 0,
             "armor_enemies": 0
         },

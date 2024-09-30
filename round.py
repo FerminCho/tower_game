@@ -154,7 +154,7 @@ class Round():
             if bullet.enemy in self.bullets_to_kill:
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
-                self.bullets_to_kill[bullet.enemy] -= bullet.damage
+                self.bullets_to_kill[bullet.enemy] -= bullet.enemy.get_damage_done()
         
         for enemy in self.enemies:
             if enemy in self.bullets_to_kill and self.bullets_to_kill[enemy] <= 0:

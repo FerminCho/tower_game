@@ -39,6 +39,9 @@ class Enemy(Widget):
         damage_done = damage
         self.hp -= damage_done
         return damage_done
+    
+    def get_damage_done(self):
+        return self.damage
 
 class ArmourEnemy(Enemy):
     def __init__(self, **kwargs):
@@ -49,8 +52,11 @@ class ArmourEnemy(Enemy):
         damage_done = damage - self.armour
         self.hp -= damage_done
         return damage_done
+    
+    def get_damage_done(self):
+        return self.damage - self.armour
 
 class FastEnemy(Enemy):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.speed = 300
+        self.speed = 400
