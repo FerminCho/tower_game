@@ -46,7 +46,6 @@ class Tower(Widget):
     def level_up(self):
         self.xp = 0
         self.level += 1
-        print(self.level)
         
         
 
@@ -71,8 +70,6 @@ class Bullet(Widget):
         
         self.find_closest_enemy()
         self.calculate_velocity()
-
-        Clock.schedule_interval(self.update, 1 / 60)
     
     def find_closest_enemy(self):
         min_distance = float('inf')
@@ -133,24 +130,4 @@ class Bullet(Widget):
         self.rect.pos = self.bullet_pos
 
         self.calculate_velocity()
-
-        if self.check_collision():
-            Clock.unschedule(self.update)
-    
-    def check_collision(self):
-        # Get the center of the bullet and enemy
-        bullet_center = (
-            self.bullet_pos[0] + self.rect_size[0] / 2,
-            self.bullet_pos[1] + self.rect_size[1] / 2
-        )
-        enemy_center = (
-            self.enemy.pos[0] + self.enemy.rect_size[0] / 2,
-            self.enemy.pos[1] + self.enemy.rect_size[1] / 2
-        )
-
-        # Check if the bullet has hit the enemy
-        return (
-            abs(bullet_center[0] - enemy_center[0]) < self.rect_size[0] / 2 and
-            abs(bullet_center[1] - enemy_center[1]) < self.rect_size[1] / 2
-        )
     

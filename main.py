@@ -27,10 +27,10 @@ import random
 import math
 
 class PlayWindow(Screen):
-    def __init__(self, **kwargs):
+    def __init__(self, home, **kwargs):
         super().__init__(**kwargs)
         self.main_buttons = []
-        self.run = run()
+        self.run = run(home=home)
         self.shop = shop(run=self.run, castle=self.run.castle)
         self.energy_layout()
         self.add_widget(self.run.castle)
@@ -206,11 +206,13 @@ class BorderButton(Button):
      
 class MyApp(App):
     def build(self):
+        home = HomeWindow(name='Home')
+
         sm = ScreenManager()
-        sm.add_widget(HomeWindow(name='Home'))
+        sm.add_widget(home)
         sm.add_widget(PermanentShop(name='Shop'))
         sm.add_widget(UpgradeWindow(name = 'Upgrade'))
-        sm.add_widget(PlayWindow(name = 'Play'))
+        sm.add_widget(PlayWindow(name = 'Play', home=home))
         return sm
         #return MyGame()
 

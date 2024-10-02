@@ -13,6 +13,8 @@ import math
 import random
 from kivy.properties import NumericProperty
 from kivy.event import EventDispatcher
+from boss import Boss1
+import threading
 
 class run(EventDispatcher):
     coins = NumericProperty(0)
@@ -20,13 +22,14 @@ class run(EventDispatcher):
     skill_points = NumericProperty(0)
     energy = NumericProperty(0)
     hp = NumericProperty(0)
-    def __init__(self, **kwargs):
-        self.coins = 0
+    def __init__(self, home, **kwargs):
+        self.home = home
+        self.coins = 0 + self.home.extra_coins
         self.round = 0
-        self.skill_points = 0
+        self.skill_points = 0 + self.home.extra_skill_points
         self.castle = Castle(self)
-        self.energy = self.castle.base_energy
-        self.hp = self.castle.base_hp
+        self.energy = self.castle.base_energy + self.home.extra_energy
+        self.hp = self.castle.base_hp + self.home.extra_hp
         self.energy_buttons = None
         self.game_data = GameData()
         self.unlocked_towers = self.game_data.get_unlocked_towers()
@@ -78,6 +81,7 @@ class Round():
         self.schedule_events = []
         self.gamedata = GameData()  
         self.round_enemies = []
+        self.boss = None 
     
     def populate_enemies(self):
         for entry in self.gamedata.get_enemies_per_round():
@@ -92,7 +96,16 @@ class Round():
         for i in range (current_round_enemies['armor_enemies']):
             self.round_enemies.append(ArmourEnemy())
         random.shuffle(self.round_enemies)
-        print(self.round_enemies)
+
+        if current_round_enemies['boss'] != "None":
+            if current_round_enemies['boss'] == "Boss1":
+                self.boss = Boss1()
+            elif current_round_enemies['boss'] == "Boss2":
+                #self.boss = Boss2()
+                pass
+            elif current_round_enemies['boss'] == "Boss3":    
+                #self.boss = Boss3()
+                pass
 
     def start(self, dt):
         self.populate_enemies()
@@ -103,10 +116,13 @@ class Round():
             button[0].size_hint = (None, None)
         self.schedule_events.append(Clock.schedule_interval(self.update, 1/60))
         self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 3))
+
+        i = 0
         for tower in self.towers.values():
             if tower[1]:
-                event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
+                event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate + 0.01 * i)
                 self.schedule_events.append(event)
+                i += 1
 
     def end_round(self, dt):
         for event in self.schedule_events:
@@ -128,7 +144,6 @@ class Round():
         for button in self.main_buttons:
             button[0].opacity = 1
             button[0].disabled = False
-            #button.size = (200, 100)
             button[0].size_hint = (button[1], 1)
 
 
@@ -156,12 +171,22 @@ class Round():
                 self.layout.add_widget(bullet)
                 self.bullets_to_kill[bullet.enemy] -= bullet.enemy.get_damage_done()
         
-        for enemy in self.enemies:
-            if enemy in self.bullets_to_kill and self.bullets_to_kill[enemy] <= 0:
-                del self.bullets_to_kill[enemy]
+                if self.bullets_to_kill[bullet.enemy] <= 0:
+                        del self.bullets_to_kill[bullet.enemy]
+        self.bullets_to_kill = {enemy: hp for enemy, hp in self.bullets_to_kill.items() if hp > 0}
 
     def update(self, dt):
+        for enemy in self.enemies:
+            enemy.update(dt)
+            self.castle.detect_collision(enemy)
+
         if len(self.round_enemies) == 0 and not self.enemies:
+            if self.boss:
+                self.enemies.append(self.boss)
+                self.layout.add_widget(self.boss)
+                self.boss = None
+                return
+            
             self.run.round += 1
             self.end_round(dt)
             return
@@ -172,14 +197,6 @@ class Round():
             for enemy in self.enemies:
                 if self.check_collision(bullet, enemy):
                     self.on_collision(bullet, enemy)
-
-        for enemy in self.enemies:
-            enemy.update(dt)
-            self.castle.detect_collision(enemy)
-        
-        if dt > 5:
-            self.end_round()
-            return
 
     def check_collision(self, bullet, enemy):
         # Get the center of the bullet and enemy
@@ -213,6 +230,10 @@ class Round():
             self.run.coins += enemy.value
             if bullet.tower.level <= 6:
                 bullet.tower.increment_xp(enemy.hp)
+            for bullet in self.bullets:
+                if bullet.enemy == enemy:
+                    self.bullets.remove(bullet)
+                    self.layout.remove_widget(bullet)
         else:
             hp_loss = enemy.damage_taken(bullet.damage)
             if bullet.tower.level <= 6:

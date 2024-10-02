@@ -114,31 +114,43 @@
             "round":0,
             "normal_enemies": 8,
             "fast_enemies": 0,
-            "armor_enemies": 0
+            "armor_enemies": 0,
+            "boss": "None"
         },
         {
             "round":1,
             "normal_enemies": 15,
             "fast_enemies": 0,
-            "armor_enemies": 0
+            "armor_enemies": 0,
+            "boss": "None"
         },
         {
             "round":2,
             "normal_enemies": 15,
             "fast_enemies": 5,
-            "armor_enemies": 0
+            "armor_enemies": 0,
+            "boss": "None"
         },
         {
             "round":3,
             "normal_enemies": 15,
             "fast_enemies": 5,
-            "armor_enemies": 2
+            "armor_enemies": 2,
+            "boss": "None"
         },
         {
             "round":4,
             "normal_enemies": 15,
             "fast_enemies": 5,
-            "armor_enemies": 4
+            "armor_enemies": 4,
+            "boss": "None"
+        },
+        {
+            "round":5,
+            "normal_enemies": 15,
+            "fast_enemies": 10,
+            "armor_enemies": 5,
+            "boss": "Boss 1"
         }
 
     ]
