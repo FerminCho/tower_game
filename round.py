@@ -25,7 +25,7 @@ class run(EventDispatcher):
     def __init__(self, home, **kwargs):
         self.home = home
         self.coins = 0 + self.home.extra_coins
-        self.round = 0
+        self.round = 5
         self.skill_points = 0 + self.home.extra_skill_points
         self.castle = Castle(self)
         self.energy = self.castle.base_energy + self.home.extra_energy
@@ -98,8 +98,8 @@ class Round():
         random.shuffle(self.round_enemies)
 
         if current_round_enemies['boss'] != "None":
-            if current_round_enemies['boss'] == "Boss1":
-                self.boss = Boss1()
+            if current_round_enemies['boss'] == "Boss 1":
+                self.boss = Boss1(self)
             elif current_round_enemies['boss'] == "Boss2":
                 #self.boss = Boss2()
                 pass
@@ -116,13 +116,11 @@ class Round():
             button[0].size_hint = (None, None)
         self.schedule_events.append(Clock.schedule_interval(self.update, 1/60))
         self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 3))
-
-        i = 0
+        
         for tower in self.towers.values():
             if tower[1]:
-                event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate + 0.01 * i)
+                event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
                 self.schedule_events.append(event)
-                i += 1
 
     def end_round(self, dt):
         for event in self.schedule_events:
@@ -169,10 +167,11 @@ class Round():
             if bullet.enemy in self.bullets_to_kill:
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
-                self.bullets_to_kill[bullet.enemy] -= bullet.enemy.get_damage_done()
+                self.bullets_to_kill[bullet.enemy] -= bullet.enemy.damage_taken(bullet.damage)
         
                 if self.bullets_to_kill[bullet.enemy] <= 0:
-                        del self.bullets_to_kill[bullet.enemy]
+                    del self.bullets_to_kill[bullet.enemy]
+
         self.bullets_to_kill = {enemy: hp for enemy, hp in self.bullets_to_kill.items() if hp > 0}
 
     def update(self, dt):
@@ -183,13 +182,12 @@ class Round():
         if len(self.round_enemies) == 0 and not self.enemies:
             if self.boss:
                 self.enemies.append(self.boss)
+                self.bullets_to_kill[self.boss] = self.boss.hp
                 self.layout.add_widget(self.boss)
-                self.boss = None
+            else:    
+                self.run.round += 1
+                self.end_round(dt)
                 return
-            
-            self.run.round += 1
-            self.end_round(dt)
-            return
 
         for bullet in self.bullets:
             bullet.update(dt)
@@ -224,7 +222,7 @@ class Round():
         if bullet in self.bullets:
             self.bullets.remove(bullet)
             self.layout.remove_widget(bullet)
-        if enemy in self.enemies and enemy.hp <= bullet.damage:
+        if enemy in self.enemies and enemy.hp <= bullet.damage: # Fix this so it work with armored enemies enemy.damage_taken_ceck(bullet.damage)
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
             self.run.coins += enemy.value
@@ -234,6 +232,9 @@ class Round():
                 if bullet.enemy == enemy:
                     self.bullets.remove(bullet)
                     self.layout.remove_widget(bullet)
+            if self.boss and self.boss.hp <= 0:
+                self.boss.on_death()
+                self.boss = None
         else:
             hp_loss = enemy.damage_taken(bullet.damage)
             if bullet.tower.level <= 6:

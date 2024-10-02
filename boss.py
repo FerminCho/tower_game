@@ -6,13 +6,16 @@ from enemies import FastEnemy
 import math
 
 class Boss1(Widget):
-    def __init__(self, **kwargs):
+    def __init__(self, screen, **kwargs):
         super().__init__(**kwargs)
+        self.screen = screen
         self.name = "Boss1"
-        self.hp = 100
+        self.hp = 10
         self.damage = 30
         self.direction = -math.pi / 2
         self.speed = 100
+        self.value = 10
+        self.dead = False
 
         self.rect_size = (50, 50)  # Size of the rectangle
         self.pos = (Window.width / 2 - self.rect_size[0] / 2 , Window.height)
@@ -30,13 +33,21 @@ class Boss1(Widget):
         new_y = self.pos[1] - self.speed * dt
         self.pos = (new_x, new_y)
         self.rect.pos = self.pos
-        if self.hp <= 0:
-            self.on_death()
     
     def on_death(self):
-        fast_enemies = []
+        self.dead = True
         for i in range(3):
             enemy = FastEnemy()
             enemy.pos = (self.pos[0] + i * 50, self.pos[1])
-            fast_enemies.append(enemy)
-        return fast_enemies
+            self.screen.layout.add_widget(enemy)
+            self.screen.enemies.append(enemy)
+            self.screen.bullets_to_kill[enemy] = self.hp
+    
+    def damage_taken(self, damage):
+        damage_done = damage
+        self.hp -= damage_done
+        return damage_done
+    
+    def damage_taken_check(self, damage):
+        damage_done = damage
+        return damage_done

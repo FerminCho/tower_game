@@ -147,9 +147,9 @@
         },
         {
             "round":5,
-            "normal_enemies": 15,
-            "fast_enemies": 10,
-            "armor_enemies": 5,
+            "normal_enemies": 3,
+            "fast_enemies": 0,
+            "armor_enemies": 0,
             "boss": "Boss 1"
         }
 

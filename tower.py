@@ -114,7 +114,7 @@ class Bullet(Widget):
             self.velocity = (0, 0)
             return
 
-        speed = 600  # Pixels per second
+        speed = 300  # Pixels per second
         self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
     
     def predict_enemy_position(self, time_to_impact):
