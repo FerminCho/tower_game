@@ -15,6 +15,7 @@ class Boss1(Widget):
         self.direction = -math.pi / 2
         self.speed = 100
         self.value = 10
+        self.perma_coins_value = 5
         self.dead = False
 
         self.rect_size = (50, 50)  # Size of the rectangle

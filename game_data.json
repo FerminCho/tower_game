@@ -22,6 +22,10 @@
             "size": 10
         }
     ],
+    
+    "existing_run": {
+        "saved": false
+    },
 
     "latest_run": {
         "round": 0,
@@ -34,7 +38,8 @@
                 "level": 1,
                 "fire_rate": 1,
                 "damage": 1,
-                "size": 10
+                "size": 10,
+                "xp": 0
             }
         ]
     },
@@ -88,23 +93,19 @@
 
     "permanent_shop_entries": [
         {
-            "name": "1 Permanent Energy",
+            "name": "+1 Permanent Energy",
             "price": 10
         },
         {
-            "name": "1 Permanent HP",
+            "name": "+1 Permanent HP",
             "price": 10
         },
         {
-            "name": "1 Permanent skill point",
+            "name": "+1 Permanent skill point",
             "price": 10
         },
         {
-            "name": "2 Extar starting coins",
-            "price": 10
-        },
-        {
-            "name": "1 skill point",
+            "name": "+2 Permanent starting coins",
             "price": 10
         }
     ],
@@ -153,6 +154,13 @@
             "boss": "Boss 1"
         }
 
-    ]
+    ],
+
+    "perma_data": {
+        "extra_energy": 0,
+        "extra_hp": 0,
+        "extra_skill_points": 0,
+        "extra_starting_coins": 0
+    }
     
 }

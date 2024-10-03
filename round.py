@@ -24,27 +24,36 @@ class run(EventDispatcher):
     hp = NumericProperty(0)
     def __init__(self, home, **kwargs):
         self.home = home
-        self.coins = 0 + self.home.extra_coins
-        self.round = 5
-        self.skill_points = 0 + self.home.extra_skill_points
         self.castle = Castle(self)
-        self.energy = self.castle.base_energy + self.home.extra_energy
-        self.hp = self.castle.base_hp + self.home.extra_hp
-        self.energy_buttons = None
         self.game_data = GameData()
-        self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.existing_run = self.game_data.get_existing_run()['saved']
         self.towers = self.game_data.get_all_towers()
+
+        if self.existing_run:
+            self.load_run()
+        else:
+            self.new_run()
+    
+    def load_run(self):
+        data = self.game_data.load_run()
+        self.coins = data['coins']
+        self.round = data['round']
+        self.skill_points = data['skill_points']
+        self.energy = data['energy']
+        self.hp = data['hp']
         self.tower_instances = []
-        for tower_name in self.unlocked_towers:
-            for tower in self.towers:
-                if tower['name'] == tower_name:
-                    full_tower = Tower(fire_rate=tower['fire_rate'], 
-                                       damage=tower['damage'], level=0, 
-                                       name=tower['name'], 
-                                       bullet_size=tower['size'], 
-                                       tower_pos=None, 
-                                       castle_pos=self.castle.rect_pos)
-                    self.tower_instances.append(full_tower)
+        self.towers = self.game_data.get_all_towers()
+        self.unlocked_towers = self.game_data.get_unlocked_towers()
+
+        for tower in data['towers']:
+            full_tower = Tower(fire_rate=tower['fire_rate'], 
+                               damage=tower['damage'], level=tower['level'], 
+                               name=tower['name'], 
+                               bullet_size=tower['bullet_size'], 
+                               tower_pos=tower['tower_pos'], 
+                               castle_pos=tower['castle_pos'])
+            full_tower.xp = tower['xp']
+            self.tower_instances.append(full_tower)
     
     def save_run(self):
         data = {
@@ -63,10 +72,35 @@ class run(EventDispatcher):
                 'name': tower.name,
                 'bullet_size': tower.bullet_size,
                 'tower_pos': tower.tower_pos,
-                'castle_pos': tower.castle_pos
+                'castle_pos': tower.castle_pos,
+                'xp': tower.xp
             })
 
         self.game_data.save_run(data)
+    
+    def new_run(self):
+        self.coins = 0 + self.home.extra_coins
+        self.round = 0
+        self.skill_points = 0 + self.home.extra_skill_points
+        self.perma_coins = 0
+        self.energy = self.castle.base_energy + self.home.extra_energy
+        self.hp = self.castle.base_hp + self.home.extra_hp
+        self.energy_buttons = None
+        self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.tower_instances = []
+
+        for tower_name in self.unlocked_towers:
+            for tower in self.towers:
+                if tower['name'] == tower_name:
+                    full_tower = Tower(fire_rate=tower['fire_rate'], 
+                                       damage=tower['damage'], level=0, 
+                                       name=tower['name'], 
+                                       bullet_size=tower['size'], 
+                                       tower_pos=None, 
+                                       castle_pos=self.castle.rect_pos)
+                    self.tower_instances.append(full_tower)
+
+
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
@@ -144,6 +178,25 @@ class Round():
             button[0].disabled = False
             button[0].size_hint = (button[1], 1)
 
+    def end_run(self):
+        for event in self.schedule_events:
+            Clock.unschedule(event)
+            self.schedule_events.remove(event)
+        for tower in self.towers.values():
+            if tower[1]:
+                Clock.unschedule(self.fire_bullet(dt, tower[1]))
+
+        for enemy in self.enemies:
+            self.layout.remove_widget(enemy)
+        self.enemies = []
+
+        for bullet in self.bullets:
+            self.layout.remove_widget(bullet)
+        self.bullets = []
+        
+        self.bullets_to_kill = {}
+
+        self.manager.current = 'Home'
 
     def spawn_enemy(self, dt):
         if len(self.round_enemies) == 0:
@@ -175,6 +228,11 @@ class Round():
         self.bullets_to_kill = {enemy: hp for enemy, hp in self.bullets_to_kill.items() if hp > 0}
 
     def update(self, dt):
+        if self.castle.hp <= 0:
+            self.run.home.perma_coins += self.run.perma_coins
+            self.end_round(dt)
+            return
+
         for enemy in self.enemies:
             enemy.update(dt)
             self.castle.detect_collision(enemy)
@@ -226,6 +284,7 @@ class Round():
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
             self.run.coins += enemy.value
+            self.run.perma_coins += enemy.perma_coins_value
             if bullet.tower.level <= 6:
                 bullet.tower.increment_xp(enemy.hp)
             for bullet in self.bullets:

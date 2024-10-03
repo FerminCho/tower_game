@@ -64,10 +64,6 @@ class HomeWindow(Screen):
     def switch_to_perma_shop(self, instance):
         self.manager.current = 'Shop'
 
-    def save_game(self, data):
-        self.game_data.save_game(data)
-        pass
-
     def create_resource_label(self, prefix, property_name, pos, color):
         label = Label(text=prefix + str(getattr(self, property_name)),
                       size_hint=(None, None),
@@ -111,7 +107,6 @@ class PermanentShop(Screen):
                                        size_hint=(None, None),
                                        font_size=Window.width * 0.025, 
                                        color=(1, 1, 1, 1))
-        #self.perma_coins_label.bind(text=self.update_label_text)
         self.layout.add_widget(self.perma_coins_label)
 
         self.add_widget(self.layout)
@@ -119,7 +114,6 @@ class PermanentShop(Screen):
 
     def on_enter(self):
         self.home = self.manager.get_screen('Home')
-        self.bind(perma_coins=self.update_label_text)
         self.perma_coins = self.home.perma_coins
         self.bind(perma_coins=self.update_home_perma_coins)
         self.home.bind(perma_coins=self.update_perma_coins)
@@ -129,9 +123,6 @@ class PermanentShop(Screen):
 
     def update_perma_coins(self, instance, value):
         self.perma_coins = value
-        self.perma_coins_label.text = f'Perma Coins: {self.perma_coins}'
-
-    def update_label_text(self, instance, value):
         self.perma_coins_label.text = f'Perma Coins: {self.perma_coins}'
     
     def go_back(self, instance):
@@ -144,13 +135,13 @@ class PermanentShop(Screen):
             self.perma_coins -= price
 
         match name:
-            case "1 Permanent Energy":
+            case "+1 Permanent Energy":
                 self.home.extra_energy += 1
                 return
-            case "1 HP":
+            case "+1 Permanent HP":
                 self.home.extra_hp += 1
                 return
-            case "Skill Point":
+            case "+1 Permanent skill point":
                 self.home.extra_skill_point += 1
                 return
         
@@ -158,6 +149,17 @@ class PermanentShop(Screen):
             if tower['name'] == name:
                 self.game_data.unlock_tower(name)
                 return
+        
+        self.save_buy()
+        
+    def save_buy(self):
+        data = {'extra_energy': self.home.extra_energy, 
+                'extra_hp': self.home.extra_hp, 
+                'extra_skill_points': self.home.extra_skill_points,
+                'exra_coins': self.home.extra_coins
+                }
+
+        self.game_data.save_perma_data(data)
         
 
     

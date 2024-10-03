@@ -15,6 +15,7 @@ class Enemy(Widget):
         self.damage = 1
         self.speed = 200
         self.value = 1
+        self.perma_coins_value = 1
         self.direction = -math.pi / 2
 
         self.rect_size = (25, 25)  # Size of the rectangle
@@ -24,9 +25,6 @@ class Enemy(Widget):
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=self.pos, size=self.rect_size)
-
-    def start_moving(self, dt):
-        Clock.schedule_interval(self.update, 1/60)
 
     def update(self, dt):
         new_x = self.pos[0]

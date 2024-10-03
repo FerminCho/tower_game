@@ -24,8 +24,8 @@ class GameData():
     def save_run(self, run_data):
         self.data['latest_run'] = run_data
         self.save_data()
-
-    def save_game(self, data):
+    
+    def save_perma_data(self, data):
         self.data['perma_data'] = data
         self.save_data()
 
@@ -50,6 +50,9 @@ class GameData():
     
     def get_latest_run(self):
         return self.data['latest_run']
+
+    def get_existing_run(self):
+        return self.data['existing_run']
     
     def get_enemies_per_round(self):
         return self.data['enemies_per_round']
