@@ -33,6 +33,8 @@ class run(EventDispatcher):
             self.load_run()
         else:
             self.new_run()
+        
+        self.round = 5
     
     def load_run(self):
         data = self.game_data.load_run()
@@ -228,7 +230,7 @@ class Round():
         self.bullets_to_kill = {enemy: hp for enemy, hp in self.bullets_to_kill.items() if hp > 0}
 
     def update(self, dt):
-        if self.castle.hp <= 0:
+        if self.run.hp <= 0:
             self.run.home.perma_coins += self.run.perma_coins
             self.end_round(dt)
             return
