@@ -3,6 +3,8 @@ from tower import Tower
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
@@ -309,10 +311,14 @@ class shop():
         self.castle = castle
     
     def shop_enteries(self, instance):
-        popup_content = BoxLayout(orientation='vertical')
-        grid_layout = GridLayout(cols = 2, spacing = 0, size_hint_y = None)
-        grid_layout.bind(minimum_height=grid_layout.setter('height'))
         popup_size = (Window.width * 0.8, Window.height * 0.8)
+        
+        # Ensure FloatLayout fills the Popup content area
+        popup_content = FloatLayout(size_hint=(1, 1))
+        
+        grid_layout = GridLayout(cols=2, spacing=0, size_hint=(1, None))
+        grid_layout.bind(minimum_height=grid_layout.setter('height'))
+        grid_layout.height = len(self.game_data.get_shop_entries()) * 40  # Adjust height based on entries
 
         entries = self.game_data.get_shop_entries()
         for entry in entries:
@@ -320,8 +326,17 @@ class shop():
             button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
             button2.bind(on_release=lambda btn, name=entry['name'], price=entry['price']: self.buy(name, price))
             grid_layout.add_widget(button1)
-            grid_layout.add_widget(button2)
-        popup_content.add_widget(grid_layout)
+            grid_layout.add_widget(button2) 
+        
+        # Wrap the GridLayout in a ScrollView to ensure it fits within the Popup
+        scroll_view = ScrollView(size_hint=(1, 0.9), pos_hint={'x': 0, 'y': 0.1})
+        scroll_view.add_widget(grid_layout)
+        popup_content.add_widget(scroll_view)
+
+        close_button = Button(text="X", size_hint=(None, None), size=(25, 25), pos_hint={'right': 1, 'top': 1.1})
+        close_button.bind(on_press=lambda instance: popup.dismiss())
+        popup_content.add_widget(close_button)
+
         popup = Popup(title='Shop Entries', content=popup_content, size_hint=(None, None), size=popup_size)
         popup.open()
 
