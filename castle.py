@@ -19,7 +19,7 @@ class Castle(Widget):
         self.base_energy = 2
         self.rect_size = (Window.width, 2)
         self.game_data = GameData()
-        self.towers_in_use = {0: [None, None], 1: [None, None], 2: [None, None], 3: [None, None]}
+        self.towers_in_use = [[None, None], [None, None], [None, None], [None, None]]
         self.rect_pos = (0, Window.height * 0.2)
         self.run = run
         self.selected_button = None
@@ -56,10 +56,8 @@ class Castle(Widget):
             for tower in selected_towers:
                 if tower['position'] == i and tower['name'] != 'None':
                     Clock.schedule_once(lambda dt, t=tower['name'], i=i, tower_position=tower_position: self.set_current_tower(tower_position, t, i), 0.01)
-                    break
                 elif tower['position'] == i:
                     self.towers_in_use[i] = [tower_position, None]
-                    break
 
     def set_current_tower(self, tower_position, tower_name, i):
         self.towers = self.run.tower_instances
@@ -90,6 +88,10 @@ class Castle(Widget):
                 if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower:
                     self.selected_button = button
                     button.background_color = (0, 1, 0, 1)
+                
+                for entry in self.towers_in_use:
+                    if entry[1] is not None and entry[1].name == tower:
+                        button.background_color = (0, 1, 0, 1)
         
         popup_content.add_widget(grid_layout)  
 
@@ -106,13 +108,15 @@ class Castle(Widget):
 
     
     def create_tower(self, btn, tower_name, position):
-        for tower in self.towers_in_use.values():
+        self.towers = self.run.tower_instances
+        for tower in self.towers_in_use:
             if tower[1] is not None and tower[1].name == tower_name and tower[1] != self.towers_in_use[position][1]:
                 return
         
-        for tower in self.towers:
-            if tower.name == tower_name:
-                create_tower = tower
+        for tower2 in self.towers:
+            if tower2.name == tower_name:
+                create_tower = tower2
+                create_tower.draw_to_screen(self.towers_in_use[position][0].pos)
                 break
         
         if self.towers_in_use[position][1] is not None and self.towers_in_use[position][1].name == tower_name:

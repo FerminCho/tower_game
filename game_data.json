@@ -45,17 +45,16 @@
     },
 
     "unlocked_towers": [
-            "Basic Tower",
-            "Sniper Tower"
+            "Basic Tower"
     ],
 
     "selected_towers": [
         {
-            "name": "Basic Tower",
+            "name": "None",
             "position": 0
         },
         {
-            "name": "Sniper Tower",
+            "name": "None",
             "position": 1
         },
         {
@@ -148,7 +147,7 @@
         },
         {
             "round":5,
-            "normal_enemies": 3,
+            "normal_enemies": 2,
             "fast_enemies": 0,
             "armor_enemies": 0,
             "boss": "Boss 1"

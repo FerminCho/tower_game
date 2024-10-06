@@ -35,8 +35,6 @@ class run(EventDispatcher):
             self.load_run()
         else:
             self.new_run()
-        
-        self.round = 5
     
     def load_run(self):
         data = self.game_data.load_run()
@@ -333,7 +331,7 @@ class shop():
         scroll_view.add_widget(grid_layout)
         popup_content.add_widget(scroll_view)
 
-        close_button = Button(text="X", size_hint=(None, None), size=(25, 25), pos_hint={'right': 1, 'top': 1.1})
+        close_button = Button(text="X", size_hint=(None, None), size=(25, 25), pos_hint={'right': 1, 'top': 1})
         close_button.bind(on_press=lambda instance: popup.dismiss())
         popup_content.add_widget(close_button)
 

@@ -20,6 +20,7 @@ class Tower(Widget):
         self.bullet_size = (bullet_size, bullet_size)
         self.castle_pos = castle_pos
         self.xp = 0
+        self.rect = None
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
@@ -33,11 +34,14 @@ class Tower(Widget):
         return bullet
 
     def draw_to_screen(self, tower_pos):
+        if self.rect:
+            self.canvas.remove(self.rect)
+            self.rect = None
         self.tower_pos = tower_pos
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=((self.tower_pos[0] + self.rect_size[0] / 2), self.tower_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
-    
+
     def increment_xp(self, amount):
         self.xp += amount
         if self.xp >= 5 * self.level + 1:
