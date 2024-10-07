@@ -95,7 +95,8 @@ class run(EventDispatcher):
             for tower in self.towers:
                 if tower['name'] == tower_name:
                     full_tower = Tower(fire_rate=tower['fire_rate'], 
-                                       damage=tower['damage'], level=0, 
+                                       damage=tower['damage'], 
+                                       level=0, 
                                        name=tower['name'], 
                                        bullet_size=tower['size'], 
                                        tower_pos=None, 
@@ -153,7 +154,7 @@ class Round():
         self.schedule_events.append(Clock.schedule_interval(self.update, 1/60))
         self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 3))
         
-        for tower in self.towers.values():
+        for tower in self.towers:
             if tower[1]:
                 event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
                 self.schedule_events.append(event)

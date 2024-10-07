@@ -91,7 +91,7 @@ class PlayWindow(Screen):
                                         size_hint=(None, None), 
                                         size=button_size,
                                         background_normal='',
-                                        background_color=(0, 1, 0, 1),
+                                        background_color=(1, 1, 1, 1),
                                         background_disabled_normal='',
                                         energy_state=self.energy_state,
                                         run=self.run
@@ -207,12 +207,13 @@ class BorderButton(Button):
 class MyApp(App):
     def build(self):
         home = HomeWindow(name='Home')
+        play_window = PlayWindow(name='Play', home=home)
 
         sm = ScreenManager()
         sm.add_widget(home)
         sm.add_widget(PermanentShop(name='Shop'))
-        sm.add_widget(UpgradeWindow(name = 'Upgrade'))
-        sm.add_widget(PlayWindow(name = 'Play', home=home))
+        sm.add_widget(UpgradeWindow(name = 'Upgrade', play_window=play_window))
+        sm.add_widget(play_window)
         return sm
         #return MyGame()
 

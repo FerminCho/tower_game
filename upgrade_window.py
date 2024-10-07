@@ -11,8 +11,9 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from game_data import GameData
 
 class UpgradeWindow(Screen):
-    def __init__(self, **kwargs):
+    def __init__(self, play_window, **kwargs):
         super().__init__(**kwargs)
+        self.play_window = play_window
         self.unlocked_towers = None
         self.run = None
         self.game_data = GameData()
@@ -30,6 +31,11 @@ class UpgradeWindow(Screen):
         layout2 = FloatLayout()
         tab3 = TabbedPanelItem(text='Tab 3')
         layout3 = FloatLayout()
+
+        skill_point_label1 = self.play_window.create_resource_label('Skill Points: ', 'skill_points', (10, Window.height * 0.90), (1, 1, 1, 1))
+        layout1.add_widget(skill_point_label1)
+        skill_point_label2 = self.play_window.create_resource_label('Skill Points: ', 'skill_points', (10, Window.height * 0.90), (1, 1, 1, 1))
+        layout2.add_widget(skill_point_label2)
 
         # Example skills for each tab
         skills_tab1 = [
