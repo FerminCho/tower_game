@@ -104,8 +104,8 @@ class PlayWindow(Screen):
             with self.energy_button.canvas:
                 self.energy_button.rectangles = []
                 for j in range(4):
-                    color = Color(1, 0, 0, 1)
-                    energy_rect = Rectangle(size=(button_size[0], 5))
+                    color = Color(0, 0, 0, 1)
+                    energy_rect = Rectangle(size=(button_size[0] -  4, 5))
                     self.energy_button.rectangles.append((color, energy_rect))
             
             self.energy_button.bind(pos=self.energy_button.update_rectangles)
@@ -183,20 +183,20 @@ class BorderButton(Button):
 
     def update_rectangles(self, instance, value):
         for j, (color, rect) in enumerate(self.rectangles):
-            rect.pos = (instance.pos[0], j * 10 + instance.pos[1] + 2)
+            rect.pos = (instance.pos[0] + 2, j * 10 + instance.pos[1] + 2)
     
     def energy_handling(self, instance, button_energy):
         if self.energy_state == 'add' and self.run.energy > 0:
             for color, rect in list(reversed(self.rectangles)):
-                if color.rgba == [1, 0, 0, 1]:  # Check if the color is red
-                    color.rgba = (1, 1, 1, 1)  # Change the color to white
+                if color.rgba == [0, 0, 0, 1]:  # Check if the color is black
+                    color.rgba = (0, 1, 0, 1)  # Change the color to yellow
                     self.run.energy -= 1
                     button_energy[1] += 1
                     break
         elif self.energy_state == 'remove':
             for color, rect in self.rectangles:
-                if color.rgba == [1, 1, 1, 1]:  # Check if the color is white
-                    color.rgba = (1, 0, 0, 1)  # Change the color to red
+                if color.rgba == [0, 1, 0, 1]:  # Check if the color is yellow
+                    color.rgba = (0, 0, 0, 1)  # Change the color to black
                     self.run.energy += 1
                     button_energy[1] -= 1
                     break

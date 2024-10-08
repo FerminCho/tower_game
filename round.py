@@ -162,7 +162,7 @@ class Round():
     def end_round(self, dt):
         for event in self.schedule_events:
             Clock.unschedule(event)
-        for tower in self.towers.values():
+        for tower in self.towers:
             if tower[1]:
                 Clock.unschedule(self.fire_bullet(dt, tower[1]))
 
