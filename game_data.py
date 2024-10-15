@@ -42,6 +42,10 @@ class GameData():
     def get_shop_entries(self):
         return self.data['shop_entries']
     
+    def remove_shop_tower(self, tower_name):
+        self.data['shop_entries'].remove(tower_name)
+        self.save_data()
+    
     def get_permanent_shop_entries(self):
         return self.data['permanent_shop_entries']
     

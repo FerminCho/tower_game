@@ -69,24 +69,34 @@
 
     "shop_entries": [
         {
-            "name": "Basic Tower",
-            "price": 10
-        },
-        {
-            "name": "Sniper Tower",
-            "price": 20
-        },
-        {
             "name": "1 Energy",
-            "price": 0
+            "price": 0,
+            "times_bought": 0,
+            "max_times_bought": 5
         },
         {
             "name": "1 HP",
-            "price": 1
+            "price": 1,
+            "times_bought": 0,
+            "max_times_bought": 5
         },
         {
             "name": "1 Skill Point",
-            "price": 10
+            "price": 10,
+            "times_bought": 0,
+            "max_times_bought": 5
+        },
+        {
+            "name": "Sniper Tower",
+            "price": 20,
+            "times_bought": 0,
+            "max_times_bought": 1
+        },
+        {
+            "name": "Machine Gun Tower",
+            "price": 30,
+            "times_bought": 0,
+            "max_times_bought": 1
         }
     ],
 

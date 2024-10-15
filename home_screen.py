@@ -12,7 +12,7 @@ from game_data import GameData
 from kivy.properties import NumericProperty
 
 class HomeWindow(Screen):
-    perma_coins = NumericProperty(10)
+    perma_coins = NumericProperty(0)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.extra_coins = 0

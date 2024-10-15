@@ -89,6 +89,7 @@ class run(EventDispatcher):
         self.hp = self.castle.base_hp + self.home.extra_hp
         self.energy_buttons = None
         self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.shop_towers = self.game_data.get_shop_towers()
         self.tower_instances = []
 
         for tower_name in self.unlocked_towers:
@@ -102,6 +103,12 @@ class run(EventDispatcher):
                                        tower_pos=None, 
                                        castle_pos=self.castle.rect_pos)
                     self.tower_instances.append(full_tower)
+                
+            for tower in self.shop_towers:
+                tower['times_bought'] = 0
+        
+        for entry in self.game_data.get_shop_entries():
+            entry['times_bought'] = 0
 
 
 
@@ -322,10 +329,14 @@ class shop():
         entries = self.game_data.get_shop_entries()
         for entry in entries:
             button1 = Button(text=entry['name'], size_hint_y=None, height=40)
-            button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
-            button2.bind(on_release=lambda btn, name=entry['name'], price=entry['price']: self.buy(name, price))
+            if entry['times_bought'] == entry['max_times_bought']:
+                button2= Button(text="Maxed", size_hint_y=None, height=40)
+                button2.disabled = True
+            else:
+                button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
+                button2.bind(on_release=lambda btn, entry=entry, price=entry['price']: self.buy_stat(entry, price))
             grid_layout.add_widget(button1)
-            grid_layout.add_widget(button2) 
+            grid_layout.add_widget(button2)
         
         # Wrap the GridLayout in a ScrollView to ensure it fits within the Popup
         scroll_view = ScrollView(size_hint=(1, 0.9), pos_hint={'x': 0, 'y': 0.1})
@@ -339,26 +350,32 @@ class shop():
         popup = Popup(title='Shop Entries', content=popup_content, size_hint=(None, None), size=popup_size)
         popup.open()
 
-    def buy(self, name, price):
+    def buy_stat(self, entry, price):
         if self.run.coins < price:
             return
         else:
             self.run.coins -= price
 
-        match name:
+        match entry["name"]:
             case "1 Energy":
+                if entry["times_bought"] == entry["max_times_bought"]:
+                    return
                 self.run.energy += 1
+                entry["times_bought"] += 1
                 return
             case "1 HP":
                 self.run.hp += 1
+                entry["times_bought"] += 1
                 return
             case "1 Skill Point":
                 self.run.skill_points += 1
+                entry["times_bought"] += 1
                 return
         
         for tower in self.game_data.get_unlocked_towers():
-            if tower == name:
-                self.game_data.unlock_tower(name)
+            if tower == entry['name']:
+                self.game_data.unlock_tower(entry['name'])
+                self.game_data.remove_shop_tower(entry['name'])
                 return
 
     def upgrade():
