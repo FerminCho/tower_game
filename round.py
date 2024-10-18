@@ -89,7 +89,6 @@ class run(EventDispatcher):
         self.hp = self.castle.base_hp + self.home.extra_hp
         self.energy_buttons = None
         self.unlocked_towers = self.game_data.get_unlocked_towers()
-        self.shop_towers = self.game_data.get_shop_towers()
         self.tower_instances = []
 
         for tower_name in self.unlocked_towers:
@@ -103,9 +102,6 @@ class run(EventDispatcher):
                                        tower_pos=None, 
                                        castle_pos=self.castle.rect_pos)
                     self.tower_instances.append(full_tower)
-                
-            for tower in self.shop_towers:
-                tower['times_bought'] = 0
         
         for entry in self.game_data.get_shop_entries():
             entry['times_bought'] = 0
@@ -334,7 +330,7 @@ class shop():
                 button2.disabled = True
             else:
                 button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
-                button2.bind(on_release=lambda btn, entry=entry, price=entry['price']: self.buy_stat(entry, price))
+                button2.bind(on_release=lambda btn, entry=entry, price=entry['price']: self.buy_stat(btn, entry, price))
             grid_layout.add_widget(button1)
             grid_layout.add_widget(button2)
         
@@ -350,33 +346,44 @@ class shop():
         popup = Popup(title='Shop Entries', content=popup_content, size_hint=(None, None), size=popup_size)
         popup.open()
 
-    def buy_stat(self, entry, price):
+    def buy_stat(self, button, entry, price):
         if self.run.coins < price:
             return
         else:
             self.run.coins -= price
+        
+        if entry["times_bought"] == entry["max_times_bought"]:
+                    return
 
         match entry["name"]:
             case "1 Energy":
-                if entry["times_bought"] == entry["max_times_bought"]:
-                    return
                 self.run.energy += 1
                 entry["times_bought"] += 1
+                maxed_stat(button, entry)
                 return
             case "1 HP":
                 self.run.hp += 1
                 entry["times_bought"] += 1
+                if entry["times_bought"] == entry["max_times_bought"]:
+                    button.text = "Maxed"
                 return
             case "1 Skill Point":
                 self.run.skill_points += 1
                 entry["times_bought"] += 1
+                if entry["times_bought"] == entry["max_times_bought"]:
+                    button.text = "Maxed"
                 return
         
         for tower in self.game_data.get_unlocked_towers():
             if tower == entry['name']:
                 self.game_data.unlock_tower(entry['name'])
-                self.game_data.remove_shop_tower(entry['name'])
+                entry['times_bought'] += 1
                 return
+    
+    def maxed_stat(self, button, entry):
+        if entry["times_bought"] == entry["max_times_bought"]:
+            button.text = "Maxed"
+            button.disabled = True
 
     def upgrade():
         pass

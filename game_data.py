@@ -16,9 +16,10 @@ class GameData():
         with open(self.file_name, 'w') as file:
             json.dump(self.data, file)
 
-    def unlock_tower(self, tower_name):
-        if tower_name not in self.data['unlocked_towers']:
-            self.data['unlocked_towers'].append(tower_name)
+    def unlock_tower(self, tower_entry):
+        if tower_entry['name'] not in self.data['unlocked_towers']:
+            self.data['unlocked_towers'].append(tower_entry['name'])
+            self.data['permanent_shop_entries'].remove(tower_entry)
             self.save_data()
     
     def save_run(self, run_data):
@@ -41,10 +42,6 @@ class GameData():
     
     def get_shop_entries(self):
         return self.data['shop_entries']
-    
-    def remove_shop_tower(self, tower_name):
-        self.data['shop_entries'].remove(tower_name)
-        self.save_data()
     
     def get_permanent_shop_entries(self):
         return self.data['permanent_shop_entries']

@@ -76,9 +76,9 @@
         },
         {
             "name": "1 HP",
-            "price": 1,
+            "price": 0,
             "times_bought": 0,
-            "max_times_bought": 5
+            "max_times_bought": 2
         },
         {
             "name": "1 Skill Point",
@@ -103,19 +103,33 @@
     "permanent_shop_entries": [
         {
             "name": "+1 Permanent Energy",
-            "price": 10
+            "price": 10,
+            "times_bought": 0,
+            "max_times_bought": 1
         },
         {
             "name": "+1 Permanent HP",
-            "price": 10
+            "price": 10,
+            "times_bought": 0,
+            "max_times_bought": 1
         },
         {
             "name": "+1 Permanent skill point",
-            "price": 10
+            "price": 10,
+            "times_bought": 0,
+            "max_times_bought": 1
         },
         {
             "name": "+2 Permanent starting coins",
-            "price": 10
+            "price": 10,
+            "times_bought": 0,
+            "max_times_bought": 1
+        },
+        {
+            "name": "Sniper Tower",
+            "price": 20,
+            "times_bought": 0,
+            "max_times_bought": 1
         }
     ],
 

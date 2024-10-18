@@ -93,7 +93,7 @@ class PermanentShop(Screen):
         for entry in entries:
             button1 = Button(text=entry['name'], size_hint_y=None, height=40)
             button2 = Button(text=str(entry['price']), size_hint_y=None, height=40)
-            button2.bind(on_release=lambda btn, name=entry['name'], price=entry['price']: self.buy(name, price))
+            button2.bind(on_release=lambda btn, entry=entry, price=entry['price']: self.buy(entry, price))
             grid_layout.add_widget(button1)
             grid_layout.add_widget(button2)
         self.layout.add_widget(grid_layout)
@@ -128,26 +128,33 @@ class PermanentShop(Screen):
     def go_back(self, instance):
         self.manager.current = 'Home' 
 
-    def buy(self, name, price):
+    def buy(self, entry, price):
         if self.perma_coins < price:
             return
         else:
             self.perma_coins -= price
 
-        match name:
+        if entry['times_bought'] == entry['max_times_bought']:
+            return
+
+        match entry['name']:
             case "+1 Permanent Energy":
-                self.home.extra_energy += 1
+                self.home.extra_energy += 1,
+                entry['times_bought'] += 1
                 return
             case "+1 Permanent HP":
-                self.home.extra_hp += 1
+                self.home.extra_hp += 1,
+                entry['times_bought'] += 1
                 return
             case "+1 Permanent skill point":
-                self.home.extra_skill_point += 1
+                self.home.extra_skill_point += 1,
+                entry['times_bought'] += 1
                 return
         
+        
         for tower in self.game_data.get_all_towers():
-            if tower['name'] == name:
-                self.game_data.unlock_tower(name)
+            if tower['name'] == entry['name']:
+                self.game_data.unlock_tower(entry)
                 return
         
         self.save_buy()
