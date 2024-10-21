@@ -351,27 +351,19 @@ class shop():
             return
         else:
             self.run.coins -= price
-        
-        if entry["times_bought"] == entry["max_times_bought"]:
-                    return
 
         match entry["name"]:
             case "1 Energy":
                 self.run.energy += 1
                 entry["times_bought"] += 1
-                maxed_stat(button, entry)
                 return
             case "1 HP":
                 self.run.hp += 1
                 entry["times_bought"] += 1
-                if entry["times_bought"] == entry["max_times_bought"]:
-                    button.text = "Maxed"
                 return
             case "1 Skill Point":
                 self.run.skill_points += 1
                 entry["times_bought"] += 1
-                if entry["times_bought"] == entry["max_times_bought"]:
-                    button.text = "Maxed"
                 return
         
         for tower in self.game_data.get_unlocked_towers():
@@ -379,11 +371,11 @@ class shop():
                 self.game_data.unlock_tower(entry['name'])
                 entry['times_bought'] += 1
                 return
-    
-    def maxed_stat(self, button, entry):
+        
         if entry["times_bought"] == entry["max_times_bought"]:
             button.text = "Maxed"
             button.disabled = True
+            return
 
     def upgrade():
         pass
