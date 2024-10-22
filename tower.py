@@ -96,6 +96,9 @@ class Bullet(Widget):
 
     def calculate_velocity(self):
         # Calculate the time to impact
+        if not self.enemy:
+            return
+
         direction_x = self.enemy.pos[0] - self.bullet_pos[0]
         direction_y = self.enemy.pos[1] - self.bullet_pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
@@ -135,3 +138,6 @@ class Bullet(Widget):
 
         self.calculate_velocity()
     
+class Mod():
+    def __init__():
+        pass
