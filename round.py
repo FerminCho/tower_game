@@ -15,7 +15,7 @@ import math
 import random
 from kivy.properties import NumericProperty
 from kivy.event import EventDispatcher
-from boss import Boss1
+from boss import Boss1, Boss2
 import threading
 
 class run(EventDispatcher):
@@ -141,11 +141,13 @@ class Round():
             if current_round_enemies['boss'] == "Boss 1":
                 self.boss = Boss1(self)
             elif current_round_enemies['boss'] == "Boss2":
-                #self.boss = Boss2()
+                self.boss = Boss2(self)
                 pass
             elif current_round_enemies['boss'] == "Boss3":    
                 #self.boss = Boss3()
                 pass
+        else:
+            self.boss = None
 
     def start(self, dt):
         self.populate_enemies()
@@ -184,7 +186,7 @@ class Round():
             button[0].disabled = False
             button[0].size_hint = (button[1], 1)
 
-    def end_run(self):
+    def end_run(self, dt):
         for event in self.schedule_events:
             Clock.unschedule(event)
             self.schedule_events.remove(event)
@@ -298,7 +300,8 @@ class Round():
                     self.bullets.remove(bullet)
                     self.layout.remove_widget(bullet)
             if self.boss and self.boss.hp <= 0:
-                self.boss.on_death()
+                if self.boss.name == "Boss1":
+                    self.boss.on_death()
                 self.boss = None
         else:
             hp_loss = enemy.damage_taken(bullet.damage)
