@@ -22,6 +22,11 @@ class Tower(Widget):
         self.xp = 0
         self.rect = None
 
+        self.bouncing_mod = False
+
+        if self.bouncing_mod:
+            self.mod = BouncingMod(self)
+
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
         bullet = Bullet(enemies=enemies, 
@@ -160,10 +165,13 @@ class Mod():
     def __init__():
         pass
 
+class BouncingBullet(Bullet):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
 class BouncingMod():
-    def __init__(self, tower, round):
+    def __init__(self, tower):
         self.tower = tower
-        self.round = round
     
     def bounce(self, bullet):
         if bullet.check_collision():
@@ -174,10 +182,10 @@ class BouncingMod():
     def create_bullet(self, enemies, start_enemy):
         bullet_pos = start_enemy.center
         bullet = Bullet(enemies=enemies, 
-                        damage=self.damage, 
-                        fire_rate=self.fire_rate, 
+                        damage=self.tower.damage, 
+                        fire_rate=self.tower.fire_rate, 
                         bullet_pos=bullet_pos, 
-                        size=self.bullet_size, 
-                        castle_pos=self.castle_pos, 
+                        size=self.tower.bullet_size, 
+                        castle_pos=self.tower.castle_pos, 
                         tower=self)
         return bullet
