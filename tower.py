@@ -23,20 +23,26 @@ class Tower(Widget):
         self.rect = None
         self.enemies = None
 
-        self.bouncing_mod = False
-
-        if self.bouncing_mod:
-            self.mod = BouncingMod(self)
+        self.bouncing_bullet = False
 
     def create_bullet(self):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=self.enemies, 
-                        damage=self.damage, 
-                        fire_rate=self.fire_rate, 
-                        bullet_pos=bullet_pos, 
-                        size=self.bullet_size, 
-                        castle_pos=self.castle_pos, 
-                        tower=self)
+        if self.bouncing_bullet:
+            bullet = BouncingBullet(enemies=self.enemies, 
+                                    damage=self.damage, 
+                                    fire_rate=self.fire_rate, 
+                                    bullet_pos=bullet_pos, 
+                                    size=self.bullet_size, 
+                                    castle_pos=self.castle_pos, 
+                                    tower=self)
+        else:
+            bullet = Bullet(enemies=self.enemies, 
+                            damage=self.damage, 
+                            fire_rate=self.fire_rate, 
+                            bullet_pos=bullet_pos, 
+                            size=self.bullet_size, 
+                            castle_pos=self.castle_pos, 
+                            tower=self)
         return bullet
 
     def draw_to_screen(self, tower_pos):
@@ -113,7 +119,7 @@ class Bullet(Widget):
             self.velocity = (0, 0)
             return
 
-        time_to_impact = distance / speed  # Assuming bullet speed is 600 pixels per second
+        time_to_impact = distance / speed  # Assuming bullet speed is speed pixels per second
 
         # Predict the enemy's future position
         future_enemy_pos = self.predict_enemy_position(time_to_impact)
@@ -132,12 +138,14 @@ class Bullet(Widget):
         return future_x, future_y
 
     def update(self, dt):
+        if self.check_collision():
+            return
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
         self.bullet_pos = (new_x, new_y)
         self.rect.pos = self.bullet_pos
 
-        self.calculate_velocity()
+        #self.calculate_velocity()
     
     def check_collision(self):
         # Get the center of the bullet and enemy
@@ -169,6 +177,8 @@ class BouncingBullet(Bullet):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.temp_enemies = self.enemies.copy()
+        self.bounces = 0
+        self.max_bounces = 3
 
     def find_closest_enemy(self):
         min_distance = float('inf')
@@ -194,12 +204,24 @@ class BouncingBullet(Bullet):
         self.target_rect = closest_rectangle
         return closest_enemy
     
+    def update(self, dt):
+        if self.bounces >= self.max_bounces:
+            return
+        self.handle_collision()
+        new_x = self.bullet_pos[0] + self.velocity[0] * dt
+        new_y = self.bullet_pos[1] + self.velocity[1] * dt
+        self.bullet_pos = (new_x, new_y)
+        self.rect.pos = self.bullet_pos
+
+        #self.calculate_velocity()
+    
     def handle_collision(self):
         if self.check_collision():
             self.temp_enemies = self.enemies.copy()
             self.temp_enemies.remove(self.enemy)
             self.enemy = self.find_closest_enemy()
             self.calculate_velocity()
+            self.bounces += 1
 
 class BouncingMod():
     def __init__(self, tower):
