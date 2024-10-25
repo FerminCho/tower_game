@@ -163,6 +163,7 @@ class Round():
             if tower[1]:
                 event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
                 self.schedule_events.append(event)
+                tower.enemies = self.enemies
 
     def end_round(self, dt):
         for event in self.schedule_events:

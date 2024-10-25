@@ -57,7 +57,7 @@ class Boss2(Widget):
     def __init__(self, screen, **kwargs):
         super().__init__(**kwargs)
         self.screen = screen
-        self.name = "Boss1"
+        self.name = "Boss2"
         self.hp = 10
         self.damage = 30
         self.direction = -math.pi / 2

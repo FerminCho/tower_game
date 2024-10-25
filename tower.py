@@ -21,15 +21,16 @@ class Tower(Widget):
         self.castle_pos = castle_pos
         self.xp = 0
         self.rect = None
+        self.enemies = None
 
         self.bouncing_mod = False
 
         if self.bouncing_mod:
             self.mod = BouncingMod(self)
 
-    def create_bullet(self, enemies):
+    def create_bullet(self):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        bullet = Bullet(enemies=enemies, 
+        bullet = Bullet(enemies=self.enemies, 
                         damage=self.damage, 
                         fire_rate=self.fire_rate, 
                         bullet_pos=bullet_pos, 
@@ -59,7 +60,7 @@ class Tower(Widget):
         
 
 class Bullet(Widget):
-    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, **kwargs):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
@@ -67,7 +68,6 @@ class Bullet(Widget):
         self.enemies = enemies
         self.wall = castle_pos[1]
         self.velocity = (0, 0)
-        self.tower = tower
 
         self.target_rect = None
         self.enemy = None
@@ -168,6 +168,38 @@ class Mod():
 class BouncingBullet(Bullet):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.temp_enemies = self.enemies.copy()
+
+    def find_closest_enemy(self):
+        min_distance = float('inf')
+        closest_rectangle = None
+        closest_enemy = None
+        
+        for enemy in self.temp_enemies:
+            # Calculate the center of the rectangle
+            rect = enemy.rect
+
+            # Calculate the direction vector
+            direction_x = rect.pos[0] - self.pos[0]
+            direction_y = rect.pos[1] - self.pos[1]
+
+            # Calculate the distance to the target
+            distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_rectangle = rect
+                closest_enemy = enemy
+
+        self.target_rect = closest_rectangle
+        return closest_enemy
+    
+    def handle_collision(self):
+        if self.check_collision():
+            self.temp_enemies = self.enemies.copy()
+            self.temp_enemies.remove(self.enemy)
+            self.enemy = self.find_closest_enemy()
+            self.calculate_velocity()
 
 class BouncingMod():
     def __init__(self, tower):
