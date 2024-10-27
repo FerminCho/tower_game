@@ -235,9 +235,10 @@ class BouncingBullet(Bullet):
     def handle_collision(self):
         self.temp_enemies = self.enemies.copy()
         self.temp_enemies.remove(self.enemy)
-        self.enemy = self.find_closest_enemy()
-        self.calculate_velocity()
-        self.bounces += 1
+        if self.temp_enemies:
+            self.enemy = self.find_closest_enemy()
+            self.calculate_velocity()
+            self.bounces += 1
     
     def on_collision(self, round_info):
         if self.bounces < self.max_bounces:
