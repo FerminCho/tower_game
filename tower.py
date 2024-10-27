@@ -23,7 +23,7 @@ class Tower(Widget):
         self.rect = None
         self.enemies = None
 
-        self.bouncing_bullet = False
+        self.bouncing_bullet = True
 
     def create_bullet(self):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
@@ -139,6 +139,7 @@ class Bullet(Widget):
 
     def update(self, dt):
         if self.check_collision():
+            self.on_collision()
             return
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
@@ -168,10 +169,26 @@ class Bullet(Widget):
         if distance < (self.rect_size[0] / 2 + self.enemy.rect_size[0] / 2):
             return True
         return False
-    
-class Mod():
-    def __init__():
-        pass
+
+    def on_collision(self, round_info):
+        if self in round_info.bullets:
+            round_info.bullets.remove(self)
+            round_info.layout.remove_widget(self)
+        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
+            round_info.enemies.remove(self.enemy)
+            round_info.layout.remove_widget(self.enemy)
+            round_info.run.coins += self.enemy.value
+            round_info.run.perma_coins += self.enemy.perma_coins_value
+            if self.tower.level <= 6:
+                self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
+            if round_info.boss and round_info.boss.hp <= 0:
+                if round_info.boss.name == "Boss1":
+                    round_info.boss.on_death()
+                round_info.boss = None
+        else:
+            hp_loss = self.enemy.damage_taken(self.damage)
+            if self.tower.level <= 6:
+                self.tower.increment_xp(hp_loss)
 
 class BouncingBullet(Bullet):
     def __init__(self, **kwargs):
@@ -205,9 +222,9 @@ class BouncingBullet(Bullet):
         return closest_enemy
     
     def update(self, dt):
-        if self.bounces >= self.max_bounces:
+        if self.check_collision():
+            self.on_collision()
             return
-        self.handle_collision()
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
         self.bullet_pos = (new_x, new_y)
@@ -216,30 +233,32 @@ class BouncingBullet(Bullet):
         #self.calculate_velocity()
     
     def handle_collision(self):
-        if self.check_collision():
-            self.temp_enemies = self.enemies.copy()
-            self.temp_enemies.remove(self.enemy)
-            self.enemy = self.find_closest_enemy()
-            self.calculate_velocity()
-            self.bounces += 1
-
-class BouncingMod():
-    def __init__(self, tower):
-        self.tower = tower
+        self.temp_enemies = self.enemies.copy()
+        self.temp_enemies.remove(self.enemy)
+        self.enemy = self.find_closest_enemy()
+        self.calculate_velocity()
+        self.bounces += 1
     
-    def bounce(self, bullet):
-        if bullet.check_collision():
-            enemies = self.round.enemies.remove(bullet.enemy)
-            self.create_bullet(enemies, bullet.enemy)
-
-
-    def create_bullet(self, enemies, start_enemy):
-        bullet_pos = start_enemy.center
-        bullet = Bullet(enemies=enemies, 
-                        damage=self.tower.damage, 
-                        fire_rate=self.tower.fire_rate, 
-                        bullet_pos=bullet_pos, 
-                        size=self.tower.bullet_size, 
-                        castle_pos=self.tower.castle_pos, 
-                        tower=self)
-        return bullet
+    def on_collision(self, round_info):
+        if self.bounces < self.max_bounces:
+            self.handle_collision()
+            return
+        
+        if self in round_info.bullets:
+            round_info.bullets.remove(self)
+            round_info.layout.remove_widget(self)
+        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
+            round_info.enemies.remove(self.enemy)
+            round_info.layout.remove_widget(self.enemy)
+            round_info.run.coins += self.enemy.value
+            round_info.run.perma_coins += self.enemy.perma_coins_value
+            if self.tower.level <= 6:
+                self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
+            if round_info.boss and round_info.boss.hp <= 0:
+                if round_info.boss.name == "Boss1":
+                    round_info.boss.on_death()
+                round_info.boss = None
+        else:
+            hp_loss = self.enemy.damage_taken(self.damage)
+            if self.tower.level <= 6:
+                self.tower.increment_xp(hp_loss)

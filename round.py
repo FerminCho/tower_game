@@ -258,38 +258,14 @@ class Round():
 
         for bullet in self.bullets:
             bullet.update(dt)
-
-            for enemy in self.enemies:
-                if self.check_collision(bullet, enemy):
-                    self.on_collision(bullet, enemy)
-
-    def check_collision(self, bullet, enemy):
-        # Get the center of the bullet and enemy
-        bullet_center = (
-            bullet.bullet_pos[0] + bullet.rect_size[0] / 2,
-            bullet.bullet_pos[1] + bullet.rect_size[1] / 2
-        )
-        enemy_center = (
-            enemy.pos[0] + enemy.rect_size[0] / 2,
-            enemy.pos[1] + enemy.rect_size[1] / 2
-        )
-
-        # Calculate the distance between the bullet and enemy
-        distance = math.sqrt(
-            (bullet_center[0] - enemy_center[0]) ** 2 +
-            (bullet_center[1] - enemy_center[1]) ** 2
-        )
-
-        # Check if the distance is less than the sum of the radii (or half the widths)
-        if distance < (bullet.rect_size[0] / 2 + enemy.rect_size[0] / 2):
-            return True
-        return False
+            if bullet.check_collision():
+                bullet.on_collision(self)
 
     def on_collision(self, bullet, enemy):
         if bullet in self.bullets:
             self.bullets.remove(bullet)
             self.layout.remove_widget(bullet)
-        if enemy in self.enemies and enemy.hp <= bullet.damage: # Fix this so it work with armored enemies enemy.damage_taken_ceck(bullet.damage)
+        if enemy in self.enemies and enemy.hp <= enemy.damage_taken(bullet.damage):
             self.enemies.remove(enemy)
             self.layout.remove_widget(enemy)
             self.run.coins += enemy.value
