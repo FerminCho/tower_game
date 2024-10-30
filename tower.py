@@ -23,12 +23,12 @@ class Tower(Widget):
         self.rect = None
         self.enemies = None
 
-        self.bouncing_bullet = True
+        self.bouncing_bullet = False
 
-    def create_bullet(self):
+    def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
         if self.bouncing_bullet:
-            bullet = BouncingBullet(enemies=self.enemies, 
+            bullet = BouncingBullet(enemies=enemies, 
                                     damage=self.damage, 
                                     fire_rate=self.fire_rate, 
                                     bullet_pos=bullet_pos, 
@@ -36,7 +36,7 @@ class Tower(Widget):
                                     castle_pos=self.castle_pos, 
                                     tower=self)
         else:
-            bullet = Bullet(enemies=self.enemies, 
+            bullet = Bullet(enemies=enemies, 
                             damage=self.damage, 
                             fire_rate=self.fire_rate, 
                             bullet_pos=bullet_pos, 
@@ -45,14 +45,14 @@ class Tower(Widget):
                             tower=self)
         return bullet
 
-    def draw_to_screen(self, tower_pos):
+    def draw_to_screen(self, tower_container_pos):
         if self.rect:
             self.canvas.remove(self.rect)
             self.rect = None
-        self.tower_pos = tower_pos
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
-            self.rect = Rectangle(pos=((self.tower_pos[0] + self.rect_size[0] / 2), self.tower_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
+            self.rect = Rectangle(pos=((tower_container_pos[0] + self.rect_size[0] / 2), tower_container_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
+            self.tower_pos = self.rect.pos
 
     def increment_xp(self, amount):
         self.xp += amount
@@ -66,7 +66,7 @@ class Tower(Widget):
         
 
 class Bullet(Widget):
-    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, **kwargs):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
@@ -74,6 +74,7 @@ class Bullet(Widget):
         self.enemies = enemies
         self.wall = castle_pos[1]
         self.velocity = (0, 0)
+        self.tower = tower
 
         self.target_rect = None
         self.enemy = None
@@ -111,22 +112,21 @@ class Bullet(Widget):
         
         speed = 300  # Pixels per second
 
-        direction_x = self.enemy.pos[0] - self.bullet_pos[0]
-        direction_y = self.enemy.pos[1] - self.bullet_pos[1]
+        direction_x = self.enemy.pos[0] - self.pos[0]
+        direction_y = self.enemy.pos[1] - self.pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
         
         if distance == 0:
             self.velocity = (0, 0)
             return
 
-        time_to_impact = distance / speed  # Assuming bullet speed is speed pixels per second
+        time_to_impact = distance / speed # Assuming bullet speed is speed pixels per second
 
-        # Predict the enemy's future position
-        future_enemy_pos = self.predict_enemy_position(time_to_impact)
+        future_enemy_x = self.enemy.pos[0] + self.enemy.velocity[0] * time_to_impact
+        future_enemy_y = self.enemy.pos[1] + self.enemy.velocity[1] * time_to_impact
 
-        # Adjust the bullet's velocity to aim at the predicted future position
-        direction_x = future_enemy_pos[0] - self.bullet_pos[0]
-        direction_y = future_enemy_pos[1] - self.bullet_pos[1]
+        direction_x = future_enemy_x - self.pos[0]
+        direction_y = future_enemy_y - self.pos[1]
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
 
         self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
@@ -139,7 +139,6 @@ class Bullet(Widget):
 
     def update(self, dt):
         if self.check_collision():
-            self.on_collision()
             return
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
@@ -191,9 +190,18 @@ class Bullet(Widget):
                 self.tower.increment_xp(hp_loss)
 
 class BouncingBullet(Bullet):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
+        self.damage = damage
+        self.fire_rate = fire_rate
+        self.bullet_pos = bullet_pos
+        self.enemies = enemies
+        self.size = size
+        self.castle_pos = castle_pos
+        self.tower = tower
+
         self.temp_enemies = self.enemies.copy()
+        super().__init__(enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs)
+
         self.bounces = 0
         self.max_bounces = 3
 
@@ -223,7 +231,6 @@ class BouncingBullet(Bullet):
     
     def update(self, dt):
         if self.check_collision():
-            self.on_collision()
             return
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
