@@ -75,7 +75,9 @@ class Bullet(Widget):
         self.wall = castle_pos[1]
         self.velocity = (0, 0)
         self.tower = tower
+        self.bullet_speed = 300
 
+        self.future_enemy_y = None
         self.target_rect = None
         self.enemy = None
         self.rect_size = size
@@ -85,7 +87,7 @@ class Bullet(Widget):
             self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
         
         self.enemy = self.find_closest_enemy()
-        self.calculate_velocity()
+        self.calculate_future_enemy_y()
     
     def find_closest_enemy(self):
         min_distance = float('inf')
@@ -106,46 +108,28 @@ class Bullet(Widget):
         self.target_rect = closest_rectangle
         return closest_enemy
 
-    def calculate_velocity(self):
+    def calculate_future_enemy_y(self):
         if not self.enemy:
             return
-        
-        speed = 300  # Pixels per second
 
-        direction_x = self.enemy.pos[0] - self.pos[0]
-        direction_y = self.enemy.pos[1] - self.pos[1]
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-        
-        if distance == 0:
-            self.velocity = (0, 0)
-            return
+        distance_enemy_x = self.enemy.pos[0] - self.pos[0]
 
-        time_to_impact = distance / speed # Assuming bullet speed is speed pixels per second
+        time_to_impact = distance_enemy_x / self.bullet_speed # Assuming bullet speed is speed pixels per second
 
-        future_enemy_x = self.enemy.pos[0] + self.enemy.velocity[0] * time_to_impact
-        future_enemy_y = self.enemy.pos[1] + self.enemy.velocity[1] * time_to_impact
-
-        direction_x = future_enemy_x - self.pos[0]
-        direction_y = future_enemy_y - self.pos[1]
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-
-        self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
-    
-    def predict_enemy_position(self, time_to_impact):
-        # Assuming enemy is moving straight down
-        future_x = self.enemy.pos[0] + self.enemy.rect_size[0] / 2
-        future_y = self.enemy.pos[1] + self.enemy.rect_size[1] / 2 + self.enemy.speed * time_to_impact
-        return future_x, future_y
+        # Predict the enemy's future position
+        self.future_enemy_y = self.enemy.pos[1] + self.enemy.speed * time_to_impact 
 
     def update(self, dt):
         if self.check_collision():
             return
-        new_x = self.bullet_pos[0] + self.velocity[0] * dt
-        new_y = self.bullet_pos[1] + self.velocity[1] * dt
+        dx = self.enemy.pos[0] - self.bullet_pos[0]
+        dy = self.future_enemy_y - self.bullet_pos[1]
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+
+        new_x = (dx / distance) * self.bullet_speed * dt
+        new_y = (dy / distance) * self.bullet_speed * dt
         self.bullet_pos = (new_x, new_y)
         self.rect.pos = self.bullet_pos
-
-        #self.calculate_velocity()
     
     def check_collision(self):
         # Get the center of the bullet and enemy
