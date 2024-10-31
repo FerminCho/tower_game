@@ -126,8 +126,8 @@ class Bullet(Widget):
         dy = self.future_enemy_y - self.bullet_pos[1]
         distance = math.sqrt(dx ** 2 + dy ** 2)
 
-        new_x = (dx / distance) * self.bullet_speed * dt
-        new_y = (dy / distance) * self.bullet_speed * dt
+        new_x = self.bullet_pos[0] + ((dx / distance) * self.bullet_speed * dt)
+        new_y = self.bullet_pos[1] + ((dy / distance) * self.bullet_speed * dt)
         self.bullet_pos = (new_x, new_y)
         self.rect.pos = self.bullet_pos
     
