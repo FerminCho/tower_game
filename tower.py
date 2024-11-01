@@ -70,7 +70,7 @@ class Bullet(Widget):
         super().__init__(**kwargs)
         self.damage = damage
         self.fire_rate = fire_rate
-        self.bullet_pos = bullet_pos
+        self.bullet_pos = list(bullet_pos)
         self.enemies = enemies
         self.wall = castle_pos[1]
         self.velocity = (0, 0)
@@ -113,11 +113,26 @@ class Bullet(Widget):
             return
 
         distance_enemy_x = self.enemy.pos[0] - self.pos[0]
+        distance_enemy_y = self.enemy.pos[1] - self.bullet_pos[1]
 
-        time_to_impact = distance_enemy_x / self.bullet_speed # Assuming bullet speed is speed pixels per second
+        time_to_impact = distance_enemy_y / self.bullet_speed # Assuming bullet speed is speed pixels per second
 
         # Predict the enemy's future position
         self.future_enemy_y = self.enemy.pos[1] + self.enemy.speed * time_to_impact 
+    
+    def calculate_velocity(self):
+        if not self.enemy:
+            return
+        
+        distance_x = self.enemy.pos[0] - self.pos[0] 
+        
+        if distance_x == 0:
+            self.velocity = [0, 0]
+            return
+
+        # Normalize the direction vector and scale by bullet speed
+        self.velocity = [distance_x * self.bullet_speed, self.bullet_speed]
+
 
     def update(self, dt):
         if self.check_collision():
