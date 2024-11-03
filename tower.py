@@ -77,7 +77,6 @@ class Bullet(Widget):
         self.tower = tower
         self.bullet_speed = 300
 
-        self.future_enemy_y = None
         self.target_rect = None
         self.enemy = None
         self.rect_size = size
@@ -85,9 +84,10 @@ class Bullet(Widget):
         with self.canvas:
             Color(1, 0, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
-        
+         
         self.enemy = self.find_closest_enemy()
-        self.calculate_future_enemy_y()
+        self.calculate_intercept()
+        #self.calculate_velocity()
     
     def find_closest_enemy(self):
         min_distance = float('inf')
@@ -108,41 +108,45 @@ class Bullet(Widget):
         self.target_rect = closest_rectangle
         return closest_enemy
 
-    def calculate_future_enemy_y(self):
-        if not self.enemy:
-            return
+    def calculate_intercept(self):
+        # Calculate horizontal and vertical distances to the enemy's future intercept point
+        dx = self.enemy.rect.pos[0] - self.pos[0]
+        
+        # Time to impact calculated based on horizontal distance and bullet speed
+        time_to_impact = dx / self.bullet_speed
 
-        distance_enemy_x = self.enemy.pos[0] - self.pos[0]
-        distance_enemy_y = self.enemy.pos[1] - self.bullet_pos[1]
+        # Predict the enemy's future y-position at the time of impact
+        future_enemy_y = self.enemy.rect.pos[1] + self.enemy.speed * time_to_impact
 
-        time_to_impact = distance_enemy_y / self.bullet_speed # Assuming bullet speed is speed pixels per second
+        # Calculate full distance to this intercept point
+        dy = future_enemy_y - self.pos[1]
+        distance_to_intercept = math.sqrt(dx ** 2 + dy ** 2)
 
-        # Predict the enemy's future position
-        self.future_enemy_y = self.enemy.pos[1] + self.enemy.speed * time_to_impact 
+        # Recalculate time to impact based on this full distance
+        time_to_impact = distance_to_intercept / self.bullet_speed
+
+        # Set bullet velocity vector to move towards intercept point at `bullet_speed`
+        self.velocity = [(dx / distance_to_intercept) * self.bullet_speed,
+                         (dy / distance_to_intercept) * self.bullet_speed]
     
     def calculate_velocity(self):
         if not self.enemy:
             return
-        
-        distance_x = self.enemy.pos[0] - self.pos[0] 
-        
-        if distance_x == 0:
-            self.velocity = [0, 0]
-            return
 
-        # Normalize the direction vector and scale by bullet speed
-        self.velocity = [distance_x * self.bullet_speed, self.bullet_speed]
+        # Calculate distance to future target position
+        dx = self.enemy.pos[0] - self.pos[0]
+        dy = self.future_enemy_y - self.pos[1]
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+
+        if distance != 0:
+            # Normalize and scale by bullet speed
+            self.velocity = [(dx / distance) * self.bullet_speed, (dy / distance) * self.bullet_speed]
 
 
     def update(self, dt):
-        if self.check_collision():
-            return
-        dx = self.enemy.pos[0] - self.bullet_pos[0]
-        dy = self.future_enemy_y - self.bullet_pos[1]
-        distance = math.sqrt(dx ** 2 + dy ** 2)
-
-        new_x = self.bullet_pos[0] + ((dx / distance) * self.bullet_speed * dt)
-        new_y = self.bullet_pos[1] + ((dy / distance) * self.bullet_speed * dt)
+        
+        new_x = self.bullet_pos[0] + self.velocity[0] * dt
+        new_y = self.bullet_pos[1] + self.velocity[1] * dt
         self.bullet_pos = (new_x, new_y)
         self.rect.pos = self.bullet_pos
     
