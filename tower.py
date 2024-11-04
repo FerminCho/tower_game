@@ -112,22 +112,16 @@ class Bullet(Widget):
             return
 
         # Calculate distance to future target position
-        dx = self.enemy.pos[0] - self.pos[0]
-        dy = self.enemy.pos[1] - self.pos[1]
+        dx = self.enemy.pos[0] - self.bullet_pos[0]
+        dy = self.enemy.pos[1] - self.bullet_pos[1]
         distance = math.sqrt(dx ** 2 + dy ** 2)
 
         if distance != 0:
             # Normalize and scale by bullet speed
             self.velocity = [(dx / distance) * self.bullet_speed, (dy / distance) * self.bullet_speed]
-        print(self.velocity)
-        print(self.enemy.pos)
-        print(self.bullet_pos)
 
 
     def update(self, dt):
-        if self.check_collision():
-            self.on_collision()
-            return
         self.calculate_velocity()  # Recalculate velocity to account for enemy movement
         new_x = self.bullet_pos[0] + self.velocity[0] * dt
         new_y = self.bullet_pos[1] + self.velocity[1] * dt
