@@ -1,78 +1,272 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
+from kivy.graphics import Rectangle, Ellipse, Color
 from kivy.core.window import Window
+from kivy.clock import Clock
+import random
+import math
 
-class GameData:
-    def get_shop_entries(self):
-        # Mock data for testing
-        return [
-            {'name': 'Item 1', 'price': 10},
-            {'name': 'Item 2', 'price': 20},
-            {'name': 'Item 3', 'price': 30},
-            {'name': 'Item 4', 'price': 40},
-        ]
-
-class shop:
-    def __init__(self, **kwargs):
+class Tower(Widget):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
         super().__init__(**kwargs)
-        self.game_data = GameData()
-    
-    def shop_entries(self):
-        popup_content = BoxLayout(orientation='vertical')
-        grid_layout = GridLayout(cols=2, spacing=0, size_hint_y=None)
-        grid_layout.bind(minimum_height=grid_layout.setter('height'))
-        popup_size = (Window.width * 0.8, Window.height * 0.8)
+        self.fire_rate = fire_rate
+        self.level = level
+        self.base_damage = damage
+        self.damage = None
+        self.name = name
+        self.rect_size = (20, 20)
+        self.tower_pos = tower_pos
+        self.bullet_size = (bullet_size, bullet_size)
+        self.castle_pos = castle_pos
+        self.xp = 0
+        self.rect = None
+        self.enemies = None
 
-        entries = self.game_data.get_shop_entries()
-        for entry in entries:
-            button1 = Button(text=entry['name'], size_hint_y=None, height=40, size_hint_x=0.8)
-            button2 = Button(text=str(entry['price']), size_hint_y=None, height=40, size_hint_x=0.2)
-            button2.bind(on_release=lambda btn, name=entry['name'], price=entry['price']: self.buy(name, price))
-            grid_layout.add_widget(button1)
-            grid_layout.add_widget(button2)
-        popup_content.add_widget(grid_layout)
-        popup = Popup(title='Shop Entries', content=popup_content, size_hint=(None, None), size=popup_size)
-        popup.open()
+        self.bouncing_bullet = False
 
-    def buy(self, name, price):
-        if self.castle.coins < price:
-            return
+    def create_bullet(self, enemies):
+        bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
+        if self.bouncing_bullet:
+            bullet = BouncingBullet(enemies=enemies, 
+                                    damage=self.damage, 
+                                    fire_rate=self.fire_rate, 
+                                    bullet_pos=bullet_pos, 
+                                    size=self.bullet_size, 
+                                    castle_pos=self.castle_pos, 
+                                    tower=self)
         else:
-            self.castle.coins -= price
+            bullet = Bullet(enemies=enemies, 
+                            damage=self.damage, 
+                            fire_rate=self.fire_rate, 
+                            bullet_pos=bullet_pos, 
+                            size=self.bullet_size, 
+                            castle_pos=self.castle_pos, 
+                            tower=self)
+        return bullet
 
-        match name:
-            case "Energy":
-                self.castle.energy += 1
-                return
-            case "HP":
-                self.castle.hp += 1
-                return
-            case "Skill Point":
-                self.castle.skill_points += 1
-                return
+    def draw_to_screen(self, tower_container_pos):
+        if self.rect:
+            self.canvas.remove(self.rect)
+            self.rect = None
+        with self.canvas:
+            Color(0, 1, 0, 1)  # Set the color to green
+            self.rect = Rectangle(pos=((tower_container_pos[0] + self.rect_size[0] / 2), tower_container_pos[1] + self.rect_size[1] / 2), size=self.rect_size)
+            self.tower_pos = self.rect.pos
+
+    def increment_xp(self, amount):
+        self.xp += amount
+        if self.xp >= 5 * self.level + 1:
+            self.level_up()
+
+    def level_up(self):
+        self.xp = 0
+        self.level += 1
         
-        for tower in self.game_data.get_bought_towers():
-            if tower['name'] == name:
-                self.game_data.unlock_tower(name)
-                return
+        
 
-    def upgrade(self):
-        pass
+class Bullet(Widget):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
+        super().__init__(**kwargs)
+        self.damage = damage
+        self.fire_rate = fire_rate
+        self.bullet_pos = bullet_pos
+        self.enemies = enemies
+        self.wall = castle_pos[1]
+        self.velocity = (0, 0)
+        self.tower = tower
 
-class ShopApp(App):
-    def build(self):
-        main_layout = BoxLayout(orientation='vertical')
-        shop_instance = shop()
+        self.target_rect = None
+        self.enemy = None
+        self.rect_size = size
 
-        open_shop_button = Button(text='Open Shop', size_hint=(None, None), size=(200, 50))
-        open_shop_button.bind(on_release=lambda x: shop_instance.shop_entries())
+        with self.canvas:
+            Color(1, 0, 0, 1)  # Set the color to green
+            self.rect = Rectangle(pos=self.bullet_pos, size=self.rect_size)
+        
+        self.enemy = self.find_closest_enemy()
+        self.calculate_velocity()
+    
+    def find_closest_enemy(self):
+        min_distance = float('inf')
+        closest_rectangle = None
+        closest_enemy = None
+        
+        for enemy in self.enemies:
+            # Calculate the center of the rectangle
+            rect = enemy.rect
 
-        main_layout.add_widget(open_shop_button)
-        return main_layout
+            distance = enemy.pos[1] - self.wall
 
-if __name__ == '__main__':
-    ShopApp().run()
+            if distance < min_distance:
+                min_distance = distance
+                closest_rectangle = rect
+                closest_enemy = enemy
+
+        self.target_rect = closest_rectangle
+        return closest_enemy
+
+    def calculate_velocity(self):
+        if not self.enemy:
+            return
+        
+        speed = 300  # Pixels per second
+
+        direction_x = self.enemy.pos[0] - self.pos[0]
+        direction_y = self.enemy.pos[1] - self.pos[1]
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        
+        if distance == 0:
+            self.velocity = (0, 0)
+            return
+
+        time_to_impact = distance / speed # Assuming bullet speed is speed pixels per second
+
+        future_enemy_x = self.enemy.pos[0] + self.enemy.velocity[0] * time_to_impact
+        future_enemy_y = self.enemy.pos[1] + self.enemy.velocity[1] * time_to_impact
+
+        direction_x = future_enemy_x - self.pos[0]
+        direction_y = future_enemy_y - self.pos[1]
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+
+        self.velocity = (direction_x / distance) * speed, (direction_y / distance) * speed
+    
+    def predict_enemy_position(self, time_to_impact):
+        # Assuming enemy is moving straight down
+        future_x = self.enemy.pos[0] + self.enemy.rect_size[0] / 2
+        future_y = self.enemy.pos[1] + self.enemy.rect_size[1] / 2 + self.enemy.speed * time_to_impact
+        return future_x, future_y
+
+    def update(self, dt):
+        if self.check_collision():
+            return
+        new_x = self.bullet_pos[0] + self.velocity[0] * dt
+        new_y = self.bullet_pos[1] + self.velocity[1] * dt
+        self.bullet_pos = (new_x, new_y)
+        self.rect.pos = self.bullet_pos
+
+        #self.calculate_velocity()
+    
+    def check_collision(self):
+        # Get the center of the bullet and enemy
+        bullet_center = (
+            self.bullet_pos[0] + self.rect_size[0] / 2,
+            self.bullet_pos[1] + self.rect_size[1] / 2
+        )
+        enemy_center = (
+            self.enemy.pos[0] + self.enemy.rect_size[0] / 2,
+            self.enemy.pos[1] + self.enemy.rect_size[1] / 2
+        )
+
+        # Calculate the distance between the bullet and enemy
+        distance = math.sqrt(
+            (bullet_center[0] - enemy_center[0]) ** 2 +
+            (bullet_center[1] - enemy_center[1]) ** 2
+        )
+
+        # Check if the distance is less than the sum of the radii (or half the widths)
+        if distance < (self.rect_size[0] / 2 + self.enemy.rect_size[0] / 2):
+            return True
+        return False
+
+    def on_collision(self, round_info):
+        if self in round_info.bullets:
+            round_info.bullets.remove(self)
+            round_info.layout.remove_widget(self)
+        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
+            round_info.enemies.remove(self.enemy)
+            round_info.layout.remove_widget(self.enemy)
+            round_info.run.coins += self.enemy.value
+            round_info.run.perma_coins += self.enemy.perma_coins_value
+            if self.tower.level <= 6:
+                self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
+            if round_info.boss and round_info.boss.hp <= 0:
+                if round_info.boss.name == "Boss1":
+                    round_info.boss.on_death()
+                round_info.boss = None
+        else:
+            hp_loss = self.enemy.damage_taken(self.damage)
+            if self.tower.level <= 6:
+                self.tower.increment_xp(hp_loss)
+
+class BouncingBullet(Bullet):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
+        self.damage = damage
+        self.fire_rate = fire_rate
+        self.bullet_pos = bullet_pos
+        self.enemies = enemies
+        self.size = size
+        self.castle_pos = castle_pos
+        self.tower = tower
+
+        self.temp_enemies = self.enemies.copy()
+        super().__init__(enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs)
+
+        self.bounces = 0
+        self.max_bounces = 3
+
+    def find_closest_enemy(self):
+        min_distance = float('inf')
+        closest_rectangle = None
+        closest_enemy = None
+        
+        for enemy in self.temp_enemies:
+            # Calculate the center of the rectangle
+            rect = enemy.rect
+
+            # Calculate the direction vector
+            direction_x = rect.pos[0] - self.pos[0]
+            direction_y = rect.pos[1] - self.pos[1]
+
+            # Calculate the distance to the target
+            distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_rectangle = rect
+                closest_enemy = enemy
+
+        self.target_rect = closest_rectangle
+        return closest_enemy
+    
+    def update(self, dt):
+        if self.check_collision():
+            return
+        new_x = self.bullet_pos[0] + self.velocity[0] * dt
+        new_y = self.bullet_pos[1] + self.velocity[1] * dt
+        self.bullet_pos = (new_x, new_y)
+        self.rect.pos = self.bullet_pos
+
+        #self.calculate_velocity()
+    
+    def handle_collision(self):
+        self.temp_enemies = self.enemies.copy()
+        self.temp_enemies.remove(self.enemy)
+        if self.temp_enemies:
+            self.enemy = self.find_closest_enemy()
+            self.calculate_velocity()
+            self.bounces += 1
+    
+    def on_collision(self, round_info):
+        if self.bounces < self.max_bounces:
+            self.handle_collision()
+            return
+        
+        if self in round_info.bullets:
+            round_info.bullets.remove(self)
+            round_info.layout.remove_widget(self)
+        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
+            round_info.enemies.remove(self.enemy)
+            round_info.layout.remove_widget(self.enemy)
+            round_info.run.coins += self.enemy.value
+            round_info.run.perma_coins += self.enemy.perma_coins_value
+            if self.tower.level <= 6:
+                self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
+            if round_info.boss and round_info.boss.hp <= 0:
+                if round_info.boss.name == "Boss1":
+                    round_info.boss.on_death()
+                round_info.boss = None
+        else:
+            hp_loss = self.enemy.damage_taken(self.damage)
+            if self.tower.level <= 6:
+                self.tower.increment_xp(hp_loss)
