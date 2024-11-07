@@ -65,7 +65,7 @@ class PlayWindow(Screen):
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
 
     def on_enter(self):
-        self.manager.get_screen('Upgrade').run = self.run
+        self.run.start_run()
 
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
@@ -215,7 +215,6 @@ class MyApp(App):
         sm.add_widget(UpgradeWindow(name = 'Upgrade', play_window=play_window))
         sm.add_widget(play_window)
         return sm
-        #return MyGame()
 
 if __name__ == '__main__':
     MyApp().run()

@@ -75,7 +75,7 @@ class Bullet(Widget):
         self.wall = castle_pos[1]
         self.velocity = [0, 0]
         self.tower = tower
-        self.bullet_speed = 300
+        self.bullet_speed = 400
 
         self.target_rect = None
         self.enemy = None
@@ -118,7 +118,7 @@ class Bullet(Widget):
 
         if distance != 0:
             # Normalize and scale by bullet speed
-            self.velocity = [(dx / distance) * self.bullet_speed, (dy / distance) * self.bullet_speed]
+            self.velocity = [(dx / distance) * (self.bullet_speed + self.enemy.speed), (dy / distance) * self.bullet_speed]
 
 
     def update(self, dt):

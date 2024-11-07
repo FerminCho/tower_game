@@ -30,7 +30,8 @@ class run(EventDispatcher):
         self.game_data = GameData()
         self.existing_run = self.game_data.get_existing_run()['saved']
         self.towers = self.game_data.get_all_towers()
-
+    
+    def start_run(self):
         if self.existing_run:
             self.load_run()
         else:
@@ -188,24 +189,9 @@ class Round():
             button[0].size_hint = (button[1], 1)
 
     def end_run(self, dt):
-        for event in self.schedule_events:
-            Clock.unschedule(event)
-            self.schedule_events.remove(event)
-        for tower in self.towers.values():
-            if tower[1]:
-                Clock.unschedule(self.fire_bullet(dt, tower[1]))
+        self.end_round(dt)
 
-        for enemy in self.enemies:
-            self.layout.remove_widget(enemy)
-        self.enemies = []
-
-        for bullet in self.bullets:
-            self.layout.remove_widget(bullet)
-        self.bullets = []
-        
-        self.bullets_to_kill = {}
-
-        self.manager.current = 'Home'
+        self.layout.manager.current = 'Home'
 
     def spawn_enemy(self, dt):
         if len(self.round_enemies) == 0:
@@ -239,7 +225,7 @@ class Round():
     def update(self, dt):
         if self.run.hp <= 0:
             self.run.home.perma_coins += self.run.perma_coins
-            self.end_round(dt)
+            self.end_run(dt)
             return
 
         for enemy in self.enemies:
@@ -287,7 +273,6 @@ class Round():
 
 class shop():
     def __init__(self, run, castle, **kwargs):
-        #super().__init__(**kwargs)
         self.game_data = GameData()
         self.run = run
         self.castle = castle

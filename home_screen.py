@@ -58,7 +58,7 @@ class HomeWindow(Screen):
         top_layout.add_widget(perma_coins_label)
         self.add_widget(top_layout)
 
-    def switch_to_play(self, instance):
+    def switch_to_play(self, instance): # Add so that the game data is passed to the play window. So if no saved game do new run otherwise load the saved game
         self.manager.current = 'Play'
 
     def switch_to_perma_shop(self, instance):
@@ -173,16 +173,3 @@ class PermanentShop(Screen):
                 }
 
         self.game_data.save_perma_data(data)
-        
-
-    
-class MyApp(App):
-    def build(self):
-        sm = ScreenManager()
-        sm.add_widget(HomeWindow(name='Home'))
-        sm.add_widget(PermanentShop(name='Shop'))
-        return sm
-
-if __name__ == '__main__':
-    MyApp().run()
-
