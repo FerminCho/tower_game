@@ -24,8 +24,10 @@ class run(EventDispatcher):
     skill_points = NumericProperty(0)
     energy = NumericProperty(0)
     hp = NumericProperty(0)
-    def __init__(self, home, **kwargs):
+    def __init__(self, home, play_window, **kwargs):
         self.home = home
+        self.play_window = play_window
+        self.energy_buttons = None
         self.castle = Castle(self)
         self.game_data = GameData()
         self.existing_run = self.game_data.get_existing_run()['saved']
@@ -47,6 +49,7 @@ class run(EventDispatcher):
         self.tower_instances = []
         self.towers = self.game_data.get_all_towers()
         self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.energy_buttons = self.play_window.get_energy_buttons()
 
         for tower in data['towers']:
             full_tower = Tower(fire_rate=tower['fire_rate'], 
@@ -88,8 +91,8 @@ class run(EventDispatcher):
         self.perma_coins = 0
         self.energy = self.castle.base_energy + self.home.extra_energy
         self.hp = self.castle.base_hp + self.home.extra_hp
-        self.energy_buttons = None
         self.unlocked_towers = self.game_data.get_unlocked_towers()
+        self.energy_buttons = self.play_window.get_energy_buttons()
         self.tower_instances = []
 
         for tower_name in self.unlocked_towers:

@@ -30,7 +30,8 @@ class PlayWindow(Screen):
     def __init__(self, home, **kwargs):
         super().__init__(**kwargs)
         self.main_buttons = []
-        self.run = run(home=home)
+        self.energy_buttons = []
+        self.run = run(home=home, play_window=self)
         self.shop = shop(run=self.run, castle=self.run.castle)
         self.energy_layout()
         self.add_widget(self.run.castle)
@@ -74,7 +75,6 @@ class PlayWindow(Screen):
         Clock.schedule_once(self.round.start, 0.01)
 
     def energy_layout(self):
-        self.energy_buttons = []
         button_size = (40, 40)
         self.energy_state = 'add'
         layout_big = BoxLayout(
@@ -110,7 +110,6 @@ class PlayWindow(Screen):
             
             self.energy_button.bind(pos=self.energy_button.update_rectangles)
             layout_big.add_widget(self.energy_button)
-        self.run.energy_buttons = self.energy_buttons
         self.add_widget(layout_big)
 
         toggle_button_size = (100, 50)
@@ -120,6 +119,9 @@ class PlayWindow(Screen):
                                      pos=(Window.width - toggle_button_size[0], 0))
         toggle_button.bind(on_press=self.on_toggle)
         self.add_widget(toggle_button)
+    
+    def get_energy_buttons(self):
+        return self.energy_buttons
     
     def on_toggle(self, instance):
         if instance.state == 'down':
