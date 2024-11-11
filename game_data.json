@@ -28,6 +28,8 @@
     },
 
     "latest_run": {
+        "coinds": 0,
+        "perma_coins": 0,
         "round": 0,
         "energy": 0,
         "hp": 10,

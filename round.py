@@ -42,6 +42,7 @@ class run(EventDispatcher):
     def load_run(self):
         data = self.game_data.load_run()
         self.coins = data['coins']
+        self.perma_coins = data['perma_coins']
         self.round = data['round']
         self.skill_points = data['skill_points']
         self.energy = data['energy']
@@ -64,6 +65,7 @@ class run(EventDispatcher):
     def save_run(self):
         data = {
             'coins': self.coins,
+            'perma_coins': self.perma_coins,
             'round': self.round,
             'skill_points': self.skill_points,
             'energy': self.energy,
