@@ -106,11 +106,7 @@ class PermanentShop(Screen):
         back_button.bind(on_release=self.go_back)
         self.layout.add_widget(back_button)
 
-        self.perma_coins_label = Label(text=f'Perma Coins: {self.perma_coins}', 
-                                       pos=(Window.width * 0.04, Window.height * 0.89), 
-                                       size_hint=(None, None),
-                                       font_size=Window.width * 0.025, 
-                                       color=(1, 1, 1, 1))
+        self.perma_coins_label = self.create_resource_label('Perma Coins: ', 'perma_coins', (Window.width * 0.04, Window.height * 0.89), (1, 1, 1, 1))
         self.layout.add_widget(self.perma_coins_label)
 
         self.add_widget(self.layout)
@@ -119,8 +115,6 @@ class PermanentShop(Screen):
     def on_enter(self):
         self.home = self.manager.get_screen('Home')
         self.perma_coins = self.home.perma_coins
-        self.bind(perma_coins=self.update_home_perma_coins)
-        self.home.bind(perma_coins=self.update_perma_coins)
         
     def update_home_perma_coins(self, instance, value):
         self.home.perma_coins = value
@@ -136,7 +130,7 @@ class PermanentShop(Screen):
         if self.perma_coins < price:
             return
         else:
-            self.perma_coins -= price
+            self.home.perma_coins -= price
 
         match entry['name']:
             case "+1 Permanent Energy":
@@ -173,3 +167,13 @@ class PermanentShop(Screen):
                 }
 
         self.game_data.save_perma_data(data)
+    
+    def create_resource_label(self, prefix, property_name, pos, color):
+        label = Label(text=prefix + str(getattr(self, property_name)),
+                      size_hint=(None, None),
+                      font_size=Window.width * 0.025,
+                      pos=pos,
+                      color=color)
+        label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        self.bind(**{property_name: lambda instance, value: label.setter('text')(label, prefix + str(value))})
+        return label

@@ -231,10 +231,6 @@ class Round():
             self.end_run(dt)
             return
 
-        for enemy in self.enemies:
-            enemy.update(dt)
-            self.castle.detect_collision(enemy)
-
         if len(self.round_enemies) == 0 and not self.enemies:
             if self.boss:
                 self.enemies.append(self.boss)
@@ -244,6 +240,10 @@ class Round():
                 self.run.round += 1
                 self.end_round(dt)
                 return
+        
+        for enemy in self.enemies:
+            enemy.update(dt)
+            self.castle.detect_collision(enemy)
 
         for bullet in self.bullets:
             bullet.update(dt)
