@@ -167,6 +167,10 @@ class UpgradeWindow(Screen):
 
         elif tower.name == "Sniper Tower":
             pass
+    
+    def reset_upgrades(self):
+        for skill_button in self.skill_buttons:
+            skill_button.color = (1, 1, 1, 1)
 
     def switch_to_play(self, instance):
         self.manager.current = 'Play'
