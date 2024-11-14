@@ -89,7 +89,7 @@ class run(EventDispatcher):
     def new_run(self):
         self.coins = 0 + self.home.extra_coins
         self.round = 0
-        self.skill_points = 0 + self.home.extra_skill_points
+        self.skill_points = 1 + self.home.extra_skill_points
         self.perma_coins = 0
         self.energy = self.castle.base_energy + self.home.extra_energy
         self.hp = self.castle.base_hp + self.home.extra_hp
@@ -220,7 +220,7 @@ class Round():
             if bullet.enemy in self.bullets_to_kill:
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
-                self.bullets_to_kill[bullet.enemy] -= bullet.enemy.damage_taken(bullet.damage)
+                self.bullets_to_kill[bullet.enemy] -= bullet.enemy.get_damage_taken(bullet.damage)
         
                 if self.bullets_to_kill[bullet.enemy] <= 0:
                     del self.bullets_to_kill[bullet.enemy]
@@ -251,30 +251,6 @@ class Round():
             bullet.update(dt)
             if bullet.check_collision():
                 bullet.on_collision(self)
-
-    def on_collision(self, bullet, enemy):
-        if bullet in self.bullets:
-            self.bullets.remove(bullet)
-            self.layout.remove_widget(bullet)
-        if enemy in self.enemies and enemy.hp <= enemy.damage_taken(bullet.damage):
-            self.enemies.remove(enemy)
-            self.layout.remove_widget(enemy)
-            self.run.coins += enemy.value
-            self.run.perma_coins += enemy.perma_coins_value
-            if bullet.tower.level <= 6:
-                bullet.tower.increment_xp(enemy.hp)
-            for bullet in self.bullets:
-                if bullet.enemy == enemy:
-                    self.bullets.remove(bullet)
-                    self.layout.remove_widget(bullet)
-            if self.boss and self.boss.hp <= 0:
-                if self.boss.name == "Boss1":
-                    self.boss.on_death()
-                self.boss = None
-        else:
-            hp_loss = enemy.damage_taken(bullet.damage)
-            if bullet.tower.level <= 6:
-                bullet.tower.increment_xp(hp_loss)
 
 class shop():
     def __init__(self, run, castle, **kwargs):

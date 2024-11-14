@@ -15,9 +15,10 @@ class UpgradeWindow(Screen):
         super().__init__(**kwargs)
         self.play_window = play_window
         self.unlocked_towers = None
-        self.run = None
+        self.run = self.play_window.run
         self.game_data = GameData()
         self.towers = self.game_data.get_all_towers()
+        self.skill_buttons = []
         layout = FloatLayout()
         self.add_widget(layout)
 
@@ -81,6 +82,7 @@ class UpgradeWindow(Screen):
                 #button.pos_hint = {'center_x': skill['pos'][0], 'center_y': skill['pos'][1]}
                 button.pos = (Window.width * skill['pos'][0] - skill_button_size[0] / 2, Window.height * skill['pos'][1] - skill_button_size[1] / 2)
                 layout.add_widget(button)
+                self.skill_buttons.append(button)
             
             parent_layout.add_widget(layout)
         
@@ -130,11 +132,11 @@ class UpgradeWindow(Screen):
             if tower.name == tower_name:
                 break
         # Populate the skill info window with the relevant information
-        self.skill_info_window.children[0].bind(on_press=lambda instance, tower=tower, skill=skill: self.upgrade(instance, tower, skill))
+        self.skill_info_window.children[0].bind(on_press=lambda button, tower=tower, skill=skill: self.upgrade(button, tower, skill))
         self.skill_info_window.children[1].text = instance.skill_info
         self.skill_info_window.opacity = 1  # Show the skill info window
     
-    def upgrade(self, instance, tower, skill):
+    def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
             return
 
@@ -143,6 +145,11 @@ class UpgradeWindow(Screen):
                 case "Skill A1":
                     tower.damage += 1
                     self.run.skill_points -= 1
+                    button.text = "Upgraded"
+                    button.disabled = True
+                    for skill_button in self.skill_buttons:
+                        if skill_button.text == "Skill A1":
+                            skill_button.color = (1, 0, 0, 1)
                 case "Skill A2":
                     tower.fire_rate += 1
                     self.run.skill_points -= 1
@@ -153,7 +160,7 @@ class UpgradeWindow(Screen):
                     tower.fire_rate += 1
                     self.run.skill_points -= 1
                 case "Skill A5":
-                    if self.run.skill_points < 2:
+                    if self.run.skill_points <= 2:
                         return
                     tower.damage += 1
                     self.run.skill_points -= 2

@@ -42,6 +42,10 @@ class Enemy(Widget):
         self.hp -= final_damage_taken
         return final_damage_taken
     
+    def get_damage_taken(self, damage):
+        final_damage_taken = damage
+        return final_damage_taken
+    
     def get_damage_done(self):
         return self.damage
     
@@ -72,6 +76,10 @@ class ArmourEnemy(Enemy):
     def damage_taken(self, damage):
         final_damage_taken = damage - self.armour
         self.hp -= final_damage_taken
+        return final_damage_taken
+
+    def get_damage_taken(self, damage):
+        final_damage_taken = damage - self.armour
         return final_damage_taken
     
     def get_damage_done(self):

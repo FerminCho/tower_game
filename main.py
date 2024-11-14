@@ -66,6 +66,7 @@ class PlayWindow(Screen):
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
 
     def on_enter(self):
+        #print('Enter PlayWindow')
         self.run.start_run()
 
     def switch_to_upgrade(self, instance):
@@ -210,11 +211,13 @@ class MyApp(App):
     def build(self):
         home = HomeWindow(name='Home')
         play_window = PlayWindow(name='Play', home=home)
+        permanent_shop = PermanentShop(name='Shop')
+        upgrade_window = UpgradeWindow(name='Upgrade', play_window=play_window)
 
         sm = ScreenManager()
         sm.add_widget(home)
-        sm.add_widget(PermanentShop(name='Shop'))
-        sm.add_widget(UpgradeWindow(name = 'Upgrade', play_window=play_window))
+        sm.add_widget(permanent_shop)
+        sm.add_widget(upgrade_window)
         sm.add_widget(play_window)
         return sm
 

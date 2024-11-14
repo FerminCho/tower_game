@@ -13,7 +13,7 @@ class Tower(Widget):
         self.fire_rate = fire_rate
         self.level = level
         self.base_damage = damage
-        self.damage = None
+        self.damage = None # Damage i set by energy level and based damage upon fiering
         self.name = name
         self.rect_size = (20, 20)
         self.tower_pos = tower_pos
@@ -151,23 +151,23 @@ class Bullet(Widget):
         return False
 
     def on_collision(self, round_info):
+        hp_loss = self.enemy.damage_taken(self.damage)
         if self in round_info.bullets:
             round_info.bullets.remove(self)
             round_info.layout.remove_widget(self)
-        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
+        if self.enemy in round_info.enemies and self.enemy.hp <= 0:
             round_info.enemies.remove(self.enemy)
             round_info.layout.remove_widget(self.enemy)
             round_info.run.coins += self.enemy.value
             round_info.run.perma_coins += self.enemy.perma_coins_value
-            if self.tower.level <= 6:
-                self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
             if round_info.boss and round_info.boss.hp <= 0:
                 if round_info.boss.name == "Boss1":
                     round_info.boss.on_death()
                 round_info.boss = None
-        else:
-            hp_loss = self.enemy.damage_taken(self.damage)
-            if self.tower.level <= 6:
+        if self.tower.level <= 6:
+            if self.enemy.hp <= 0:
+                self.tower.increment_xp(hp_loss - abs(self.enemy.hp))
+            else:
                 self.tower.increment_xp(hp_loss)
 
 class BouncingBullet(Bullet):
