@@ -66,7 +66,6 @@ class PlayWindow(Screen):
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
 
     def on_enter(self):
-        #print('Enter PlayWindow')
         self.run.start_run()
 
     def switch_to_upgrade(self, instance):

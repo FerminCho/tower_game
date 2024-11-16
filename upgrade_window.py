@@ -40,7 +40,7 @@ class UpgradeWindow(Screen):
 
         # Example skills for each tab
         skills_tab1 = [
-            {'name': 'Skill A1', 'pos': (0.4, 0.4), 'info': 'This is Skill A1'},
+            {'name': 'Skill A1', 'pos': (0.4, 0.4), 'info': 'This is Skill A1', "Upgraded": False},
             {'name': 'Skill A2', 'pos': (0.6, 0.4), 'info': 'This is Skill A2'},
             {'name': 'Skill A3', 'pos': (0.4, 0.6), 'info': 'This is Skill A3'},
             {'name': 'Skill A4', 'pos': (0.6, 0.6), 'info': 'This is Skill A4'},
@@ -78,7 +78,7 @@ class UpgradeWindow(Screen):
             for skill in skills[:-1]:
                 button = Button(text=skill['name'], size_hint=(None, None), size=skill_button_size)
                 button.skill_info = skill['info']
-                button.bind(on_press=lambda instance, tower_name=skills[-1]: self.show_skill_info_window(instance, tower_name, skill['name']))
+                button.bind(on_press=lambda instance, tower_name=skills[-1], skill=skill: self.show_skill_info_window(instance, tower_name, skill))
                 #button.pos_hint = {'center_x': skill['pos'][0], 'center_y': skill['pos'][1]}
                 button.pos = (Window.width * skill['pos'][0] - skill_button_size[0] / 2, Window.height * skill['pos'][1] - skill_button_size[1] / 2)
                 layout.add_widget(button)
@@ -132,21 +132,24 @@ class UpgradeWindow(Screen):
             if tower.name == tower_name:
                 break
         # Populate the skill info window with the relevant information
-        self.skill_info_window.children[0].bind(on_press=lambda button, tower=tower, skill=skill: self.upgrade(button, tower, skill))
+        self.upgrade_button.bind(on_press=lambda button, tower=tower, skill=skill: self.upgrade(button, tower, skill))
         self.skill_info_window.children[1].text = instance.skill_info
         self.skill_info_window.opacity = 1  # Show the skill info window
+
+        if skill['Upgraded']:
+            self.upgrade_button.text = 'Upgraded'
+            self.upgrade_button.disabled = True
     
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
             return
 
         if tower.name == "Basic Tower":
-            match skill:
+            match skill['name']:
                 case "Skill A1":
-                    tower.damage += 1
+                    tower.base_damage += 1
                     self.run.skill_points -= 1
-                    button.text = "Upgraded"
-                    button.disabled = True
+                    skill['Upgraded'] = True
                     for skill_button in self.skill_buttons:
                         if skill_button.text == "Skill A1":
                             skill_button.color = (1, 0, 0, 1)
