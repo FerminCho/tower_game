@@ -39,28 +39,28 @@ class UpgradeWindow(Screen):
         layout2.add_widget(skill_point_label2)
 
         # Example skills for each tab
-        skills_tab1 = [
+        self.skills_tab1 = [
             {'name': 'Skill A1', 'pos': (0.4, 0.4), 'info': 'This is Skill A1', "Upgraded": False},
-            {'name': 'Skill A2', 'pos': (0.6, 0.4), 'info': 'This is Skill A2'},
-            {'name': 'Skill A3', 'pos': (0.4, 0.6), 'info': 'This is Skill A3'},
-            {'name': 'Skill A4', 'pos': (0.6, 0.6), 'info': 'This is Skill A4'},
-            {'name': 'Skill A5', 'pos': (0.5, 0.8), 'info': 'This is Skill A5'},
+            {'name': 'Skill A2', 'pos': (0.6, 0.4), 'info': 'This is Skill A2', "Upgraded": False},
+            {'name': 'Skill A3', 'pos': (0.4, 0.6), 'info': 'This is Skill A3', "Upgraded": False},
+            {'name': 'Skill A4', 'pos': (0.6, 0.6), 'info': 'This is Skill A4', "Upgraded": False},
+            {'name': 'Skill A5', 'pos': (0.5, 0.8), 'info': 'This is Skill A5', "Upgraded": False},
             "Basic Tower",
         ]
-        skills_tab2 = [
-            {'name': 'Skill B1', 'pos': (0.4, 0.4), 'info': 'This is Skill B1'},
-            {'name': 'Skill B2', 'pos': (0.6, 0.4), 'info': 'This is Skill B2'},
-            {'name': 'Skill B3', 'pos': (0.4, 0.6), 'info': 'This is Skill B3'},
-            {'name': 'Skill B4', 'pos': (0.6, 0.6), 'info': 'This is Skill B4'},
-            {'name': 'Skill B5', 'pos': (0.5, 0.8), 'info': 'This is Skill B5'},
+        self.skills_tab2 = [
+            {'name': 'Skill B1', 'pos': (0.4, 0.4), 'info': 'This is Skill B1', "Upgraded": False},
+            {'name': 'Skill B2', 'pos': (0.6, 0.4), 'info': 'This is Skill B2', "Upgraded": False},
+            {'name': 'Skill B3', 'pos': (0.4, 0.6), 'info': 'This is Skill B3', "Upgraded": False},
+            {'name': 'Skill B4', 'pos': (0.6, 0.6), 'info': 'This is Skill B4', "Upgraded": False},
+            {'name': 'Skill B5', 'pos': (0.5, 0.8), 'info': 'This is Skill B5', "Upgraded": False},
             "Sniper Tower",
         ]
         skills_tab3 = [
-            {'name': 'Skill C1', 'pos': (0.4, 0.4), 'info': 'This is Skill C1'},
-            {'name': 'Skill C2', 'pos': (0.6, 0.4), 'info': 'This is Skill C2'},
-            {'name': 'Skill C3', 'pos': (0.4, 0.6), 'info': 'This is Skill C3'},
-            {'name': 'Skill C4', 'pos': (0.6, 0.6), 'info': 'This is Skill C4'},
-            {'name': 'Skill C5', 'pos': (0.5, 0.8), 'info': 'This is Skill C5'},
+            {'name': 'Skill C1', 'pos': (0.4, 0.4), 'info': 'This is Skill C1', "Upgraded": False},
+            {'name': 'Skill C2', 'pos': (0.6, 0.4), 'info': 'This is Skill C2', "Upgraded": False},
+            {'name': 'Skill C3', 'pos': (0.4, 0.6), 'info': 'This is Skill C3', "Upgraded": False},
+            {'name': 'Skill C4', 'pos': (0.6, 0.6), 'info': 'This is Skill C4', "Upgraded": False},
+            {'name': 'Skill C5', 'pos': (0.5, 0.8), 'info': 'This is Skill C5', "Upgraded": False},
             "Cannon Tower",
         ]
 
@@ -87,8 +87,8 @@ class UpgradeWindow(Screen):
             parent_layout.add_widget(layout)
         
         # Add skill buttons and lines to each tab
-        create_skill_buttons_and_lines(skills_tab1, tab1, layout1)
-        create_skill_buttons_and_lines(skills_tab2, tab2, layout2)
+        create_skill_buttons_and_lines(self.skills_tab1, tab1, layout1)
+        create_skill_buttons_and_lines(self.skills_tab2, tab2, layout2)
         #create_skill_buttons_and_lines(skills_tab3, tab3, layout3)
 
         # Add tabs to the TabbedPanel
@@ -139,6 +139,9 @@ class UpgradeWindow(Screen):
         if skill['Upgraded']:
             self.upgrade_button.text = 'Upgraded'
             self.upgrade_button.disabled = True
+        else:
+            self.upgrade_button.text = 'Upgrade'
+            self.upgrade_button.disabled = False
     
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
@@ -149,7 +152,10 @@ class UpgradeWindow(Screen):
                 case "Skill A1":
                     tower.base_damage += 1
                     self.run.skill_points -= 1
+                    print(self.run.skill_points)
                     skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
                     for skill_button in self.skill_buttons:
                         if skill_button.text == "Skill A1":
                             skill_button.color = (1, 0, 0, 1)
@@ -174,6 +180,11 @@ class UpgradeWindow(Screen):
     def reset_upgrades(self):
         for skill_button in self.skill_buttons:
             skill_button.color = (1, 1, 1, 1)
+        
+        for skill in self.skills_tab1:
+            skill['Upgraded'] = False
+        for skill in self.skills_tab2:
+            skill['Upgraded'] = False
 
     def switch_to_play(self, instance):
         self.manager.current = 'Play'

@@ -31,7 +31,7 @@ class PlayWindow(Screen):
         super().__init__(**kwargs)
         self.main_buttons = []
         self.energy_buttons = []
-        self.run = run(home=home, play_window=self)
+        self.run = None
         self.shop = shop(run=self.run, castle=self.run.castle)
         self.energy_layout()
         self.add_widget(self.run.castle)
@@ -65,8 +65,18 @@ class PlayWindow(Screen):
         self.add_widget(run_buttons)
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
 
-    def on_enter(self):
-        self.run.start_run()
+    @property
+    def run(self):
+        return self._run
+    
+    @run.setter
+    def run(self, value):
+        self._run = value
+        if self._run is not None:
+            self.shop = shop(run=self._run, castle=self._run.castle)
+            self.add_widget(self._run.castle)
+            self.add_widget(self._run.castle.tower_layout)
+            self.resource_layout()
 
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
@@ -212,6 +222,10 @@ class MyApp(App):
         play_window = PlayWindow(name='Play', home=home)
         permanent_shop = PermanentShop(name='Shop')
         upgrade_window = UpgradeWindow(name='Upgrade', play_window=play_window)
+
+        self.run = run(home=home, play_window=play_window)
+        play_window.run = self.run
+        home.run = self.run
 
         sm = ScreenManager()
         sm.add_widget(home)
