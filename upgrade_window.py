@@ -11,11 +11,11 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from game_data import GameData
 
 class UpgradeWindow(Screen):
-    def __init__(self, play_window, **kwargs):
+    def __init__(self, play_window, run, **kwargs):
         super().__init__(**kwargs)
         self.play_window = play_window
         self.unlocked_towers = None
-        self.run = self.play_window.run
+        self.run = run
         self.game_data = GameData()
         self.towers = self.game_data.get_all_towers()
         self.skill_buttons = []
@@ -152,7 +152,6 @@ class UpgradeWindow(Screen):
                 case "Skill A1":
                     tower.base_damage += 1
                     self.run.skill_points -= 1
-                    print(self.run.skill_points)
                     skill['Upgraded'] = True
                     self.upgrade_button.text = 'Upgraded'
                     self.upgrade_button.disabled = True
@@ -181,10 +180,12 @@ class UpgradeWindow(Screen):
         for skill_button in self.skill_buttons:
             skill_button.color = (1, 1, 1, 1)
         
-        for skill in self.skills_tab1:
+        for skill in self.skills_tab1[:-1]:
             skill['Upgraded'] = False
-        for skill in self.skills_tab2:
+        for skill in self.skills_tab2[:-1]:
             skill['Upgraded'] = False
+        
+        self.skill_info_window.opacity = 0
 
     def switch_to_play(self, instance):
         self.manager.current = 'Play'

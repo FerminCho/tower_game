@@ -24,9 +24,10 @@ class run(EventDispatcher):
     skill_points = NumericProperty(0)
     energy = NumericProperty(0)
     hp = NumericProperty(0)
-    def __init__(self, home, play_window, **kwargs):
-        self.home = home
-        self.play_window = play_window
+    def __init__(self, **kwargs):
+        self.home = None # Needs to wait for creation of home screen
+        self.play_window = None # Needs to wait for creation of play screen
+        self.upgrade_window = None # Needs to wait for creation of upgrade screen
         self.energy_buttons = None
         self.castle = Castle(self)
         self.game_data = GameData()
@@ -95,6 +96,7 @@ class run(EventDispatcher):
         self.hp = self.castle.base_hp + self.home.extra_hp
         self.unlocked_towers = self.game_data.get_unlocked_towers()
         self.energy_buttons = self.play_window.get_energy_buttons()
+        self.upgrade_window.reset_upgrades()
         self.tower_instances = []
 
         for tower_name in self.unlocked_towers:

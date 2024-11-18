@@ -27,15 +27,16 @@ import random
 import math
 
 class PlayWindow(Screen):
-    def __init__(self, home, **kwargs):
+    def __init__(self, home_window, run, **kwargs):
         super().__init__(**kwargs)
         self.main_buttons = []
         self.energy_buttons = []
-        self.run = None
+        self.run = run
+        self.home_window = home_window
         self.shop = shop(run=self.run, castle=self.run.castle)
-        self.energy_layout()
         self.add_widget(self.run.castle)
         self.add_widget(self.run.castle.tower_layout)
+        self.energy_layout()
         self.resource_layout()
 
         run_buttons = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
@@ -64,19 +65,6 @@ class PlayWindow(Screen):
 
         self.add_widget(run_buttons)
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
-
-    @property
-    def run(self):
-        return self._run
-    
-    @run.setter
-    def run(self, value):
-        self._run = value
-        if self._run is not None:
-            self.shop = shop(run=self._run, castle=self._run.castle)
-            self.add_widget(self._run.castle)
-            self.add_widget(self._run.castle.tower_layout)
-            self.resource_layout()
 
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
@@ -218,17 +206,19 @@ class BorderButton(Button):
      
 class MyApp(App):
     def build(self):
-        home = HomeWindow(name='Home')
-        play_window = PlayWindow(name='Play', home=home)
-        permanent_shop = PermanentShop(name='Shop')
-        upgrade_window = UpgradeWindow(name='Upgrade', play_window=play_window)
+        self.run = run()
 
-        self.run = run(home=home, play_window=play_window)
-        play_window.run = self.run
-        home.run = self.run
+        home_window = HomeWindow(name='Home', run=self.run)
+        play_window = PlayWindow(name='Play', home_window=home_window, run=self.run)
+        permanent_shop = PermanentShop(name='Shop')
+        upgrade_window = UpgradeWindow(name='Upgrade', play_window=play_window, run=self.run)
+
+        self.run.play_window = play_window
+        self.run.home = home_window
+        self.run.upgrade_window = upgrade_window
 
         sm = ScreenManager()
-        sm.add_widget(home)
+        sm.add_widget(home_window)
         sm.add_widget(permanent_shop)
         sm.add_widget(upgrade_window)
         sm.add_widget(play_window)

@@ -13,13 +13,14 @@ from kivy.properties import NumericProperty
 
 class HomeWindow(Screen):
     perma_coins = NumericProperty(0)
-    def __init__(self, **kwargs):
+    def __init__(self, run, **kwargs):
         super().__init__(**kwargs)
         self.extra_coins = 0
         self.extra_skill_points = 0
         self.extra_energy = 0
         self.extra_hp = 0
         buttons = []
+        self.run = run
         self.game_data = GameData()
 
         button_layout = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
@@ -58,7 +59,8 @@ class HomeWindow(Screen):
         top_layout.add_widget(perma_coins_label)
         self.add_widget(top_layout)
 
-    def switch_to_play(self, instance): # Add so that the game data is passed to the play window. So if no saved game do new run otherwise load the saved game
+    def switch_to_play(self, instance):
+        self.run.start_run()
         self.manager.current = 'Play'
 
     def switch_to_perma_shop(self, instance):
