@@ -155,8 +155,8 @@ class Bullet(Widget):
         if self in round_info.bullets:
             round_info.bullets.remove(self)
             round_info.layout.remove_widget(self)
-        if self.enemy in round_info.enemies and self.enemy.hp <= 0:
-            round_info.enemies.remove(self.enemy)
+        if self.enemy in round_info.screen_enemies and self.enemy.hp <= 0:
+            round_info.screen_enemies.remove(self.enemy)
             round_info.layout.remove_widget(self.enemy)
             round_info.run.coins += self.enemy.value
             round_info.run.perma_coins += self.enemy.perma_coins_value

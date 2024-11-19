@@ -89,7 +89,7 @@ class run(EventDispatcher):
     
     def new_run(self):
         self.coins = 0 + self.home.extra_coins
-        self.round = 0
+        self.round = 6
         self.skill_points = 1 + self.home.extra_skill_points
         self.perma_coins = 0
         self.energy = self.castle.base_energy + self.home.extra_energy
@@ -118,7 +118,7 @@ class run(EventDispatcher):
 
 class Round():
     def __init__(self, main_buttons, castle, layout, run, **kwargs):
-        self.enemies = []
+        self.screen_enemies = []
         self.bullets = []
         self.bullets_to_kill = {}
         self.run = run
@@ -148,10 +148,10 @@ class Round():
         if current_round_enemies['boss'] != "None":
             if current_round_enemies['boss'] == "Boss 1":
                 self.boss = Boss1(self)
-            elif current_round_enemies['boss'] == "Boss2":
+            elif current_round_enemies['boss'] == "Boss 2":
                 self.boss = Boss2(self)
-                pass
-            elif current_round_enemies['boss'] == "Boss3":    
+                self.round_enemies.insert(0, self.boss)
+            elif current_round_enemies['boss'] == "Boss 3":    
                 #self.boss = Boss3()
                 pass
         else:
@@ -171,7 +171,7 @@ class Round():
             if tower[1]:
                 event = Clock.schedule_interval(lambda dt, t=tower[1]: self.fire_bullet(dt, t), tower[1].fire_rate)
                 self.schedule_events.append(event)
-                tower[1].enemies = self.enemies
+                tower[1].enemies = self.screen_enemies
 
     def end_round(self, dt):
         for event in self.schedule_events:
@@ -180,9 +180,9 @@ class Round():
             if tower[1]:
                 Clock.unschedule(self.fire_bullet(dt, tower[1]))
 
-        for enemy in self.enemies:
+        for enemy in self.screen_enemies:
             self.layout.remove_widget(enemy)
-        self.enemies = []
+        self.screen_enemies = []
 
         for bullet in self.bullets:
             self.layout.remove_widget(bullet)
@@ -204,7 +204,7 @@ class Round():
         if len(self.round_enemies) == 0:
             return
         enemy = self.round_enemies[0]
-        self.enemies.append(enemy)
+        self.screen_enemies.append(enemy)
         self.bullets_to_kill[enemy] = enemy.hp
         self.layout.add_widget(enemy)
         self.round_enemies.pop(0)
@@ -218,7 +218,7 @@ class Round():
                 tower.damage = tower.base_damage * (0.5 + 0.5 * self.run.energy_buttons[i][1])
 
         if bool(self.bullets_to_kill):  # Only fire if there are enemies
-            bullet = tower.create_bullet(self.enemies)
+            bullet = tower.create_bullet(self.screen_enemies)
             if bullet.enemy in self.bullets_to_kill:
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
@@ -235,9 +235,9 @@ class Round():
             self.end_run(dt)
             return
 
-        if len(self.round_enemies) == 0 and not self.enemies:
+        if len(self.round_enemies) == 0 and not self.screen_enemies:
             if self.boss:
-                self.enemies.append(self.boss)
+                self.screen_enemies.append(self.boss)
                 self.bullets_to_kill[self.boss] = self.boss.hp
                 self.layout.add_widget(self.boss)
             else:    
@@ -245,7 +245,7 @@ class Round():
                 self.end_round(dt)
                 return
         
-        for enemy in self.enemies:
+        for enemy in self.screen_enemies:
             enemy.update(dt)
             self.castle.detect_collision(enemy)
 

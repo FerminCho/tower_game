@@ -159,7 +159,7 @@ class Castle(Widget):
         if self.rect_pos[1] >= enemy.pos[1]:
             self.run.hp -= enemy.damage
             self.parent.remove_widget(enemy)
-            self.parent.round.enemies.remove(enemy)
+            self.parent.round.screen_enemies.remove(enemy)
             if enemy in self.parent.round.bullets_to_kill:
                 del self.parent.round.bullets_to_kill[enemy]
             for bullet in self.parent.round.bullets:

@@ -177,6 +177,13 @@
             "fast_enemies": 0,
             "armor_enemies": 2,
             "boss": "Boss 1"
+        },
+        {
+            "round":6,
+            "normal_enemies": 5,
+            "fast_enemies": 0,
+            "armor_enemies": 0,
+            "boss": "Boss 2"
         }
 
     ],
