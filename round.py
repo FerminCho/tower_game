@@ -236,7 +236,7 @@ class Round():
             return
 
         if len(self.round_enemies) == 0 and not self.screen_enemies:
-            if self.boss:
+            if self.boss.name == "Boss 1":
                 self.screen_enemies.append(self.boss)
                 self.bullets_to_kill[self.boss] = self.boss.hp
                 self.layout.add_widget(self.boss)

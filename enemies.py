@@ -50,9 +50,11 @@ class Enemy(Widget):
         return self.damage
     
     def change_movement(self, dt):
+        destination_x = self.capturer.pos[0] + self.capturer.rect_size[0] / 2 - self.rect_size[0] / 2
+        destination_y = self.capturer.pos[1] + self.capturer.rect_size[1] / 2 - self.rect_size[1] / 2
         # Calculate the direction vector
-        direction_x = self.capturer.pos[0] - self.pos[0]
-        direction_y = self.capturer.pos[1] - self.pos[1]
+        direction_x = destination_x - self.pos[0]
+        direction_y = destination_y - self.pos[1]
 
         # Calculate the distance to the target
         distance = math.sqrt(direction_x ** 2 + direction_y ** 2)

@@ -69,6 +69,7 @@ class Boss2(Widget):
         self.value = 10
         self.perma_coins_value = 5
         self.enemy = None
+        self.line = None
 
         self.rect_size = (50, 50)  # Size of the rectangle
         self.pos = (Window.width / 2 - self.rect_size[0] / 2 , Window.height)
@@ -87,8 +88,20 @@ class Boss2(Widget):
         self.pos = (new_x, new_y)
         self.rect.pos = self.pos
 
+        self.absorb_unit(self.screen.screen_enemies)
+
         if self.enemy:
-            self.line.points = [self.pos[0], self.pos[1], self.enemy.pos[0], self.enemy.pos[1]]
+            #print(self.enemy.center)
+            #print(self.center)
+            if self.line:
+                self.canvas.remove(self.line)
+            with self.canvas:
+                Color(1, 0, 0, 1)
+                self.line = Line(points=[self.pos[0] + self.rect_size[0] / 2, self.pos[1] + self.rect_size[1] / 2, self.enemy.pos[0] + self.enemy.rect_size[0] / 2, self.enemy.pos[1]  + self.enemy.rect_size[1] / 2], width=2)
+        else:
+            if self.line:
+                self.canvas.remove(self.line)
+            self.line = None
     
     def damage_taken(self, damage):
         damage_done = damage
@@ -100,16 +113,14 @@ class Boss2(Widget):
         return damage_done
     
     def absorb_unit(self, enemies):
-        for enemy in enemies:
-            if enemy.pos[1] > self.pos[1]:
+        for enemy in enemies[1:]:
+            if enemy.pos[1] + enemy.rect_size[1] < self.pos[1]:
                 self.enemy = enemy
+                enemy.capturer = self
                 enemy.captured = True
-                return
-            if enemy.center == self.center:
+            elif (self.center[0] - 15) <= enemy.center[0] <= (self.center[0] + 15) and (self.center[1] - 15) <= enemy.center[1] <= (self.center[1] + 15):
                 enemies.remove(enemy)
                 self.hp += enemy.hp * 2
                 self.screen.layout.remove_widget(enemy)
-                self.enemy = enemy
-                return
-        pass
-
+                self.enemy = None
+                print(self.hp)
