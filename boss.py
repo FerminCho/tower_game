@@ -68,6 +68,7 @@ class Boss2(Widget):
         self.speed = 20
         self.value = 10
         self.perma_coins_value = 5
+        self.enemies = []
         self.enemy = None
         self.line = None
 
@@ -91,8 +92,6 @@ class Boss2(Widget):
         self.absorb_unit(self.screen.screen_enemies)
 
         if self.enemy:
-            #print(self.enemy.center)
-            #print(self.center)
             if self.line:
                 self.canvas.remove(self.line)
             with self.canvas:
