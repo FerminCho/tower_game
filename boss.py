@@ -68,9 +68,8 @@ class Boss2(Widget):
         self.speed = 20
         self.value = 10
         self.perma_coins_value = 5
-        self.enemies = []
-        self.enemy = None
-        self.line = None
+        self.capturerd_enemies = []
+        self.lines = []
 
         self.rect_size = (50, 50)  # Size of the rectangle
         self.pos = (Window.width / 2 - self.rect_size[0] / 2 , Window.height)
@@ -89,18 +88,34 @@ class Boss2(Widget):
         self.pos = (new_x, new_y)
         self.rect.pos = self.pos
 
-        self.absorb_unit(self.screen.screen_enemies)
+        for enemy in self.screen.screen_enemies[1:]:
+            if enemy.pos[1] + enemy.rect_size[1] < self.pos[1] and not enemy.captured:
+                self.capturerd_enemies.append(enemy)
+                enemy.capturer = self
+                enemy.captured = True
+                with self.canvas:
+                    Color(1, 0, 0, 1)
+                    line = Line(points=[self.pos[0] + self.rect_size[0] / 2, self.pos[1] + self.rect_size[1] / 2, enemy.pos[0] + enemy.rect_size[0] / 2, enemy.pos[1] + enemy.rect_size[1] / 2], width=2)
+                    self.lines.append(line)
 
-        if self.enemy:
-            if self.line:
-                self.canvas.remove(self.line)
+        for enemy in self.capturerd_enemies:
+            if (self.center[0] - 15) <= enemy.center[0] <= (self.center[0] + 15) and (self.center[1] - 15) <= enemy.center[1] <= (self.center[1] + 15):
+                self.screen.screen_enemies.remove(enemy)
+                self.hp += enemy.hp * 2
+                self.screen.layout.remove_widget(enemy)
+                self.capturerd_enemies.remove(enemy)
+            else:
+                self.redraw_line(enemy)
+
+                
+    
+    def redraw_line(self, enemy):
+        for line in self.lines:
+            self.canvas.remove(line)
             with self.canvas:
                 Color(1, 0, 0, 1)
-                self.line = Line(points=[self.pos[0] + self.rect_size[0] / 2, self.pos[1] + self.rect_size[1] / 2, self.enemy.pos[0] + self.enemy.rect_size[0] / 2, self.enemy.pos[1]  + self.enemy.rect_size[1] / 2], width=2)
-        else:
-            if self.line:
-                self.canvas.remove(self.line)
-            self.line = None
+                line = Line(points=[self.pos[0] + self.rect_size[0] / 2, self.pos[1] + self.rect_size[1] / 2, enemy.pos[0] + enemy.rect_size[0] / 2, enemy.pos[1] + enemy.rect_size[1] / 2], width=2)
+                self.lines.append(line)
     
     def damage_taken(self, damage):
         damage_done = damage
@@ -114,7 +129,7 @@ class Boss2(Widget):
     def absorb_unit(self, enemies):
         for enemy in enemies[1:]:
             if enemy.pos[1] + enemy.rect_size[1] < self.pos[1]:
-                self.enemy = enemy
+                self.capturerd_enemies.append(enemy)
                 enemy.capturer = self
                 enemy.captured = True
             elif (self.center[0] - 15) <= enemy.center[0] <= (self.center[0] + 15) and (self.center[1] - 15) <= enemy.center[1] <= (self.center[1] + 15):
@@ -122,4 +137,3 @@ class Boss2(Widget):
                 self.hp += enemy.hp * 2
                 self.screen.layout.remove_widget(enemy)
                 self.enemy = None
-                print(self.hp)
