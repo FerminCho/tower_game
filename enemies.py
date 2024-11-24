@@ -19,6 +19,8 @@ class Enemy(Widget):
         self.direction = -math.pi / 2
         self.captured = False
         self.capturer = None
+        self.shielded = False
+        self.shield_hp = 0
 
         self.rect_size = (25, 25)  # Size of the rectangle
         self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
@@ -38,12 +40,32 @@ class Enemy(Widget):
         self.rect.pos = self.pos
     
     def damage_taken(self, damage):
-        final_damage_taken = damage
+        if self.shielded:
+            final_damage_taken = damage - self.shield_hp
+            self.shield_hp -= damage
+            if self.shield_hp <= 0:
+                self.shielded = False
+                self.shield_hp = 0
+        else:
+            final_damage_taken = damage
+        
+        if final_damage_taken < 0:
+            final_damage_taken = 0
         self.hp -= final_damage_taken
         return final_damage_taken
     
     def get_damage_taken(self, damage):
-        final_damage_taken = damage
+        if self.shielded:
+            final_damage_taken = damage - self.shield_hp
+            self.shield_hp -= damage
+            if self.shield_hp <= 0:
+                self.shielded = False
+                self.shield_hp = 0
+        else:
+            final_damage_taken = damage
+        
+        if final_damage_taken < 0:
+            final_damage_taken = 0
         return final_damage_taken
     
     def get_damage_done(self):
