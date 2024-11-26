@@ -15,7 +15,7 @@ import math
 import random
 from kivy.properties import NumericProperty
 from kivy.event import EventDispatcher
-from boss import Boss1, Boss2
+from boss import Boss1, Boss2, Boss3
 import threading
 
 class run(EventDispatcher):
@@ -152,8 +152,8 @@ class Round():
                 self.boss = Boss2(self)
                 self.round_enemies.insert(0, self.boss)
             elif current_round_enemies['boss'] == "Boss 3":    
-                #self.boss = Boss3()
-                pass
+                self.boss = Boss3(self)
+                self.round_enemies.insert(0, self.boss)
         else:
             self.boss = None
 

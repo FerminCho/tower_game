@@ -156,8 +156,7 @@ class Bullet(Widget):
             round_info.bullets.remove(self)
             round_info.layout.remove_widget(self)
         if self.enemy in round_info.screen_enemies and self.enemy.hp <= 0:
-            round_info.screen_enemies.remove(self.enemy)
-            round_info.layout.remove_widget(self.enemy)
+            self.enemy.remove_enemy()
             round_info.run.coins += self.enemy.value
             round_info.run.perma_coins += self.enemy.perma_coins_value
             if round_info.boss and round_info.boss.hp <= 0:
@@ -236,15 +235,16 @@ class BouncingBullet(Bullet):
         if self in round_info.bullets:
             round_info.bullets.remove(self)
             round_info.layout.remove_widget(self)
-        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.damage_taken(self.damage):
-            round_info.enemies.remove(self.enemy)
-            round_info.layout.remove_widget(self.enemy)
+        if self.enemy in round_info.enemies and self.enemy.hp <= self.enemy.get_damage_taken(self.damage):
+            self.enemy.remove_enemy()
             round_info.run.coins += self.enemy.value
             round_info.run.perma_coins += self.enemy.perma_coins_value
             if self.tower.level <= 6:
                 self.tower.increment_xp(self.enemy.hp) # Change so damage done desides xp
             if round_info.boss and round_info.boss.hp <= 0:
                 if round_info.boss.name == "Boss1":
+                    round_info.boss.on_death()
+                elif round_info.boss.name == "Boss2":
                     round_info.boss.on_death()
                 round_info.boss = None
         else:

@@ -4,6 +4,7 @@ from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from enemies import FastEnemy
 import math
+import time
 
 class Boss1(Widget):
     def __init__(self, screen, **kwargs):
@@ -56,6 +57,12 @@ class Boss1(Widget):
     def damage_taken_check(self, damage): # Do i need this?
         damage_done = damage
         return damage_done
+
+    def remove_enemy(self):
+        self.parent.round.screen_enemies.remove(self)
+        if self in self.parent.round.bullets_to_kill:
+            del self.parent.round.bullets_to_kill[self]
+        self.parent.remove_widget(self)
 
 class Boss2(Widget):
     def __init__(self, screen, **kwargs):
@@ -137,8 +144,9 @@ class Boss3(Widget):
         self.speed = 20
         self.value = 10
         self.perma_coins_value = 5
-        self.shield_health = 10
+        self.shield_health = 1
         self.shield_skill_cooldown = 5
+        self.last_shield_time = None
 
         self.rect_size = (25, 25)  # Size of the rectangle
         self.pos = (Window.width / 2 - self.rect_size[0] / 2 , Window.height)
@@ -153,14 +161,17 @@ class Boss3(Widget):
         new_y = self.pos[1] - self.speed * dt
         self.pos = (new_x, new_y)
         self.rect.pos = self.pos
+
+        current_time = time.time()
+        if self.last_shield_time is None or (current_time - self.last_shield_time) >= self.shield_skill_cooldown:
+            self.shield_enemy()
     
     def shield_enemy(self):
         for enemy in self.screen.screen_enemies[1:]:
             if not enemy.shielded:
-                enemy.shielded = True
-                enemy.shield_hp = self.shield_health
-                enemy.shown_shield()
-                self.shield_skill_timer = Clock.schedule_interval(self.shield_skill_cooldown, 1)
+                enemy.get_shield(self.shield_health)
+                self.last_shield_time = time.time()
+                return
     
     def damage_taken(self, damage):
         damage_done = damage
@@ -170,3 +181,9 @@ class Boss3(Widget):
     def get_damage_taken(self, damage):
         damage_done = damage
         return damage_done
+    
+    def remove_enemy(self):
+        self.parent.round.screen_enemies.remove(self)
+        if self in self.parent.round.bullets_to_kill:
+            del self.parent.round.bullets_to_kill[self]
+        self.parent.remove_widget(self)
