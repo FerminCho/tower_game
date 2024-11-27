@@ -6,6 +6,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 import random
 import math
+import time
 
 class Tower(Widget):
     def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
@@ -63,6 +64,39 @@ class Tower(Widget):
         self.xp = 0
         self.level += 1
         
+class burst_fire_tower(Tower):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
+        super().__init__(fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs)
+        self.bouncing_bullet = False
+        self.fire_cooldwon = 2
+        self.fire_amount = 3
+        self.last_fire_time = None
+
+    def create_bullet(self, enemies):
+        if self.fire_amount > 0:
+            self.fire_amount -= 1
+            self.last_fire_time = time.time()
+            bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
+            if self.bouncing_bullet:
+                bullet = BouncingBullet(enemies=enemies, 
+                                        damage=self.damage, 
+                                        fire_rate=self.fire_rate, 
+                                        bullet_pos=bullet_pos, 
+                                        size=self.bullet_size, 
+                                        castle_pos=self.castle_pos, 
+                                        tower=self)
+            else:
+                bullet = Bullet(enemies=enemies, 
+                                damage=self.damage, 
+                                fire_rate=self.fire_rate, 
+                                bullet_pos=bullet_pos, 
+                                size=self.bullet_size, 
+                                castle_pos=self.castle_pos, 
+                                tower=self)
+            return bullet
+        elif self.last_fire_time is None or (time.time() - self.last_fire_time) >= self.fire_cooldwon:
+            self.fire_amount = 3
+
         
 
 class Bullet(Widget):

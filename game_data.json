@@ -3,21 +3,28 @@
         {
             "name": "Basic Tower",
             "level": 0,
-            "fire_rate": 1,
+            "fire_rate": 2,
             "damage": 1,
             "size": 10
         },
         {
             "name": "Sniper Tower",
             "level": 0,
-            "fire_rate": 0.5,
+            "fire_rate": 2.5,
             "damage": 4,
             "size": 20
         },
         {
             "name": "Machine Gun Tower",
             "level": 0,
-            "fire_rate": 2,
+            "fire_rate": 1,
+            "damage": 1,
+            "size": 10
+        },
+        {
+            "name": "Burst Tower",
+            "level": 0,
+            "fire_rate": 0.5,
             "damage": 1,
             "size": 10
         }
@@ -47,7 +54,8 @@
     },
 
     "unlocked_towers": [
-            "Basic Tower"
+            "Basic Tower",
+            "Burst Tower"
     ],
 
     "selected_towers": [

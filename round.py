@@ -1,5 +1,5 @@
 from game_data import GameData
-from tower import Tower
+from tower import Tower, burst_fire_tower
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -53,7 +53,7 @@ class run(EventDispatcher):
         self.unlocked_towers = self.game_data.get_unlocked_towers()
         self.energy_buttons = self.play_window.get_energy_buttons()
 
-        for tower in data['towers']:
+        for tower in data['towers']: # Fix this part to work with a variety of tower classes
             full_tower = Tower(fire_rate=tower['fire_rate'], 
                                damage=tower['damage'], level=tower['level'], 
                                name=tower['name'], 
@@ -99,10 +99,19 @@ class run(EventDispatcher):
         self.upgrade_window.reset_upgrades()
         self.tower_instances = []
 
-        for tower_name in self.unlocked_towers:
-            for tower in self.towers:
-                if tower['name'] == tower_name:
+        for tower in self.towers:
+            for tower_name in self.unlocked_towers:
+                if tower['name'] == tower_name and tower['name'] != "Burst Tower":
                     full_tower = Tower(fire_rate=tower['fire_rate'], 
+                                       damage=tower['damage'], 
+                                       level=0, 
+                                       name=tower['name'], 
+                                       bullet_size=tower['size'], 
+                                       tower_pos=None, 
+                                       castle_pos=self.castle.rect_pos)
+                    self.tower_instances.append(full_tower)
+                else:
+                    full_tower = burst_fire_tower(fire_rate=tower['fire_rate'], 
                                        damage=tower['damage'], 
                                        level=0, 
                                        name=tower['name'], 
@@ -219,7 +228,7 @@ class Round():
 
         if bool(self.bullets_to_kill):  # Only fire if there are enemies
             bullet = tower.create_bullet(self.screen_enemies)
-            if bullet.enemy in self.bullets_to_kill:
+            if bullet is not None and bullet.enemy in self.bullets_to_kill:
                 self.bullets.append(bullet)
                 self.layout.add_widget(bullet)
                 self.bullets_to_kill[bullet.enemy] -= bullet.enemy.get_damage_taken(bullet.damage)
