@@ -65,16 +65,25 @@ class Tower(Widget):
         self.level += 1
         
 class burst_fire_tower(Tower):
-    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, base_burst_bullets, extra_burst_bullets, **kwargs):
         super().__init__(fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs)
         self.bouncing_bullet = False
         self.fire_cooldwon = 2
-        self.fire_amount = 3
+        self.base_burst_bullets = base_burst_bullets
+        self.extra_burst_bullets = extra_burst_bullets
+        self.burst_bullets = base_burst_bullets + extra_burst_bullets
+        self.burst_left = base_burst_bullets + extra_burst_bullets
         self.last_fire_time = None
+        self.ultimate_unlocked = True
+        self.ultimate_used = False
 
     def create_bullet(self, enemies):
-        if self.fire_amount > 0:
-            self.fire_amount -= 1
+        if self.ultimate_unlocked and not self.ultimate_used:
+            self.ultimate()
+            self.ultimate_used = True
+
+        if self.burst_left > 0:
+            self.burst_left -= 1
             self.last_fire_time = time.time()
             bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
             if self.bouncing_bullet:
@@ -95,9 +104,20 @@ class burst_fire_tower(Tower):
                                 tower=self)
             return bullet
         elif self.last_fire_time is None or (time.time() - self.last_fire_time) >= self.fire_cooldwon:
-            self.fire_amount = 3
+            self.burst_left = self.burst_bullets
+    
+    def ultimate(self):
+        print("Ultimate used")
+        self.fire_cooldwon = 0
+        self.schedule_event = Clock.schedule_once(self.reset_ultimate, 5)
+    
+    def reset_ultimate(self, dt):
+        self.fire_cooldwon = 2
+        if self.schedule_event:
+            self.schedule_event.cancel()
+            self.schedule_event = None
 
-        
+
 
 class Bullet(Widget):
     def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):

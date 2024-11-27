@@ -89,12 +89,13 @@ class UpgradeWindow(Screen):
         # Add skill buttons and lines to each tab
         create_skill_buttons_and_lines(self.skills_tab1, tab1, layout1)
         create_skill_buttons_and_lines(self.skills_tab2, tab2, layout2)
-        #create_skill_buttons_and_lines(skills_tab3, tab3, layout3)
+        self.show_sniper_selection_window(layout3)
+        create_skill_buttons_and_lines(skills_tab3, tab3, layout3)
 
         # Add tabs to the TabbedPanel
         tabbed_panel.add_widget(tab1)
         tabbed_panel.add_widget(tab2)
-        #tabbed_panel.add_widget(tab3)
+        tabbed_panel.add_widget(tab3)
 
         # Add the TabbedPanel to the layout
         layout.add_widget(tabbed_panel)
@@ -143,6 +144,13 @@ class UpgradeWindow(Screen):
             self.upgrade_button.text = 'Upgrade'
             self.upgrade_button.disabled = False
     
+    def show_sniper_selection_window(self, layout):
+        self.sniper_selection_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=50, pos_hint={'x': 0.1, 'y': 0.9})
+        self.basic_enemy_button = Button(text='Basic Enemy', size_hint=(0.1, 0.5))
+        self.fast_enemy_button = Button(text='Fast Enemy', size_hint=(0.5, 1))
+        self.sniper_selection_window.add_widget(self.basic_enemy_button)
+        layout.add_widget(self.sniper_selection_window)
+    
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
             return
@@ -175,6 +183,26 @@ class UpgradeWindow(Screen):
 
         elif tower.name == "Sniper Tower":
             pass
+
+        elif tower.name == "Burst Tower":
+            match skill['name']:
+                case "Skill C1":
+                    tower.extra_burst_bullets += 1
+                    self.run.skill_points -= 1
+                case "Skill C2":
+                    tower.tower_damage += 1
+                    self.run.skill_points -= 1
+                case "Skill C3":
+                    tower.extra_burst_bullets += 1
+                    self.run.skill_points -= 1
+                case "Skill C4":
+                    tower.tower_damage += 1
+                    self.run.skill_points -= 1
+                case "Skill C5":
+                    if self.run.skill_points <= 2:
+                        return
+                    tower.ultimate_unlocked = True
+                    self.run.skill_points -= 2
     
     def reset_upgrades(self):
         for skill_button in self.skill_buttons:

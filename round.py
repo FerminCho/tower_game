@@ -110,14 +110,16 @@ class run(EventDispatcher):
                                        tower_pos=None, 
                                        castle_pos=self.castle.rect_pos)
                     self.tower_instances.append(full_tower)
-                else:
+                elif tower['name'] == 'Burst Tower':
                     full_tower = burst_fire_tower(fire_rate=tower['fire_rate'], 
                                        damage=tower['damage'], 
                                        level=0, 
                                        name=tower['name'], 
                                        bullet_size=tower['size'], 
                                        tower_pos=None, 
-                                       castle_pos=self.castle.rect_pos)
+                                       castle_pos=self.castle.rect_pos,
+                                       base_burst_bullets=tower['base_burst_bullets'],
+                                       extra_burst_bullets=tower['extra_burst_bullets'])
                     self.tower_instances.append(full_tower)
         
         for entry in self.game_data.get_shop_entries():
@@ -188,6 +190,8 @@ class Round():
         for tower in self.towers:
             if tower[1]:
                 Clock.unschedule(self.fire_bullet(dt, tower[1]))
+            if tower[1].name == "Burst Tower":
+                tower[1].ultimate_used = False
 
         for enemy in self.screen_enemies:
             self.layout.remove_widget(enemy)
