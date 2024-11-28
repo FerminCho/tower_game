@@ -145,11 +145,26 @@ class UpgradeWindow(Screen):
             self.upgrade_button.disabled = False
     
     def show_sniper_selection_window(self, layout):
-        self.sniper_selection_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=50, pos_hint={'x': 0.1, 'y': 0.9})
-        self.basic_enemy_button = Button(text='Basic Enemy', size_hint=(0.1, 0.5))
-        self.fast_enemy_button = Button(text='Fast Enemy', size_hint=(0.5, 1))
+        self.sniper_selection_window = BoxLayout(orientation='horizontal', size_hint=(1, None), height=20, pos_hint={'x': 0.1, 'y': 0.9}, padding=10)
+        self.basic_enemy_button = Button(text='Basic Enemy', size=(10, 10))
+        self.basic_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Basic Enemy'))
+        self.fast_enemy_button = Button(text='Fast Enemy', size=(10, 10))
+        self.fast_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
+    
         self.sniper_selection_window.add_widget(self.basic_enemy_button)
+        self.sniper_selection_window.add_widget(self.fast_enemy_button)
+    
         layout.add_widget(self.sniper_selection_window)
+    
+    def change_color(self, button, enemy_name):
+        if button.color == (1, 0, 0, 1):
+            button.color = (1, 1, 1, 1)
+        if enemy_name == 'Basic Enemy':
+            self.basic_enemy_button.color = (1, 0, 0, 1)
+            self.fast_enemy_button.color = (1, 1, 1, 1)
+        elif enemy_name == 'Fast Enemy':
+            self.basic_enemy_button.color = (1, 1, 1, 1)
+            self.fast_enemy_button.color = (1, 0, 0, 1)
     
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
