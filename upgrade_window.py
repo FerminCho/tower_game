@@ -89,8 +89,8 @@ class UpgradeWindow(Screen):
         # Add skill buttons and lines to each tab
         create_skill_buttons_and_lines(self.skills_tab1, tab1, layout1)
         create_skill_buttons_and_lines(self.skills_tab2, tab2, layout2)
-        self.show_sniper_selection_window(layout3)
         create_skill_buttons_and_lines(skills_tab3, tab3, layout3)
+        self.show_sniper_selection_window(layout3)
 
         # Add tabs to the TabbedPanel
         tabbed_panel.add_widget(tab1)
@@ -145,14 +145,18 @@ class UpgradeWindow(Screen):
             self.upgrade_button.disabled = False
     
     def show_sniper_selection_window(self, layout):
-        self.sniper_selection_window = BoxLayout(orientation='horizontal', size_hint=(1, None), height=20, pos_hint={'x': 0.1, 'y': 0.9}, padding=10)
-        self.basic_enemy_button = Button(text='Basic Enemy', size=(10, 10))
+        self.sniper_selection_window = BoxLayout(orientation='horizontal', spacing=(20), size_hint=(1.0, None), height=50, pos_hint={'x': 0, 'y': 0.91}, padding=10)
+        self.basic_enemy_button = Button(text='Basic\nEnemy', size_hint=(None, None), size=(60, 50))
         self.basic_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Basic Enemy'))
-        self.fast_enemy_button = Button(text='Fast Enemy', size=(10, 10))
+        self.fast_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50))
         self.fast_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
+        self.armor_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50))
+        self.armor_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
     
         self.sniper_selection_window.add_widget(self.basic_enemy_button)
         self.sniper_selection_window.add_widget(self.fast_enemy_button)
+        self.sniper_selection_window.add_widget(self.armor_enemy_button)
+        
     
         layout.add_widget(self.sniper_selection_window)
     

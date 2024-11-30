@@ -74,7 +74,7 @@ class burst_fire_tower(Tower):
         self.burst_bullets = base_burst_bullets + extra_burst_bullets
         self.burst_left = base_burst_bullets + extra_burst_bullets
         self.last_fire_time = None
-        self.ultimate_unlocked = True
+        self.ultimate_unlocked = False
         self.ultimate_used = False
 
     def create_bullet(self, enemies):
@@ -107,7 +107,6 @@ class burst_fire_tower(Tower):
             self.burst_left = self.burst_bullets
     
     def ultimate(self):
-        print("Ultimate used")
         self.fire_cooldwon = 0
         self.schedule_event = Clock.schedule_once(self.reset_ultimate, 5)
     
@@ -117,7 +116,37 @@ class burst_fire_tower(Tower):
             self.schedule_event.cancel()
             self.schedule_event = None
 
+class sniper_tower(Tower):
+    def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
+        super().__init__(fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs)
+        self.ultiate_unlocked = False
+        self.targeted_enemy = None
+    
+    def choose_targeted_enemy(self, enemy_name):
+        match enemy_name:
+            case "FastEnemy":
+                self.targeted_enemy = "FastEnemy"
 
+    def create_bullet(self, enemies):
+        bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
+        if self.ultiate_unlocked and self.targeted_enemy:
+            bullet = SniperBullet(enemies=enemies, 
+                                    damage=self.damage, 
+                                    fire_rate=self.fire_rate, 
+                                    bullet_pos=bullet_pos, 
+                                    size=self.bullet_size, 
+                                    castle_pos=self.castle_pos, 
+                                    tower=self,
+                                    targeted_enemy=self.targeted_enemy)
+        else:
+            bullet = Bullet(enemies=enemies, 
+                            damage=self.damage, 
+                            fire_rate=self.fire_rate, 
+                            bullet_pos=bullet_pos, 
+                            size=self.bullet_size, 
+                            castle_pos=self.castle_pos, 
+                            tower=self)
+        return bullet
 
 class Bullet(Widget):
     def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
@@ -222,6 +251,49 @@ class Bullet(Widget):
                 self.tower.increment_xp(hp_loss - abs(self.enemy.hp))
             else:
                 self.tower.increment_xp(hp_loss)
+
+class SniperBullet(Bullet):
+    def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, targeted_enemy, **kwargs):
+        self.damage = damage
+        self.fire_rate = fire_rate
+        self.bullet_pos = bullet_pos
+        self.enemies = enemies
+        self.size = size
+        self.castle_pos = castle_pos
+        self.tower = tower
+        self.targeted_enemy = targeted_enemy
+
+        super().__init__(enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs)
+
+    def find_closest_enemy(self):
+        min_distance = float('inf')
+        closest_rectangle = None
+        closest_enemy = None
+        targeted_enemies = []
+        available_enemies = []
+
+        if self.targeted_enemy:
+            for enemy in self.enemies:
+                if enemy.name == self.targeted_enemy:
+                    targeted_enemies.append(enemy)
+            available_enemies = targeted_enemies
+        else:
+            available_enemies = self.enemies
+                
+
+        for enemy in available_enemies:
+            # Calculate the center of the rectangle
+            rect = enemy.rect
+
+            distance = enemy.pos[1] - self.wall
+
+            if distance < min_distance:
+                min_distance = distance
+                closest_rectangle = rect
+                closest_enemy = enemy
+
+        self.target_rect = closest_rectangle
+        return closest_enemy
 
 class BouncingBullet(Bullet):
     def __init__(self, enemies, damage, fire_rate, bullet_pos, size, castle_pos, tower, **kwargs):
