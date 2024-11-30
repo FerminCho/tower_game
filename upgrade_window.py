@@ -91,6 +91,13 @@ class UpgradeWindow(Screen):
         create_skill_buttons_and_lines(self.skills_tab2, self.tab2, self.layout2)
         create_skill_buttons_and_lines(self.skills_tab3, self.tab3, self.layout3)
 
+        self.tabbed_panel.add_widget(self.tab1)
+        self.tabbed_panel.add_widget(self.tab2)
+        self.show_sniper_selection_window(self.layout2)
+        self.tabbed_panel.add_widget(self.tab3)
+        
+        self.tab3.opacity = 0
+
         # Create a layout for the skill info window
         self.skill_info_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=100, pos_hint={'x': 0.25, 'y': 0})
         # Add a border to the BoxLayout
@@ -113,13 +120,6 @@ class UpgradeWindow(Screen):
                              pos=(self.width / 2 - 100, 50))
         back_button.bind(on_press=self.switch_to_play)
         self.layout.add_widget(back_button)
-
-        self.tabbed_panel.add_widget(self.tab1)
-        self.tabbed_panel.add_widget(self.tab2)
-        self.show_sniper_selection_window(self.layout2)
-        self.tabbed_panel.add_widget(self.tab3)
-        
-        self.tab3.opacity = 0
     
     def on_enter(self):
         for tower in self.run.tower_instances:
