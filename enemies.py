@@ -22,6 +22,7 @@ class Enemy(Widget):
         self.shielded = False
         self.shield_hp = 0
         self.shield = None
+        self.name = "Basic Enemy"
 
         self.rect_size = (25, 25)  # Size of the rectangle
         self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
@@ -125,6 +126,7 @@ class ArmourEnemy(Enemy):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.armour = 1
+        self.name = "Armour Enemy"
 
     def damage_taken(self, damage):
         final_damage_taken = damage - self.armour
@@ -142,3 +144,4 @@ class FastEnemy(Enemy):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.speed = 400
+        self.name = "Fast Enemy"

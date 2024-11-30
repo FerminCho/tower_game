@@ -19,24 +19,24 @@ class UpgradeWindow(Screen):
         self.game_data = GameData()
         self.towers = self.game_data.get_all_towers()
         self.skill_buttons = []
-        layout = FloatLayout()
-        self.add_widget(layout)
+        self.layout = FloatLayout()
+        self.sniper_tower = None
 
-        # Create a TabbedPanel
-        tabbed_panel = TabbedPanel(do_default_tab=False)
+        self.add_widget(self.layout)
+        self.tabbed_panel = TabbedPanel(do_default_tab=False)
 
         # Create tabs
-        tab1 = TabbedPanelItem(text='Tab 1')
-        layout1 = FloatLayout()
-        tab2 = TabbedPanelItem(text='Tab 2')
-        layout2 = FloatLayout()
-        tab3 = TabbedPanelItem(text='Tab 3')
-        layout3 = FloatLayout()
+        self.tab1 = TabbedPanelItem(text='Tab 1')
+        self.layout1 = FloatLayout()
+        self.tab2 = TabbedPanelItem(text='Tab 2')
+        self.layout2 = FloatLayout()
+        self.tab3 = TabbedPanelItem(text='Tab 3')
+        self.layout3 = FloatLayout()
 
         skill_point_label1 = self.play_window.create_resource_label('Skill Points: ', 'skill_points', (10, Window.height * 0.90), (1, 1, 1, 1))
-        layout1.add_widget(skill_point_label1)
+        self.layout1.add_widget(skill_point_label1)
         skill_point_label2 = self.play_window.create_resource_label('Skill Points: ', 'skill_points', (10, Window.height * 0.90), (1, 1, 1, 1))
-        layout2.add_widget(skill_point_label2)
+        self.layout2.add_widget(skill_point_label2)
 
         # Example skills for each tab
         self.skills_tab1 = [
@@ -55,7 +55,7 @@ class UpgradeWindow(Screen):
             {'name': 'Skill B5', 'pos': (0.5, 0.8), 'info': 'This is Skill B5', "Upgraded": False},
             "Sniper Tower",
         ]
-        skills_tab3 = [
+        self.skills_tab3 = [
             {'name': 'Skill C1', 'pos': (0.4, 0.4), 'info': 'This is Skill C1', "Upgraded": False},
             {'name': 'Skill C2', 'pos': (0.6, 0.4), 'info': 'This is Skill C2', "Upgraded": False},
             {'name': 'Skill C3', 'pos': (0.4, 0.6), 'info': 'This is Skill C3', "Upgraded": False},
@@ -87,19 +87,9 @@ class UpgradeWindow(Screen):
             parent_layout.add_widget(layout)
         
         # Add skill buttons and lines to each tab
-        create_skill_buttons_and_lines(self.skills_tab1, tab1, layout1)
-        create_skill_buttons_and_lines(self.skills_tab2, tab2, layout2)
-        create_skill_buttons_and_lines(skills_tab3, tab3, layout3)
-        self.show_sniper_selection_window(layout3)
-
-        # Add tabs to the TabbedPanel
-        tabbed_panel.add_widget(tab1)
-        tabbed_panel.add_widget(tab2)
-        tabbed_panel.add_widget(tab3)
-
-        # Add the TabbedPanel to the layout
-        layout.add_widget(tabbed_panel)
-        
+        create_skill_buttons_and_lines(self.skills_tab1, self.tab1, self.layout1)
+        create_skill_buttons_and_lines(self.skills_tab2, self.tab2, self.layout2)
+        create_skill_buttons_and_lines(self.skills_tab3, self.tab3, self.layout3)
 
         # Create a layout for the skill info window
         self.skill_info_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=100, pos_hint={'x': 0.25, 'y': 0})
@@ -113,7 +103,7 @@ class UpgradeWindow(Screen):
         self.skill_info_window.add_widget(Label(text='', size_hint=(0.5, 1)))
         self.upgrade_button = Button(text='Upgrade', size_hint=(0.5, 1))
         self.skill_info_window.add_widget(self.upgrade_button)
-        layout.add_widget(self.skill_info_window)
+        self.layout.add_widget(self.skill_info_window)
         self.skill_info_window.opacity = 0  # Initially hidden
 
         # Add a button to go back to the PlayWindow
@@ -122,7 +112,26 @@ class UpgradeWindow(Screen):
                              size=(200, 100),
                              pos=(self.width / 2 - 100, 50))
         back_button.bind(on_press=self.switch_to_play)
-        layout.add_widget(back_button)
+        self.layout.add_widget(back_button)
+
+        self.tabbed_panel.add_widget(self.tab1)
+        self.tabbed_panel.add_widget(self.tab2)
+        self.show_sniper_selection_window(self.layout2)
+        self.tabbed_panel.add_widget(self.tab3)
+        
+        self.tab3.opacity = 0
+    
+    def on_enter(self):
+        for tower in self.run.tower_instances:
+            if tower.name == 'Sniper Tower':
+                self.sniper_tower = tower
+        
+        if self.sniper_tower and self.sniper_tower.targeted_enemey:
+                self.sniper_selection_window.opacity = 1
+
+        # Add the TabbedPanel to the layout
+        self.layout.add_widget(self.tabbed_panel)
+        
     
     # Method to update the border
     def update_border(self, *args):
@@ -136,6 +145,7 @@ class UpgradeWindow(Screen):
         self.upgrade_button.bind(on_press=lambda button, tower=tower, skill=skill: self.upgrade(button, tower, skill))
         self.skill_info_window.children[1].text = instance.skill_info
         self.skill_info_window.opacity = 1  # Show the skill info window
+        print("skille info window should show")
 
         if skill['Upgraded']:
             self.upgrade_button.text = 'Upgraded'
@@ -145,30 +155,39 @@ class UpgradeWindow(Screen):
             self.upgrade_button.disabled = False
     
     def show_sniper_selection_window(self, layout):
+        self.sniper_selection_buttons = []
+
         self.sniper_selection_window = BoxLayout(orientation='horizontal', spacing=(20), size_hint=(1.0, None), height=50, pos_hint={'x': 0, 'y': 0.91}, padding=10)
         self.basic_enemy_button = Button(text='Basic\nEnemy', size_hint=(None, None), size=(60, 50))
         self.basic_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Basic Enemy'))
+        self.sniper_selection_buttons.append(self.basic_enemy_button)
+
         self.fast_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50))
         self.fast_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
-        self.armor_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50))
-        self.armor_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
+        self.sniper_selection_buttons.append(self.fast_enemy_button)
+
+        self.armor_enemy_button = Button(text='Armour\nEnemy', size_hint=(None, None), size=(60, 50))
+        self.armor_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Armour Enemy'))
+        self.sniper_selection_buttons.append(self.armor_enemy_button)
     
         self.sniper_selection_window.add_widget(self.basic_enemy_button)
         self.sniper_selection_window.add_widget(self.fast_enemy_button)
         self.sniper_selection_window.add_widget(self.armor_enemy_button)
         
-    
         layout.add_widget(self.sniper_selection_window)
+        self.sniper_selection_window.opacity = 0
     
     def change_color(self, button, enemy_name):
         if button.color == (1, 0, 0, 1):
             button.color = (1, 1, 1, 1)
-        if enemy_name == 'Basic Enemy':
-            self.basic_enemy_button.color = (1, 0, 0, 1)
-            self.fast_enemy_button.color = (1, 1, 1, 1)
-        elif enemy_name == 'Fast Enemy':
-            self.basic_enemy_button.color = (1, 1, 1, 1)
-            self.fast_enemy_button.color = (1, 0, 0, 1)
+        elif button.color == (1, 1, 1, 1):
+            button.color = (1, 0, 0, 1)
+            return
+        
+        self.sniper_tower.choose_targeted(enemy_name)
+        for enemy_button in self.sniper_selection_buttons:
+            if enemy_button != button:
+                enemy_button.color = (1, 0, 0, 1)
     
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:

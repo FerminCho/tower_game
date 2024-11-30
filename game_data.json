@@ -139,7 +139,7 @@
         },
         {
             "name": "Sniper Tower",
-            "price": 20,
+            "price": 0,
             "times_bought": 0,
             "max_times_bought": 1
         }

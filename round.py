@@ -33,6 +33,7 @@ class run(EventDispatcher):
         self.game_data = GameData()
         self.existing_run = self.game_data.get_existing_run()['saved']
         self.towers = self.game_data.get_all_towers()
+        self.tower_instances = []
     
     def start_run(self):
         if self.existing_run:
@@ -48,7 +49,6 @@ class run(EventDispatcher):
         self.skill_points = data['skill_points']
         self.energy = data['energy']
         self.hp = data['hp']
-        self.tower_instances = []
         self.towers = self.game_data.get_all_towers()
         self.unlocked_towers = self.game_data.get_unlocked_towers()
         self.energy_buttons = self.play_window.get_energy_buttons()
@@ -97,7 +97,6 @@ class run(EventDispatcher):
         self.unlocked_towers = self.game_data.get_unlocked_towers()
         self.energy_buttons = self.play_window.get_energy_buttons()
         self.upgrade_window.reset_upgrades()
-        self.tower_instances = []
 
         for tower in self.towers:
             for tower_name in self.unlocked_towers:
