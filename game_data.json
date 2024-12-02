@@ -57,6 +57,7 @@
 
     "unlocked_towers": [
             "Basic Tower",
+            "Sniper Tower",
             "Burst Tower"
     ],
 
@@ -190,10 +191,10 @@
         },
         {
             "round":6,
-            "normal_enemies": 5,
-            "fast_enemies": 0,
+            "normal_enemies": 1,
+            "fast_enemies": 1,
             "armor_enemies": 0,
-            "boss": "Boss 3"
+            "boss": "None"
         }
 
     ],

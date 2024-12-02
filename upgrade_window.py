@@ -26,11 +26,11 @@ class UpgradeWindow(Screen):
         self.tabbed_panel = TabbedPanel(do_default_tab=False)
 
         # Create tabs
-        self.tab1 = TabbedPanelItem(text='Tab 1')
+        self.tab1 = TabbedPanelItem(text='Basic Tower')
         self.layout1 = FloatLayout()
-        self.tab2 = TabbedPanelItem(text='Tab 2')
+        self.tab2 = TabbedPanelItem(text='Sniper Tower')
         self.layout2 = FloatLayout()
-        self.tab3 = TabbedPanelItem(text='Tab 3')
+        self.tab3 = TabbedPanelItem(text='Cannon Tower')
         self.layout3 = FloatLayout()
 
         skill_point_label1 = self.play_window.create_resource_label('Skill Points: ', 'skill_points', (10, Window.height * 0.90), (1, 1, 1, 1))
@@ -95,8 +95,8 @@ class UpgradeWindow(Screen):
         self.tabbed_panel.add_widget(self.tab2)
         self.show_sniper_selection_window(self.layout2)
         self.tabbed_panel.add_widget(self.tab3)
-        
-        self.tab3.opacity = 0
+
+        self.layout.add_widget(self.tabbed_panel)
 
         # Create a layout for the skill info window
         self.skill_info_window = BoxLayout(orientation='horizontal', size_hint=(0.5, None), height=100, pos_hint={'x': 0.25, 'y': 0})
@@ -112,6 +112,7 @@ class UpgradeWindow(Screen):
         self.skill_info_window.add_widget(self.upgrade_button)
         self.layout.add_widget(self.skill_info_window)
         self.skill_info_window.opacity = 0  # Initially hidden
+        self.skill_info_window.disabled = True
 
         # Add a button to go back to the PlayWindow
         back_button = Button(text="Back",
@@ -126,11 +127,19 @@ class UpgradeWindow(Screen):
             if tower.name == 'Sniper Tower':
                 self.sniper_tower = tower
         
-        if self.sniper_tower and self.sniper_tower.targeted_enemey:
+        if self.sniper_tower and self.sniper_tower.ultimate_unlocked:
                 self.sniper_selection_window.opacity = 1
-
-        # Add the TabbedPanel to the layout
-        self.layout.add_widget(self.tabbed_panel)
+                self.sniper_selection_window.disabled = False
+            
+        if self.skills_tab1[-1] not in self.game_data.get_unlocked_towers():
+            self.tab1.opacity = 0
+            self.tab1.disabled = True
+        if self.skills_tab2[-1] not in self.game_data.get_unlocked_towers():
+            self.tab2.opacity = 0
+            self.tab2.disabled = True
+        if self.skills_tab3[-1] not in self.game_data.get_unlocked_towers():
+            self.tab3.opacity = 0
+            self.tab3.disabled = True
         
     
     # Method to update the border
@@ -145,7 +154,7 @@ class UpgradeWindow(Screen):
         self.upgrade_button.bind(on_press=lambda button, tower=tower, skill=skill: self.upgrade(button, tower, skill))
         self.skill_info_window.children[1].text = instance.skill_info
         self.skill_info_window.opacity = 1  # Show the skill info window
-        print("skille info window should show")
+        self.skill_info_window.disabled = False
 
         if skill['Upgraded']:
             self.upgrade_button.text = 'Upgraded'
@@ -176,6 +185,7 @@ class UpgradeWindow(Screen):
         
         layout.add_widget(self.sniper_selection_window)
         self.sniper_selection_window.opacity = 0
+        self.sniper_selection_window.disabled = True
     
     def change_color(self, button, enemy_name):
         if button.color == (1, 0, 0, 1):
@@ -184,7 +194,7 @@ class UpgradeWindow(Screen):
             button.color = (1, 0, 0, 1)
             return
         
-        self.sniper_tower.choose_targeted(enemy_name)
+        self.sniper_tower.choose_targeted_enemy(enemy_name)
         for enemy_button in self.sniper_selection_buttons:
             if enemy_button != button:
                 enemy_button.color = (1, 0, 0, 1)
@@ -201,26 +211,77 @@ class UpgradeWindow(Screen):
                     skill['Upgraded'] = True
                     self.upgrade_button.text = 'Upgraded'
                     self.upgrade_button.disabled = True
-                    for skill_button in self.skill_buttons:
-                        if skill_button.text == "Skill A1":
-                            skill_button.color = (1, 0, 0, 1)
+                    button.color = (1, 0, 0, 1)
                 case "Skill A2":
                     tower.fire_rate += 1
                     self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
                 case "Skill A3":
                     tower.damage += 1
                     self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
                 case "Skill A4":
                     tower.fire_rate += 1
                     self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
                 case "Skill A5":
                     if self.run.skill_points <= 2:
                         return
                     tower.damage += 1
                     self.run.skill_points -= 2
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
 
         elif tower.name == "Sniper Tower":
-            pass
+            match skill['name']:
+                case "Skill B1":
+                    tower.base_damage += 1
+                    self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
+                case "Skill B2":
+                    tower.fire_rate += 1
+                    self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
+                case "Skill B3":
+                    tower.damage += 1
+                    self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
+                case "Skill B4":
+                    tower.fire_rate += 1
+                    self.run.skill_points -= 1
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
+                case "Skill B5":
+                    if self.run.skill_points <= 2:
+                        return
+                    tower.ulimtate_unlocked = True
+                    self.run.skill_points -= 2
+                    skill['Upgraded'] = True
+                    self.upgrade_button.text = 'Upgraded'
+                    self.upgrade_button.disabled = True
+                    button.color = (1, 0, 0, 1)
 
         elif tower.name == "Burst Tower":
             match skill['name']:

@@ -5,11 +5,12 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Rectangle, Color, Line
 from kivy.clock import Clock
 from kivy.animation import Animation
+from kivy.uix.label import Label
 import random
 import math
 
 class Enemy(Widget):
-    def __init__(self, **kwargs):
+    def __init__(self, name, **kwargs):
         super().__init__(**kwargs)
         self.hp = 2
         self.damage = 1
@@ -22,7 +23,7 @@ class Enemy(Widget):
         self.shielded = False
         self.shield_hp = 0
         self.shield = None
-        self.name = "Basic Enemy"
+        self.name = name
 
         self.rect_size = (25, 25)  # Size of the rectangle
         self.pos = (random.randint(0, Window.width - self.size[0]), Window.height)
@@ -31,6 +32,17 @@ class Enemy(Widget):
         with self.canvas:
             Color(0, 1, 0, 1)  # Set the color to green
             self.rect = Rectangle(pos=self.pos, size=self.rect_size)
+
+        # Create a label to display text
+        self.label = Label(text=self.name, size_hint=(None, None), size=self.rect_size, pos=self.pos, color=(1, 1, 1, 1))
+        self.add_widget(self.label)
+
+        # Bind the position and size of the label to the rectangle
+        self.bind(pos=self.update_label, size=self.update_label)
+
+    def update_label(self, *args):
+        self.label.pos = self.pos
+        self.label.size = self.rect_size
 
     def update(self, dt):
         if self.captured:
@@ -143,5 +155,5 @@ class ArmourEnemy(Enemy):
 class FastEnemy(Enemy):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.speed = 400
+        self.speed = 200
         self.name = "Fast Enemy"

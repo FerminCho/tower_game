@@ -1,5 +1,5 @@
 from game_data import GameData
-from tower import Tower, burst_fire_tower
+from tower import Tower, burst_fire_tower, Sniper_tower
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -98,18 +98,9 @@ class run(EventDispatcher):
         self.energy_buttons = self.play_window.get_energy_buttons()
         self.upgrade_window.reset_upgrades()
 
-        for tower in self.towers:
-            for tower_name in self.unlocked_towers:
-                if tower['name'] == tower_name and tower['name'] != "Burst Tower":
-                    full_tower = Tower(fire_rate=tower['fire_rate'], 
-                                       damage=tower['damage'], 
-                                       level=0, 
-                                       name=tower['name'], 
-                                       bullet_size=tower['size'], 
-                                       tower_pos=None, 
-                                       castle_pos=self.castle.rect_pos)
-                    self.tower_instances.append(full_tower)
-                elif tower['name'] == 'Burst Tower':
+        for tower_name in self.unlocked_towers:
+            for tower in self.towers:
+                if tower['name'] == 'Burst Tower' and tower_name == 'Burst Tower':
                     full_tower = burst_fire_tower(fire_rate=tower['fire_rate'], 
                                        damage=tower['damage'], 
                                        level=0, 
@@ -119,6 +110,24 @@ class run(EventDispatcher):
                                        castle_pos=self.castle.rect_pos,
                                        base_burst_bullets=tower['base_burst_bullets'],
                                        extra_burst_bullets=tower['extra_burst_bullets'])
+                    self.tower_instances.append(full_tower)
+                elif tower['name'] == "Sniper Tower" and tower_name == "Sniper Tower":
+                    full_tower = Sniper_tower(fire_rate=tower['fire_rate'], 
+                                       damage=tower['damage'], 
+                                       level=0, 
+                                       name=tower['name'], 
+                                       bullet_size=tower['size'], 
+                                       tower_pos=None, 
+                                       castle_pos=self.castle.rect_pos,)
+                    self.tower_instances.append(full_tower)
+                elif tower['name'] == tower_name and tower['name'] != "Burst Tower":
+                    full_tower = Tower(fire_rate=tower['fire_rate'], 
+                                       damage=tower['damage'], 
+                                       level=0, 
+                                       name=tower['name'], 
+                                       bullet_size=tower['size'], 
+                                       tower_pos=None, 
+                                       castle_pos=self.castle.rect_pos)
                     self.tower_instances.append(full_tower)
         
         for entry in self.game_data.get_shop_entries():
@@ -148,11 +157,11 @@ class Round():
                 current_round_enemies = entry
                 break
         for i in range (current_round_enemies['normal_enemies']):
-            self.round_enemies.append(Enemy())
+            self.round_enemies.append(Enemy("Basic Enemy"))
         for i in range (current_round_enemies['fast_enemies']):
-            self.round_enemies.append(FastEnemy())
+            self.round_enemies.append(Enemy("Fast Enemy"))
         for i in range (current_round_enemies['armor_enemies']):
-            self.round_enemies.append(ArmourEnemy())
+            self.round_enemies.append(Enemy("Armour Enemy"))
         random.shuffle(self.round_enemies)
 
         if current_round_enemies['boss'] != "None":
@@ -175,7 +184,7 @@ class Round():
             button[0].size = (0, 0)
             button[0].size_hint = (None, None)
         self.schedule_events.append(Clock.schedule_interval(self.update, 1/60))
-        self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 3))
+        self.schedule_events.append(Clock.schedule_interval(self.spawn_enemy, 1))
         
         for tower in self.towers:
             if tower[1]:
@@ -189,7 +198,7 @@ class Round():
         for tower in self.towers:
             if tower[1]:
                 Clock.unschedule(self.fire_bullet(dt, tower[1]))
-            if tower[1].name == "Burst Tower":
+            if tower[1] and tower[1].name == "Burst Tower":
                 tower[1].ultimate_used = False
 
         for enemy in self.screen_enemies:

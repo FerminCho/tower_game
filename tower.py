@@ -116,20 +116,18 @@ class burst_fire_tower(Tower):
             self.schedule_event.cancel()
             self.schedule_event = None
 
-class sniper_tower(Tower):
+class Sniper_tower(Tower):
     def __init__(self, fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs):
         super().__init__(fire_rate, damage, level, name, bullet_size, tower_pos, castle_pos, **kwargs)
-        self.ultiate_unlocked = False
+        self.ultimate_unlocked = True
         self.targeted_enemy = None
     
     def choose_targeted_enemy(self, enemy_name):
-        match enemy_name:
-            case "FastEnemy":
-                self.targeted_enemy = "FastEnemy"
+        self.targeted_enemy = enemy_name
 
     def create_bullet(self, enemies):
         bullet_pos = (self.tower_pos[0] + self.rect_size[0] / 2, self.rect_size[1] / 2 + self.tower_pos[1])
-        if self.ultiate_unlocked and self.targeted_enemy:
+        if self.ultimate_unlocked and self.targeted_enemy:
             bullet = SniperBullet(enemies=enemies, 
                                     damage=self.damage, 
                                     fire_rate=self.fire_rate, 
