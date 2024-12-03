@@ -77,7 +77,6 @@ class Castle(Widget):
 
         unlocked_towers = self.game_data.get_unlocked_towers()
         all_towers = self.run.tower_instances
-        print(all_towers)
 
         for full_tower in all_towers:
             for tower in unlocked_towers:

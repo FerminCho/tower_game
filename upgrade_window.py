@@ -167,15 +167,15 @@ class UpgradeWindow(Screen):
         self.sniper_selection_buttons = []
 
         self.sniper_selection_window = BoxLayout(orientation='horizontal', spacing=(20), size_hint=(1.0, None), height=50, pos_hint={'x': 0, 'y': 0.91}, padding=10)
-        self.basic_enemy_button = Button(text='Basic\nEnemy', size_hint=(None, None), size=(60, 50))
+        self.basic_enemy_button = Button(text='Basic\nEnemy', size_hint=(None, None), size=(60, 50), background_color=(1, 1, 1, 1))
         self.basic_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Basic Enemy'))
         self.sniper_selection_buttons.append(self.basic_enemy_button)
 
-        self.fast_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50))
+        self.fast_enemy_button = Button(text='Fast\nEnemy', size_hint=(None, None), size=(60, 50), background_color=(1, 1, 1, 1))
         self.fast_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Fast Enemy'))
         self.sniper_selection_buttons.append(self.fast_enemy_button)
 
-        self.armor_enemy_button = Button(text='Armour\nEnemy', size_hint=(None, None), size=(60, 50))
+        self.armor_enemy_button = Button(text='Armour\nEnemy', size_hint=(None, None), size=(60, 50), background_color=(1, 1, 1, 1))
         self.armor_enemy_button.bind(on_press=lambda button: self.change_color(button, 'Armour Enemy'))
         self.sniper_selection_buttons.append(self.armor_enemy_button)
     
@@ -188,16 +188,19 @@ class UpgradeWindow(Screen):
         self.sniper_selection_window.disabled = True
     
     def change_color(self, button, enemy_name):
-        if button.color == (1, 0, 0, 1):
-            button.color = (1, 1, 1, 1)
-        elif button.color == (1, 1, 1, 1):
-            button.color = (1, 0, 0, 1)
+        if self.colors_are_close(button.background_color, (1, 1, 1, 1)):
+            button.background_color = (1, 0, 0, 1)
+        elif self.colors_are_close(button.background_color, (1, 0, 0, 1)):
+            button.background_color = (1, 1, 1, 1)
             return
         
         self.sniper_tower.choose_targeted_enemy(enemy_name)
         for enemy_button in self.sniper_selection_buttons:
             if enemy_button != button:
-                enemy_button.color = (1, 0, 0, 1)
+                enemy_button.background_color = (1, 1, 1, 1)
+    
+    def colors_are_close(self, color1, color2, tolerance=0.01):
+        return all(abs(a - b) < tolerance for a, b in zip(color1, color2))
     
     def upgrade(self, button, tower, skill):
         if self.run.skill_points == 0:
