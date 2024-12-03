@@ -13,13 +13,14 @@ from kivy.properties import NumericProperty
 
 class HomeWindow(Screen):
     perma_coins = NumericProperty(0)
-    def __init__(self, **kwargs):
+    def __init__(self, run, **kwargs):
         super().__init__(**kwargs)
         self.extra_coins = 0
         self.extra_skill_points = 0
         self.extra_energy = 0
         self.extra_hp = 0
         buttons = []
+        self.run = run
         self.game_data = GameData()
 
         button_layout = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
@@ -59,6 +60,7 @@ class HomeWindow(Screen):
         self.add_widget(top_layout)
 
     def switch_to_play(self, instance):
+        self.run.start_run()
         self.manager.current = 'Play'
 
     def switch_to_perma_shop(self, instance):
@@ -106,11 +108,7 @@ class PermanentShop(Screen):
         back_button.bind(on_release=self.go_back)
         self.layout.add_widget(back_button)
 
-        self.perma_coins_label = Label(text=f'Perma Coins: {self.perma_coins}', 
-                                       pos=(Window.width * 0.04, Window.height * 0.89), 
-                                       size_hint=(None, None),
-                                       font_size=Window.width * 0.025, 
-                                       color=(1, 1, 1, 1))
+        self.perma_coins_label = self.create_resource_label('Perma Coins: ', 'perma_coins', (Window.width * 0.04, Window.height * 0.89), (1, 1, 1, 1))
         self.layout.add_widget(self.perma_coins_label)
 
         self.add_widget(self.layout)
@@ -119,8 +117,6 @@ class PermanentShop(Screen):
     def on_enter(self):
         self.home = self.manager.get_screen('Home')
         self.perma_coins = self.home.perma_coins
-        self.bind(perma_coins=self.update_home_perma_coins)
-        self.home.bind(perma_coins=self.update_perma_coins)
         
     def update_home_perma_coins(self, instance, value):
         self.home.perma_coins = value
@@ -136,7 +132,7 @@ class PermanentShop(Screen):
         if self.perma_coins < price:
             return
         else:
-            self.perma_coins -= price
+            self.home.perma_coins -= price
 
         match entry['name']:
             case "+1 Permanent Energy":
@@ -173,16 +169,13 @@ class PermanentShop(Screen):
                 }
 
         self.game_data.save_perma_data(data)
-        
-
     
-class MyApp(App):
-    def build(self):
-        sm = ScreenManager()
-        sm.add_widget(HomeWindow(name='Home'))
-        sm.add_widget(PermanentShop(name='Shop'))
-        return sm
-
-if __name__ == '__main__':
-    MyApp().run()
-
+    def create_resource_label(self, prefix, property_name, pos, color):
+        label = Label(text=prefix + str(getattr(self, property_name)),
+                      size_hint=(None, None),
+                      font_size=Window.width * 0.025,
+                      pos=pos,
+                      color=color)
+        label.bind(texture_size=lambda instance, value: instance.setter('size')(instance, value))
+        self.bind(**{property_name: lambda instance, value: label.setter('text')(label, prefix + str(value))})
+        return label

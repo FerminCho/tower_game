@@ -3,23 +3,32 @@
         {
             "name": "Basic Tower",
             "level": 0,
-            "fire_rate": 1,
-            "damage": 2,
+            "fire_rate": 2,
+            "damage": 1,
             "size": 10
         },
         {
             "name": "Sniper Tower",
             "level": 0,
-            "fire_rate": 0.5,
+            "fire_rate": 2.5,
             "damage": 4,
             "size": 20
         },
         {
             "name": "Machine Gun Tower",
             "level": 0,
-            "fire_rate": 2,
+            "fire_rate": 1,
             "damage": 1,
             "size": 10
+        },
+        {
+            "name": "Burst Tower",
+            "level": 0,
+            "fire_rate": 0.5,
+            "damage": 1,
+            "size": 10,
+            "base_burst_bullets": 3,
+            "extra_burst_bullets": 0
         }
     ],
     
@@ -28,6 +37,8 @@
     },
 
     "latest_run": {
+        "coinds": 0,
+        "perma_coins": 0,
         "round": 0,
         "energy": 0,
         "hp": 10,
@@ -45,7 +56,9 @@
     },
 
     "unlocked_towers": [
-            "Basic Tower"
+            "Basic Tower",
+            "Sniper Tower",
+            "Burst Tower"
     ],
 
     "selected_towers": [
@@ -127,7 +140,7 @@
         },
         {
             "name": "Sniper Tower",
-            "price": 20,
+            "price": 0,
             "times_bought": 0,
             "max_times_bought": 1
         }
@@ -175,6 +188,13 @@
             "fast_enemies": 0,
             "armor_enemies": 2,
             "boss": "Boss 1"
+        },
+        {
+            "round":6,
+            "normal_enemies": 1,
+            "fast_enemies": 1,
+            "armor_enemies": 0,
+            "boss": "None"
         }
 
     ],

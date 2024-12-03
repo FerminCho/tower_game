@@ -27,14 +27,16 @@ import random
 import math
 
 class PlayWindow(Screen):
-    def __init__(self, home, **kwargs):
+    def __init__(self, home_window, run, **kwargs):
         super().__init__(**kwargs)
         self.main_buttons = []
-        self.run = run(home=home)
+        self.energy_buttons = []
+        self.run = run
+        self.home_window = home_window
         self.shop = shop(run=self.run, castle=self.run.castle)
-        self.energy_layout()
         self.add_widget(self.run.castle)
         self.add_widget(self.run.castle.tower_layout)
+        self.energy_layout()
         self.resource_layout()
 
         run_buttons = BoxLayout(orientation='horizontal', size_hint=(None, None), size=(Window.width, 100), pos=(0, 0))
@@ -64,9 +66,6 @@ class PlayWindow(Screen):
         self.add_widget(run_buttons)
         self.round = Round(main_buttons=self.main_buttons, castle=self.run.castle, layout=self, run=self.run)
 
-    def on_enter(self):
-        self.manager.get_screen('Upgrade').run = self.run
-
     def switch_to_upgrade(self, instance):
         self.manager.current = 'Upgrade'
 
@@ -74,7 +73,6 @@ class PlayWindow(Screen):
         Clock.schedule_once(self.round.start, 0.01)
 
     def energy_layout(self):
-        self.energy_buttons = []
         button_size = (40, 40)
         self.energy_state = 'add'
         layout_big = BoxLayout(
@@ -110,7 +108,6 @@ class PlayWindow(Screen):
             
             self.energy_button.bind(pos=self.energy_button.update_rectangles)
             layout_big.add_widget(self.energy_button)
-        self.run.energy_buttons = self.energy_buttons
         self.add_widget(layout_big)
 
         toggle_button_size = (100, 50)
@@ -120,6 +117,9 @@ class PlayWindow(Screen):
                                      pos=(Window.width - toggle_button_size[0], 0))
         toggle_button.bind(on_press=self.on_toggle)
         self.add_widget(toggle_button)
+    
+    def get_energy_buttons(self):
+        return self.energy_buttons
     
     def on_toggle(self, instance):
         if instance.state == 'down':
@@ -206,16 +206,23 @@ class BorderButton(Button):
      
 class MyApp(App):
     def build(self):
-        home = HomeWindow(name='Home')
-        play_window = PlayWindow(name='Play', home=home)
+        self.run = run()
+
+        home_window = HomeWindow(name='Home', run=self.run)
+        play_window = PlayWindow(name='Play', home_window=home_window, run=self.run)
+        permanent_shop = PermanentShop(name='Shop')
+        upgrade_window = UpgradeWindow(name='Upgrade', play_window=play_window, run=self.run)
+
+        self.run.play_window = play_window
+        self.run.home = home_window
+        self.run.upgrade_window = upgrade_window
 
         sm = ScreenManager()
-        sm.add_widget(home)
-        sm.add_widget(PermanentShop(name='Shop'))
-        sm.add_widget(UpgradeWindow(name = 'Upgrade', play_window=play_window))
+        sm.add_widget(home_window)
+        sm.add_widget(permanent_shop)
+        sm.add_widget(upgrade_window)
         sm.add_widget(play_window)
         return sm
-        #return MyGame()
 
 if __name__ == '__main__':
     MyApp().run()
