@@ -191,10 +191,10 @@
         },
         {
             "round":6,
-            "normal_enemies": 1,
-            "fast_enemies": 1,
+            "normal_enemies": 5,
+            "fast_enemies": 0,
             "armor_enemies": 0,
-            "boss": "None"
+            "boss": "Boss 2"
         }
 
     ],
